@@ -1,6 +1,6 @@
 # Personal Hub · 个人信息管理台
 
-一个本地优先的个人信息 + 账号密码管理网页。当前为 **P5 全功能版**：P2 加密 + P3 可选云同步 + P4 安卓 APP + 每日计划/工作备忘录/个人资料库（P5）。
+一个本地优先的个人信息 + 账号密码管理网页。当前为 **P6 全功能版**：P2 加密 + P3 可选云同步 + P4 安卓 APP + P5 每日计划（周计划/长期计划/精力管理）/工作备忘录/个人资料库 + P6 AI 工作台（五 agent）+ Agent 资源库。三端同构：**Web / Windows 桌面（Tauri 2）/ Android（Capacitor 8）**。
 
 ## 技术栈
 
@@ -9,7 +9,9 @@
 - 样式：Tailwind CSS v4（通过 `@tailwindcss/vite` 插件，无 tailwind.config）
 - 图标：@lucide/vue
 - 加密：hash-wasm（Argon2id WASM）+ WebCrypto（AES-256-GCM）
-- 预览：pdfjs-dist（PDF 分页渲染，安卓 WebView 唯一可行方案）、docx-preview、xlsx(SheetJS)——全部动态 import 独立分包，主包零增量
+- 预览：pdfjs-dist（PDF 分页渲染，安卓 WebView 唯一可行方案）、docx-preview、xlsx(SheetJS 0.20.x，官方 CDN 版)——全部动态 import 独立分包，主包零增量
+- 桌面：Tauri 2（`@tauri-apps/api` + notification/opener 插件；`lib/desktop.ts` 适配通知点击唤窗、外链打开，`isTauriDesktop()` 区分运行环境）
+- 测试：Vitest（`npm run test`），覆盖 crypto/totp（RFC 官方向量）
 
 ## 常用命令
 
@@ -17,7 +19,9 @@
 npm run dev        # 启动开发服务器（默认 http://localhost:5173）
 npm run build      # 类型检查 + 打包到 dist/
 npm run typecheck  # 仅类型检查
+npm run test       # Vitest 单元测试（crypto/totp）
 npm run preview    # 预览构建产物
+npm run desktop:dev / desktop:build   # Tauri 桌面端开发 / 出 NSIS 安装包
 ```
 
 ## 目录结构
@@ -36,42 +40,62 @@ src/
 │   ├── reminders.ts      # 提醒引擎：Web 30s 扫描通知 + 安卓原生闹钟调度/重排
 │   ├── totp.ts           # TOTP 动态验证码（RFC 6238，纯 WebCrypto，经 RFC 官方向量验证）
 │   ├── aiopencode.ts     # opencode serve HTTP 客户端（AI 工作台：双通道调度/流式/TODO/文件/模型/审批/分享/派发）
+│   ├── github.ts         # GitHub REST 客户端（仓库/Issue 抓取，PAT 加密存储）
+│   ├── quickparse.ts     # 快捷输入自然语言解析（日期/时间/标签/优先级）
+│   ├── desktop.ts        # Tauri 桌面适配：通知点击唤窗、外链 opener、isTauriDesktop 判定
+│   ├── wallpaper.ts / wallpaperdb.ts  # 背景壁纸：6 内置 + 自定义上传（IndexedDB xk-wallpaper）
 │   ├── backup.ts         # 加密备份导出/导入（.phub 文件，含信封+附件密文，支持跨主密码恢复）
 │   ├── biometric.ts      # 指纹解锁：Keystore 硬件保护凭据（@capgo/capacitor-native-biometric）
 │   ├── sync.ts           # PocketBase REST 客户端 + 时间戳 LWW 同步引擎 + 自动推送调度
-│   └── toast.ts          # 轻量 toast + copyText 复制工具
+│   ├── toast.ts          # 轻量 toast + copyText 复制工具
+│   └── __tests__/        # Vitest：crypto.test.ts / totp.test.ts（RFC 6238 官方向量）
 ├── stores/
 │   ├── profile.ts        # 个人资料（纯内存 reactive，持久化由 database 负责）
 │   ├── vault.ts          # 密码条目内存状态与 CRUD；含 seedEntries 示例数据
 │   ├── tasks.ts          # 每日计划：智能快捷输入解析(parseQuickInput)、标签/子任务、重复滚动
+│   ├── planning.ts       # 规划系统：周计划(每周 N 次×偏好星期自动排期)→长期计划(月/季/年/愿望)→每日精力(gentle/steady/focused)
+│   ├── agentResources.ts # Agent 资源库：skill/mcp/plugin 台账（GitHub 元数据抓取、MCP 传输/能力标注、自定义分类体系）
+│   ├── theme.ts          # 主题：外观模式/色调/壁纸，驱动 <html data-theme/data-accent>
 │   ├── memos.ts          # 工作备忘录便签（六色卡片、置顶）
 │   ├── repos.ts          # GitHub 项目收藏：CRUD + API 元数据抓取 + 语言配色 + 分类常量
 │   ├── docs.ts           # 资料库：元数据进信封同步；文件本体加密存 IndexedDB（≤50MB）
-│   ├── database.ts       # 加密数据库层：信封读写(含 tasks/memos/docMetas/repos)、水合/持久化、保存事件广播
+│   ├── database.ts       # 加密数据库层：信封读写(tasks/weeklyPlans/longPlans/planner/agentResources/memos/docMetas/repos)、水合/持久化、保存事件广播
 │   └── lock.ts           # 锁定状态机：fresh/legacy/encrypted 三态、解锁/设置/改密、自动锁定
 ├── components/
 │   ├── ModalShell.vue    # 通用弹窗外壳（遮罩+面板+过渡+ESC 关闭）
+│   ├── PageHeader.vue    # 页头（标题/描述/主操作），各视图共用
+│   ├── AppDatePicker.vue / AppSelect.vue / PasswordInput.vue  # 基础表单控件（日期、下拉、密码显隐）
+│   ├── CardActionMenu.vue # 卡片右上角操作菜单（置顶/编辑/删除）
 │   ├── LockScreen.vue    # 锁屏：首次创建主密码 / 解锁 / 忘记密码重置
-│   ├── SettingsModal.vue # 设置：自动锁定、修改主密码、云同步配置与管理
+│   ├── SettingsModal.vue # 设置：外观、安全、备份、云同步、关于（分区见 settings/）
 │   ├── ProfileModal.vue  # 编辑个人资料表单
 │   ├── EntryModal.vue    # 新增/编辑账号表单（含密码生成器、强度条）
-│       ├── TaskRow.vue       # 任务行（子任务展开/进度/标签/勾选/派发AI），四视图共用
+│   ├── TaskRow.vue       # 任务行（子任务展开/进度/标签/勾选/派发AI），四视图共用
 │   ├── TaskModal.vue     # 新增/编辑任务（日期时间/优先级/重复/标签/子任务；设时间时申请通知权限）
+│   ├── WeeklyPlanModal.vue      # 新增/编辑周计划（标题/次数/偏好星期/关联长期计划）
+│   ├── WeekSchedulePreviewModal.vue # 周排期预览：按精力与偏好星期生成任务，可逐条调整
+│   ├── LongPlanModal.vue # 新增/编辑长期计划（领域/期限/目标日/下一步）
+│   ├── OverdueTaskQueueModal.vue # 逾期任务队列：批量顺延到今日
+│   ├── GentlePauseModal.vue / GentleResetModal.vue # 温和暂停/重置流程
+│   ├── TaskCompletionModal.vue   # 任务完成庆祝
+│   ├── TaskDeleteModal.vue / PlanDeleteModal.vue # 删除确认（含关联任务提示）
+│   ├── AgentResourceModal.vue / AgentResourceDeleteModal.vue # Agent 资源新增/编辑/删除
+│   ├── PiProjectModal.vue # pi agent 项目配置
 │   ├── MemoModal.vue     # 新增/编辑便签（颜色选择、置顶）
 │   ├── RepoModal.vue     # 收藏 GitHub 项目（粘贴链接自动抓取元数据，失败降级手动）
 │   ├── AiConfigModal.vue # AI 工作台连接配置：多配置档案（五 agent/双通道/bridge 凭据，另存/删除/快速切换）
 │   ├── DocThumb.vue      # 图片文件缩略图（懒解密 + 卸载回收 objectURL）
 │   ├── DocPreviewModal.vue # 资料预览：图片缩放旋转平移/PDF分页/docx/表格/文本/音视频
 │   ├── EditDocModal.vue  # 编辑资料元信息（名称/分类/标签/备注/置顶）
-│   ├── settings/         # 设置弹窗分区组件：SecuritySection / BackupSection / SyncSection / AboutSection
+│   ├── settings/         # 设置弹窗分区：SecuritySection / BackupSection / SyncSection / AppearanceSection / AboutSection
 │   └── ToastHost.vue     # 全局提示渲染
 └── views/
     ├── DashboardView.vue # 总览页：问候语、资料卡、统计(含今日任务/下一提醒倒计时)、最近更新
     ├── TodayView.vue     # 每日计划：四视图(今天/本周/全部/已完成)、智能快捷输入(自然语言+标签)、子任务、搜索/标签筛选
     ├── MemosView.vue     # 备忘录：瀑布流便签墙、#标签筛选、[ ]清单勾选、一键转任务、搜索、字数统计
     ├── ReposView.vue     # 项目收藏 + 我的项目：GitHub 关键词搜索/链接抓取、六分类、连接账号读仓库与 Issue（Token 加密存储）
-    ├── AiView.vue        # AI 工作台：双通道连接 opencode，真流式输出/TODO透视/权限审批(永久允许)/diff/文件浏览/模型与Agent切换/分享/常用指令/任务派发
-    ├── （pi agent 经 bridge/phub-bridge.mjs v2 的 --agent pi 模式接入，协议为 pi --mode rpc JSONL）
+    ├── AiView.vue        # AI 工作台：双通道连接五 agent(opencode/pi/codex/dsh/zcode)，真流式输出/TODO透视/权限审批(永久允许)/diff/文件浏览/模型与Agent切换/分享/常用指令/任务派发
+    ├── AgentLibraryView.vue # Agent 资源库：skill/mcp/plugin 台账，GitHub 链接抓取、kind/分类/agent 多维筛选、MCP 传输与能力标注
     ├── DocsView.vue      # 资料库：上传加密入库、分类检索、批量管理、排序、图片/PDF/docx/xlsx/文本/音视频在线预览、存储用量
     └── VaultView.vue     # 密码库页：搜索(/聚焦)、分类筛选、排序、TOTP 实时动态码、复制/显隐(20s自动隐藏)/收藏/删除
 ```
@@ -98,7 +122,7 @@ src/
 
 | 键 | 内容 |
 | --- | --- |
-| `xk.data.v2` | 加密数据信封 { v, kdf, ts, ivB64, ctB64 }，payload 含 profile/entries/tasks/memos/docMetas/repos |
+| `xk.data.v2` | 加密数据信封 { v, kdf, ts, ivB64, ctB64 }，payload 含 profile/entries/tasks/weeklyPlans/longPlans/planner/agentResources/agentResourceTaxonomy/memos/docMetas/repos |
 | `xk.lock.v2` | 设备本地偏好：密码提示、自动锁定分钟数 |
 | `xk.sync.cfg` / `xk.sync.secure` / `xk.sync.meta` | 同步配置 / 加密的同步密码 / 上次同步信息 |
 | `xk.github.cfg` / `xk.github.secure` | GitHub 连接（用户名 / 主密钥加密的 PAT，用于私有仓库与更高限额） |
@@ -118,7 +142,7 @@ src/
 - 新组件放 `src/components/`，页面放 `src/views/`
 - **UI 必须遵循 `design-system/MASTER.md`**：语义 Token（surface/line/primary/t1–t4/ok/warn/danger 等）定义在 `src/style.css`，经 `@theme inline` 映射运行时变量；禁止引入规范外的颜色、渐变、阴影、圆角
 - **主题系统**：外观模式（dark/light/system）+ 色调（6 预设）+ 背景图片（6 内置/自定义上传，`lib/wallpaper.ts` + IndexedDB `xk-wallpaper`）由 `stores/theme.ts` 驱动 `<html data-theme/data-accent>`；文字一律用 `text-t1~t4`，功能文字用 `text-ok/warn/danger/info`，分类徽章用 `badge badge-*` 语义类——**禁止写死 slate/indigo 等原始色**（彩色底上的 text-white 除外）
-- 表单输入统一使用各组件内 `inputCls` 同款样式的类组合
+- 基础表单控件已沉淀为 `AppDatePicker` / `AppSelect` / `PasswordInput`，新表单优先复用；其余输入沿用各组件内 `inputCls` 同款类组合
 - 改完代码必须跑 `npm run build` 验证
 
 ## 安卓打包（P4 · Capacitor 8）
@@ -142,12 +166,26 @@ cmd /c "cd /d E:\phub\android && gradlew.bat assembleDebug"
 - 通知权限：Manifest 已声明 POST_NOTIFICATIONS + SCHEDULE_EXACT_ALARM + USE_EXACT_ALARM；运行时由 TaskModal 保存带时间任务时触发申请
 - 指纹解锁：设置里验证主密码后，主密码经 `accessControl: BIOMETRY_ANY` 存入 Android Keystore（读取需过 BiometricPrompt）；改主密码时自动同步更新凭据
 - 正式签名包：`gradlew.bat assembleRelease` → `app-release.apk`；签名配置在 `android/keystore.properties`（gitignore），keystore 文件为项目根 `personal-hub.keystore`——**两者都丢失将无法再出同签名更新包**，务必另行备份
+- 版本号：`android/app/build.gradle` 的 versionCode/versionName（当前 1 / "0.1.0"，与 Tauri 0.1.0 对齐），每次发版递增
+
+## 桌面打包（Tauri 2 · Windows）
+
+```bash
+npm run desktop:build   # = vue-tsc + vite build + cargo build + NSIS 打包
+```
+
+- 产物：`src-tauri/target/release/personal-hub-desktop.exe` 与 `bundle/nsis/Personal Hub_<版本>_x64-setup.exe`
+- 配置：`src-tauri/tauri.conf.json`（窗口 1280×820、NSIS target、CSP 已收紧——含 `wasm-unsafe-eval`（hash-wasm）、`ipc: http://ipc.localhost`（Tauri v2 Windows IPC）、`connect-src http/https/ws/wss`（LAN 直连 agent 与 PocketBase）、`img/media/worker blob:`（IndexedDB 解密预览与 pdfjs worker））
+- 插件：notification（桌面通知）、opener（外链安全打开）；`lib/desktop.ts` 统一封装，Web/安卓分支自动降级
+- Rust 依赖走 cargo（`src-tauri/Cargo.toml`，tray-icon 特性已开但当前未配置托盘）
 
 ## 后续路线
 
-1. AI 工作台 P6.3：五 agent 适配器全部完成（opencode/pi/codex/dsh/zcode，bridge v2 多 agent 架构）；剩余安卓审批推送、E2E 加密（详见 docs/AI-WORKBENCH.md）
-2. 正式发布：keystore 已生成，后续版本迭代记得递增 versionCode/versionName
-3. 远期备选：Ctrl+K 全局搜索、备忘录 Markdown、docs 文件本体云同步、日历视图（详见 docs/P5-FEATURES.md）
+1. AI 工作台：五 agent 适配器已完成（opencode/pi/codex/dsh/zcode，bridge v2 多 agent 架构）；剩余安卓审批推送、E2E 加密（详见 docs/AI-WORKBENCH.md）
+2. 远程备份：git 已有首次提交（main 分支），尚未配置远程私有仓库
+3. 正式发布：keystore 已生成，版本迭代记得递增 versionCode/versionName（Android 与 Tauri 两处）
+4. 巨型视图拆分：TodayView(1400+行)/AiView(1100+行) 下次大改前先下沉 composables
+5. 远期备选：Ctrl+K 全局搜索、备忘录 Markdown、docs 文件本体云同步、日历视图（详见 docs/P5-FEATURES.md）
 
 ## opencode Skills
 
