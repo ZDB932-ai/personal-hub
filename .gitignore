@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.npm-cache/
+.skills-tmp/
+.tauri-tmp/
+.visual-qa/
+.visual-qa-edge/
+.android-sdk/
+.gradle-home/
+.jdks/
+personal-hub.keystore
+android/keystore.properties
+bridge/pi-projects.local.json
+*.local
+.DS_Store
