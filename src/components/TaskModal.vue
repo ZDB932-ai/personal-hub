@@ -1,19 +1,23 @@
 <script setup lang="ts">
+import { confirmAction } from '@/lib/confirmAction'
 import { reactive, ref, watch } from 'vue'
 import ModalShell from '@/components/ModalShell.vue'
 import AppSelect from '@/components/AppSelect.vue'
 import AppDatePicker from '@/components/AppDatePicker.vue'
+import TaskLinks from '@/components/TaskLinks.vue'
+import { openHubItem } from '@/stores/hub'
 import { Check, Plus, X } from '@lucide/vue'
 import { addTask, updateTask } from '@/stores/tasks'
 import { ensureNotificationPermission } from '@/lib/reminders'
 import { toast } from '@/lib/toast'
 import { uid } from '@/lib/utils'
-import type { SubTask, Task, TaskPriority, TaskRepeat } from '@/types'
+import type { EntityLink, SubTask, Task, TaskPriority, TaskRepeat } from '@/types'
 
 const props = defineProps<{
   open: boolean
   entry: Task | null
   defaultDate?: string
+  defaultDraft?: Partial<Task>
 }>()
 
 const emit = defineEmits<{
@@ -21,6 +25,8 @@ const emit = defineEmits<{
 }>()
 
 const form = reactive({
+  estimatedMinutes: '' as number | '',
+  links: [] as EntityLink[],
   title: '',
   notes: '',
   date: '',
@@ -41,6 +47,8 @@ watch(
     subInput.value = ''
     if (props.entry) {
       Object.assign(form, {
+        estimatedMinutes: props.entry.estimatedMinutes ?? '',
+        links: (props.entry.links ?? []).map(link => ({ ...link })),
         title: props.entry.title,
         notes: props.entry.notes,
         date: props.entry.date,
@@ -52,13 +60,15 @@ watch(
       })
     } else {
       Object.assign(form, {
-        title: '',
-        notes: '',
+        estimatedMinutes: props.defaultDraft?.estimatedMinutes ?? '',
+        links: (props.defaultDraft?.links ?? []).map(link => ({ ...link })),
+        title: props.defaultDraft?.title ?? '',
+        notes: props.defaultDraft?.notes ?? '',
         date: props.defaultDate ?? '',
-        time: '',
+        time: props.defaultDraft?.time ?? '',
         priority: 2 as TaskPriority,
         repeat: 'none' as TaskRepeat,
-        tagsText: '',
+        tagsText: (props.defaultDraft?.tags ?? []).join(', '),
         subtasks: [],
       })
     }
@@ -82,6 +92,8 @@ function parsedTags(): string[] {
 }
 
 async function save() {
+  const estimatedMinutes = form.estimatedMinutes === '' ? undefined : Number(form.estimatedMinutes)
+  if (estimatedMinutes !== undefined && (!Number.isInteger(estimatedMinutes) || estimatedMinutes < 1 || estimatedMinutes > 1440)) { error.value = '预计时长应为 1–1440 分钟，或留空'; return }
   if (!form.title.trim()) {
     error.value = '请填写任务内容'
     return
@@ -92,17 +104,23 @@ async function save() {
   }
   if (form.time && form.date) {
     const granted = await ensureNotificationPermission()
-    if (!granted && !window.confirm('未授予通知权限，到点将不会提醒。仍要保存吗？')) return
+    if (!granted && !await confirmAction('未授予通知权限，到点将不会提醒。仍要保存吗？')) return
   }
   const tags = parsedTags()
   if (props.entry) {
-    updateTask(props.entry.id, { ...form, tags, subtasks: [...form.subtasks] })
+    updateTask(props.entry.id, { ...form, estimatedMinutes, tags, subtasks: form.subtasks.map(s => ({ ...s })), links: form.links.map(link => ({ ...link })) })
     toast('已更新')
   } else {
-    addTask({ ...form })
+    addTask({ ...form, estimatedMinutes, tags, subtasks: form.subtasks.map(s => ({ ...s })), links: form.links.map(link => ({ ...link })) })
     toast(form.time ? '已添加，到点会提醒你' : '已添加')
   }
   emit('close')
+}
+
+async function openLink(link: EntityLink): Promise<void> {
+  if (!await confirmAction('打开关联条目会关闭任务编辑，尚未保存的修改将丢弃。继续吗？')) return
+  emit('close')
+  openHubItem(link.kind, link.id)
 }
 
 const inputCls =
@@ -140,6 +158,7 @@ const inputCls =
           <input v-model="form.time" type="time" :class="inputCls" />
         </label>
       </div>
+      <label class="block"><span class="mb-1.5 block text-xs font-medium text-t3">预计时长（分钟，可选）</span><input v-model.number="form.estimatedMinutes" type="number" min="1" max="1440" step="1" :class="inputCls" placeholder="未填写时，排期按 30 分钟估算" /></label>
       <div class="grid grid-cols-2 gap-3">
         <label class="block">
           <span class="mb-1.5 block text-xs font-medium text-t3">优先级</span>
@@ -203,6 +222,7 @@ const inputCls =
       <p v-if="error" class="rounded-lg border border-danger/25 bg-danger/10 px-3 py-2 text-xs text-danger">
         {{ error }}
       </p>
+      <TaskLinks v-model="form.links" @open="openLink" />
     </div>
 
     <div class="mt-6 flex justify-end gap-3">

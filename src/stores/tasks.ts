@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { SubTask, Task, TaskPriority, TaskRepeat } from '@/types'
+import type { EntityLink, SubTask, Task, TaskPriority, TaskRepeat } from '@/types'
 import { nextOccurrence, uid } from '@/lib/utils'
 
 export const tasks = ref<Task[]>([])
@@ -7,6 +7,8 @@ export const tasks = ref<Task[]>([])
 export function normalizeTask(t: Task): Task {
   return {
     ...t,
+    links: Array.isArray(t.links) ? t.links : [],
+    repeatSourceId: typeof t.repeatSourceId === 'string' ? t.repeatSourceId : undefined,
     focusDate: typeof t.focusDate === 'string' ? t.focusDate : undefined,
     weeklyPlanId: typeof t.weeklyPlanId === 'string' ? t.weeklyPlanId : undefined,
     longPlanId: typeof t.longPlanId === 'string' ? t.longPlanId : undefined,
@@ -18,6 +20,8 @@ export function normalizeTask(t: Task): Task {
 }
 
 export interface TaskDraft {
+  links?: EntityLink[]
+  estimatedMinutes?: number
   title: string
   notes: string
   date: string
@@ -74,11 +78,14 @@ export function toggleTaskDone(id: string): void {
   if (t.done) t.focusDate = undefined
   t.updatedAt = Date.now()
   if (t.done && t.repeat !== 'none' && t.date) {
+    if (tasks.value.some((next) => next.repeatSourceId === t.id)) return
     const next = nextOccurrence(t.date, t.repeat)
     const now = Date.now()
     tasks.value.push({
       ...t,
       id: uid(),
+      repeatSourceId: t.id,
+      tags: [...t.tags],
       date: next,
       done: false,
       doneAt: undefined,

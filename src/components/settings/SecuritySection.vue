@@ -18,8 +18,9 @@ import {
   setBiometricEnabled,
 } from '@/lib/biometric'
 import { Capacitor } from '@capacitor/core'
-import { decryptJSON, deriveVaultKey } from '@/lib/crypto'
+import { unlockEnvelope } from '@/lib/vaultKeys'
 import { toast } from '@/lib/toast'
+import DeviceSection from './DeviceSection.vue'
 
 const props = defineProps<{
   open: boolean
@@ -86,7 +87,7 @@ async function submitChange() {
       pwError.value = result.error ?? '修改主密码失败'
       return
     }
-    toast('主密码已更新，数据已用新密钥重新加密')
+    toast(dataEnvelope.value?.v === 3 ? '本机主密码已更新，其他设备密码不受影响' : '主密码已更新，数据已用新密钥重新加密')
     Object.assign(pwForm, { oldPw: '', newPw: '', confirmPw: '', hint: '' })
   } finally {
     pwBusy.value = false
@@ -99,8 +100,7 @@ async function enableBiometric(): Promise<void> {
   if (!env || !bioPw.value) return
   bioBusy.value = true
   try {
-    const key = await deriveVaultKey(bioPw.value, env.kdf)
-    await decryptJSON(key, env.ivB64, env.ctB64)
+    await unlockEnvelope(env, bioPw.value)
     await biometricStoreSecret(bioPw.value)
     setBiometricEnabled(true)
     bioEnabled.value = true
@@ -123,6 +123,7 @@ async function disableBiometric(): Promise<void> {
 
 <template>
   <div>
+    <DeviceSection :key="String(props.open)" />
     <div class="flex items-center justify-between">
       <h4 class="text-xs font-semibold uppercase tracking-wider text-t4">加密保护 · 已开启</h4>
       <span
@@ -217,7 +218,7 @@ async function disableBiometric(): Promise<void> {
 
     <div class="mt-3 flex items-start gap-2.5 rounded-xl border border-line bg-inset p-3.5 text-[11px] leading-relaxed text-t4">
       <Info class="mt-0.5 h-3.5 w-3.5 shrink-0" />
-      忘记主密码将无法解密任何数据；改密后旧备份需用旧密码恢复，恢复时会自动换绑密钥。
+      备份保留导出时的密码保护。设备独立密码模式下，本机改密不会撤销旧备份或其他设备的数据密钥；恢复到其他保险库时会重新加密。
     </div>
   </div>
 </template>

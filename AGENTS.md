@@ -1,5 +1,9 @@
 # Personal Hub · 个人信息管理台
 
+非 AI 优化增量见 `docs/HUB-IMPROVEMENTS.md`：全局搜索与收集、任务来源关联、按分钟容量排期、本机回收站与修改历史、字段冲突对比、前台周期同步、附件按需下载与密文断点缓存、会话内文本/PDF 正文搜索。AI 远程功能按用户要求暂缓；下方历史路线中的全局搜索、附件同步等待办以专题文档为准。
+
+当前 1.1.1 预览发布准备见 `docs/PREVIEW-RELEASE.md`：桌面宠物纳入 Windows 交付；Android 锁定保留系统提醒，Windows/Web 锁定暂停扫描。托盘已实现。桌面通知通过原生 IPC 等待提交回执，通知点击跳转尚未实现，不沿用历史“点击唤窗”描述。Tailwind 扫描范围限定 src，避免文档与本机实验文件影响 CSS。
+
 一个本地优先的个人信息 + 账号密码管理网页。当前为 **P6 全功能版**：P2 加密 + P3 可选云同步 + P4 安卓 APP + P5 每日计划（周计划/长期计划/精力管理）/工作备忘录/个人资料库 + P6 AI 工作台（五 agent）+ Agent 资源库。三端同构：**Web / Windows 桌面（Tauri 2）/ Android（Capacitor 8）**。
 
 ## 技术栈
@@ -102,6 +106,8 @@ src/
 
 ## 安全架构（P2）
 
+第三阶段更新：安全设置可将 v2 显式升级至 v3 随机数据密钥 + 密码封装（`lib/vaultKeys.ts`）；v3 改密只更新封装，禁止按密码直接派生业务密钥，统一用 `unlockEnvelope`。支持 `.phub-device` 离线加入空设备，保留源 vaultId/keyId；旧整库 PocketBase 同步在 v3 停用。首次创建目前仍为 v2。详见 `docs/DEVICE-KEYS.md`，下方原派生流程仅适用于 v2。
+
 - 主密码 → Argon2id（64MB / t=3 / p=4，参数见信封明文头）→ 256 位 AES 密钥（non-extractable CryptoKey，仅存内存）
 - 全部业务数据（profile + entries）序列化为单个 JSON，AES-256-GCM 加密后存 `xk.data.v2`
 - **KDF 盐放在密文信封的明文头**：所有设备按同一套参数派生同一把钥匙，这是多端可互解的关键
@@ -112,6 +118,8 @@ src/
 
 ## 云同步（P3 · 可选）
 
+第四阶段新增逐条客户端引擎（`recordSyncEngine.ts` / `recordSync.ts`），在途密文请求、游标、退避与冲突与业务一起事务保存。第五阶段新增 `server/` 下的 Node.js 24 + SQLite HTTP 服务（`npm run sync:server`）及 v3 设置页连接入口。令牌仅存当前解锁会话；锁定后断开，需手动重新连接。默认仅回环监听，跨设备要求 HTTPS。详见 `docs/RECORD-SYNC.md`、`docs/SYNC-SERVER.md`；不得把演练成功称为真机联网验收，下方 PocketBase 仅为旧 v2 整库模式。
+
 - 后端：PocketBase 单文件（集合 `vaults`：user 关联 users、data 存整个加密信封 JSON）
 - 零知识：服务器只存密文信封；API Rules 四项均为 `@request.auth.id != "" && user = @request.auth.id`
 - 冲突策略：信封级时间戳 LWW（拉取较新者整包覆盖），主密码不一致时提示用户选择是否用本机覆盖云端
@@ -119,6 +127,12 @@ src/
 - 触发：手动「立即同步」、修改后约 5 秒自动推送（可关）、解锁后自动拉取一次
 
 ## 数据存储键名
+
+第七阶段：逐条同步支持附件本体密文分块上传下载（`attachmentSync.ts` / `attachmentSyncStore.ts`），DocMeta.attachment 为加密元信息中的分块描述，服务器 SQLite blobs 表按保险库隔离。单文件 50 MiB、服务端每库 1 GiB，暂不自动垃圾回收。详见 `docs/ATTACHMENT-SYNC.md`。下方“不随信封同步”仍指附件不直接嵌入业务信封，已可通过独立接口传输。
+
+第六阶段：逐条同步连接配置使用数据密钥加密保存于 Repository 的 `xk.record-sync.secure`，解锁后自动重连，锁定时暂停；“断开并移除配置”删除保存的凭据。此前仅会话保留令牌的说明是第五阶段历史行为。详见 `docs/SYNC-EXPERIENCE.md`。
+
+存储更新：`xk.data.v2`、三类加密连接凭据、`xk.lock.v2` 现由 `lib/vaultRepository.ts` 统一存入 IndexedDB `xk-vault/state`，启动前迁移旧 localStorage 数据；这些键禁止直接 `localStorage` 写入，必须使用异步 `commitRepository`。附件和普通设置仍保持原存储。详见 `docs/LOCAL-STORAGE.md` 和 `docs/OFFLINE-SYNC.md`。客户端原生 SQLite 尚未接入；第五阶段服务端使用 SQLite，已接入 HTTP 逐条同步。
 
 | 键 | 内容 |
 | --- | --- |
@@ -147,6 +161,8 @@ src/
 
 ## 安卓打包（P4 · Capacitor 8）
 
+原生导出：附件、备份、设备加入文件统一调用 `lib/saveFile.ts`。Android 项目内 `DocumentSaverPlugin` 使用系统文件选择器和分块写入；Windows 使用 dialog/fs 插件，权限限于用户选择的文件；Web 仍为浏览器下载。取消保存不得报告导出成功。详见 `docs/NATIVE-FILE-SAVE.md`。
+
 ```powershell
 npm run build
 npx cap sync android
@@ -160,13 +176,14 @@ cmd /c "cd /d E:\phub\android && gradlew.bat assembleDebug"
 ```
 
 - 产物：`android/app/build/outputs/apk/debug/app-debug.apk`（约 4MB）
+- Debug 变体使用独立包名 `com.zdb.personalhub.debug`、名称「Personal Hub 测试版」，与正式版并存，避免真机验收覆盖用户数据。
 - `E:\phub` → 项目根、`E:\phub-sdk` → `.android-sdk` 是目录联接（junction），用于规避 AGP 对中文路径的检查；`android/gradle.properties` 已加 `android.overridePathCheck=true` 双保险
 - SDK 组件：platform-tools + platforms;android-36 + build-tools;36.0.0；Gradle wrapper 8.14.3（-bin）；JDK 24 跑构建
-- local-notifications 插件要求 JDK 21 工具链：项目 `.jdks/jdk-21`（Temurin 便携版），已在 `android/gradle.properties` 注册 `org.gradle.java.installations.paths`
+- local-notifications 插件要求 JDK 21 工具链：项目 `.jdks/jdk-21`（Temurin 便携版），通过 `PHUB_JDK21_HOME` 或 `JAVA_HOME` 提供 JDK 21，仓库不固定个人路径
 - 通知权限：Manifest 已声明 POST_NOTIFICATIONS + SCHEDULE_EXACT_ALARM + USE_EXACT_ALARM；运行时由 TaskModal 保存带时间任务时触发申请
 - 指纹解锁：设置里验证主密码后，主密码经 `accessControl: BIOMETRY_ANY` 存入 Android Keystore（读取需过 BiometricPrompt）；改主密码时自动同步更新凭据
 - 正式签名包：`gradlew.bat assembleRelease` → `app-release.apk`；签名配置在 `android/keystore.properties`（gitignore），keystore 文件为项目根 `personal-hub.keystore`——**两者都丢失将无法再出同签名更新包**，务必另行备份
-- 版本号：`android/app/build.gradle` 的 versionCode/versionName（当前 1 / "0.1.0"，与 Tauri 0.1.0 对齐），每次发版递增
+- 版本号：`android/app/build.gradle` 的 versionCode/versionName（当前 3 / "1.1.1"，与 Tauri 1.1.1 对齐），以 package.json 的 version/androidVersionCode 为源，执行 npm run version:sync 同步；构建时自动检查一致性。每次发版递增
 
 ## 桌面打包（Tauri 2 · Windows）
 
@@ -177,7 +194,7 @@ npm run desktop:build   # = vue-tsc + vite build + cargo build + NSIS 打包
 - 产物：`src-tauri/target/release/personal-hub-desktop.exe` 与 `bundle/nsis/Personal Hub_<版本>_x64-setup.exe`
 - 配置：`src-tauri/tauri.conf.json`（窗口 1280×820、NSIS target、CSP 已收紧——含 `wasm-unsafe-eval`（hash-wasm）、`ipc: http://ipc.localhost`（Tauri v2 Windows IPC）、`connect-src http/https/ws/wss`（LAN 直连 agent 与 PocketBase）、`img/media/worker blob:`（IndexedDB 解密预览与 pdfjs worker））
 - 插件：notification（桌面通知）、opener（外链安全打开）；`lib/desktop.ts` 统一封装，Web/安卓分支自动降级
-- Rust 依赖走 cargo（`src-tauri/Cargo.toml`，tray-icon 特性已开但当前未配置托盘）
+- Rust 依赖走 cargo（`src-tauri/Cargo.toml`，已配置托盘、关闭隐藏和桌面宠物窗口）
 
 ## 后续路线
 

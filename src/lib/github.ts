@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { decryptJSON, encryptJSON } from '@/lib/crypto'
 import { getActiveKey } from '@/lib/keyring'
 import { readJSON, writeJSON } from '@/lib/utils'
+import { commitRepository } from './vaultRepository'
 
 const CFG_KEY = 'xk.github.cfg'
 const SEC_KEY = 'xk.github.secure'
@@ -174,17 +175,13 @@ export async function saveConnection(username: string, token: string | null): Pr
       throw e
     }
     name = login
-    writeJSON(SEC_KEY, await encryptJSON(key, clean))
+    await commitRepository({ [SEC_KEY]: await encryptJSON(key, clean) }, () => getActiveKey() === key)
     githubHasToken.value = true
   } else {
     if (name.includes('@')) {
       throw new Error('不使用 Token 时，请填写 GitHub 用户名（非邮箱）；或粘贴 Token 自动识别账号')
     }
-    try {
-      localStorage.removeItem(SEC_KEY)
-    } catch {
-      /* ignore */
-    }
+    await commitRepository({ [SEC_KEY]: undefined })
     githubHasToken.value = false
   }
   githubCfg.value = { username: name }
@@ -192,9 +189,9 @@ export async function saveConnection(username: string, token: string | null): Pr
 }
 
 export async function disconnectGitHub(): Promise<void> {
+  await commitRepository({ [SEC_KEY]: undefined })
   try {
     localStorage.removeItem(CFG_KEY)
-    localStorage.removeItem(SEC_KEY)
   } catch {
     /* ignore */
   }

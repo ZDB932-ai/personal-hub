@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '@/lib/confirmAction'
 import { computed, reactive, ref, watch } from 'vue'
 import { Cloud, CloudOff, RefreshCw } from '@lucide/vue'
 import {
@@ -13,6 +14,11 @@ import {
 } from '@/lib/sync'
 import { toast } from '@/lib/toast'
 import PasswordInput from '@/components/PasswordInput.vue'
+import { offlinePendingCount, offlineDeletedCount, offlinePreparedAt, offlineInFlight, offlineRetryAt, offlineSyncError } from '@/stores/offline'
+import { dataEnvelope } from '@/stores/database'
+import SyncConflicts from './SyncConflicts.vue'
+import SyncRehearsal from './SyncRehearsal.vue'
+import RecordSyncSection from './RecordSyncSection.vue'
 
 const props = defineProps<{
   open: boolean
@@ -53,7 +59,7 @@ async function submitConnect(): Promise<void> {
 }
 
 async function handleDisconnect(): Promise<void> {
-  if (!window.confirm('断开后将停止云同步（云端已有备份会保留）。确定断开吗？')) return
+  if (!await confirmAction('断开后将停止云同步（云端已有备份会保留）。确定断开吗？')) return
   await disconnectSync()
   toast('已断开云同步')
 }
@@ -68,9 +74,22 @@ const lastSyncText = computed(() =>
 
 <template>
   <div>
-    <template v-if="!isSyncConfigured">
+    <div class="mb-4 space-y-2 rounded-xl border border-line bg-surface p-4">
+      <p class="text-sm font-medium text-t1">本机离线数据</p>
+      <p class="text-xs leading-relaxed text-t2">没有服务器也能正常使用。保存的数据与待同步记录一同加密保存在本机。</p>
+      <p class="text-xs text-t3">已准备 {{ offlinePendingCount }} 条记录，其中删除记录 {{ offlineDeletedCount }} 条。</p>
+      <p v-if="offlinePreparedAt" class="text-xs text-t4">最近保存：{{ new Date(offlinePreparedAt).toLocaleString('zh-CN') }}</p>
+      <p v-if="offlineInFlight" class="text-xs text-warn">有一条已发出但尚未确认的操作，重试时会沿用原请求。</p>
+      <p v-if="offlineSyncError" class="text-xs text-warn">{{ offlineSyncError }}<span v-if="offlineRetryAt"> · 可重试时间：{{ new Date(offlineRetryAt).toLocaleTimeString('zh-CN') }}</span></p>
+      <p class="text-xs leading-relaxed text-t4">连接逐条同步服务后可上传待同步记录。请在「备份」中定期导出，保留另一份副本。</p>
+    </div>
+    <SyncConflicts :open="props.open" />
+    <SyncRehearsal />
+    <RecordSyncSection v-if="dataEnvelope?.v === 3" :open="props.open" />
+    <template v-else-if="!isSyncConfigured">
       <div class="space-y-3 rounded-xl border border-line bg-surface p-4">
         <p class="text-sm font-medium">连接 PocketBase 服务器</p>
+        <p class="text-xs leading-relaxed text-warn">此入口使用整库同步，两台设备分别修改后可能互相覆盖；不支持逐条合并和附件传输。</p>
         <input v-model="form.serverUrl" class="control-input px-3" placeholder="服务器地址，如 pb.example.com" />
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <input v-model="form.email" class="control-input px-3" placeholder="同步账号邮箱" />
@@ -122,7 +141,7 @@ const lastSyncText = computed(() =>
           <div>
             <p class="text-xs text-t4">状态</p>
             <p :class="syncing ? 'text-primary' : syncMeta.lastError ? 'text-danger' : 'text-ok'">
-              {{ syncing ? '同步中…' : syncMeta.lastError ? syncMeta.lastError : '正常' }}
+              {{ syncing ? '同步中…' : syncMeta.lastError ? syncMeta.lastError : syncMeta.lastSyncAt ? '已连接' : '尚未同步' }}
             </p>
           </div>
         </div>

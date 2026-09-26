@@ -4,6 +4,8 @@ import { encryptBytes, decryptBytes } from '@/lib/crypto'
 import { getActiveKey } from '@/lib/keyring'
 import { deleteBlob, getBlob, putBlob } from '@/lib/docdb'
 import { uid } from '@/lib/utils'
+import { saveFile } from '@/lib/saveFile'
+import { ensureAttachmentDownloaded } from '@/lib/attachmentAccess'
 
 export const docMetas = ref<DocMeta[]>([])
 
@@ -27,8 +29,13 @@ export async function importDoc(file: File): Promise<DocMeta> {
   if (!key) throw new Error('数据已锁定，无法写入')
   const buf = await file.arrayBuffer()
   const { ivB64, ct } = await encryptBytes(key, buf)
+  if (getActiveKey() !== key) throw new Error('数据已锁定或密钥已变更，请重新上传')
   const id = uid()
   await putBlob(id, { ivB64, ct })
+  if (getActiveKey() !== key) {
+    await deleteBlob(id)
+    throw new Error('数据已锁定或密钥已变更，请重新上传')
+  }
   const meta: DocMeta = {
     id,
     name: file.name,
@@ -44,36 +51,33 @@ export async function importDoc(file: File): Promise<DocMeta> {
   return meta
 }
 
-export async function openDocBuffer(meta: DocMeta): Promise<ArrayBuffer> {
+export async function openDocBuffer(meta: DocMeta, allowDownload = true): Promise<ArrayBuffer> {
   const key = getActiveKey()
   if (!key) throw new Error('数据已锁定')
-  const rec = await getBlob(meta.id)
-  if (!rec) throw new Error('文件数据在本设备不存在')
-  return decryptBytes(key, rec.ivB64, rec.ct)
+  let rec = await getBlob(meta.blobId ?? meta.id)
+  if (!rec && meta.attachment && allowDownload) {
+    await ensureAttachmentDownloaded(meta)
+    rec = await getBlob(meta.blobId ?? meta.id)
+  }
+  if (!rec) throw new Error(meta.attachment ? '附件尚未下载完成，请在同步设置中同步后重试' : '文件数据在本设备不存在，请在源设备同步附件')
+  const plain = await decryptBytes(key, rec.ivB64, rec.ct)
+  if (getActiveKey() !== key) throw new Error('数据已锁定或密钥已变更')
+  return plain
 }
 
-export async function openDocObjectUrl(meta: DocMeta): Promise<string> {
-  const pt = await openDocBuffer(meta)
+export async function openDocObjectUrl(meta: DocMeta, allowDownload = true): Promise<string> {
+  const pt = await openDocBuffer(meta, allowDownload)
   const blob = new Blob([pt], { type: meta.mime })
   return URL.createObjectURL(blob)
 }
 
 export async function downloadDoc(meta: DocMeta): Promise<void> {
-  const url = await openDocObjectUrl(meta)
-  try {
-    const a = document.createElement('a')
-    a.href = url
-    a.download = meta.name
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-  } finally {
-    setTimeout(() => URL.revokeObjectURL(url), 30_000)
-  }
+  const key = getActiveKey()
+  const bytes = await openDocBuffer(meta)
+  await saveFile(new Blob([bytes], { type: meta.mime }), meta.name, () => getActiveKey() === key)
 }
 
 export async function removeDoc(id: string): Promise<void> {
-  await deleteBlob(id).catch(() => {})
   const i = docMetas.value.findIndex((d) => d.id === id)
   if (i >= 0) docMetas.value.splice(i, 1)
 }

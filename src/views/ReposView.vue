@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '@/lib/confirmAction'
 import { computed, reactive, ref, watch } from 'vue'
 import {
   ArrowUpDown,
@@ -140,8 +141,8 @@ function openEdit(repo: RepoItem): void {
   showModal.value = true
 }
 
-function handleDelete(repo: RepoItem): void {
-  if (window.confirm(`确定删除收藏「${repo.fullName}」吗？`)) removeRepo(repo.id)
+async function handleDelete(repo: RepoItem): Promise<void> {
+  if (await confirmAction(`确定删除收藏「${repo.fullName}」吗？`)) removeRepo(repo.id)
 }
 
 const filtered = computed(() => {

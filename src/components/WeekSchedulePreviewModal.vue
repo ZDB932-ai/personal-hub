@@ -66,7 +66,7 @@ const hasEntries = computed(() => groups.value.some((group) => group.entries.len
         <span>会新增 {{ draft.entries.length }} 个行动块；会参考当天节奏并尽量均衡分散。</span>
       </div>
       <p v-if="draft.skippedRestDays" class="mt-1">已尊重 {{ draft.skippedRestDays }} 个留白日，不会往这些日期安排。</p>
-      <p v-if="draft.unscheduled" class="mt-1 text-warn">可安排的日期都已过去或设为留白，另外 {{ draft.unscheduled }} 项暂时保留在待安排。</p>
+      <p v-if="draft.unscheduled" class="mt-1 text-warn">剩余时间不足，或可安排日期已过去、设为留白；另外 {{ draft.unscheduled }} 项保留在待安排。可以调整时长或每日可用时间。</p>
     </div>
 
     <div v-if="hasEntries" class="week-schedule-preview-grid mt-5">

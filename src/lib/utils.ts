@@ -1,6 +1,11 @@
 import type { ProfileInfo, TaskRepeat, VaultDraft } from '@/types'
+import { recoverStorageTransaction } from './storageTransaction'
+import { isRepositoryKey, readRepository } from './vaultRepository'
+
+recoverStorageTransaction()
 
 export function readJSON<T>(key: string): T | null {
+  if (isRepositoryKey(key)) return readRepository<T>(key)
   try {
     const raw = localStorage.getItem(key)
     return raw ? (JSON.parse(raw) as T) : null
@@ -10,6 +15,7 @@ export function readJSON<T>(key: string): T | null {
 }
 
 export function writeJSON(key: string, value: unknown): void {
+  if (isRepositoryKey(key)) throw new Error('加密数据必须通过事务存储接口保存')
   localStorage.setItem(key, JSON.stringify(value))
 }
 

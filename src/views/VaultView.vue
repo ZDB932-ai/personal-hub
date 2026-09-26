@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '@/lib/confirmAction'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import {
   Copy,
@@ -45,8 +46,8 @@ function openEdit(item: VaultEntry) {
   showModal.value = true
 }
 
-function handleDelete(item: VaultEntry) {
-  if (window.confirm(`确定删除「${item.title}」吗？`)) {
+async function handleDelete(item: VaultEntry) {
+  if (await confirmAction(`确定删除「${item.title}」吗？`)) {
     removeEntry(item.id)
   }
 }

@@ -11,8 +11,10 @@ import type {
 } from '@/types'
 import { todayYMD, uid, weekDates, weekStartYMD } from '@/lib/utils'
 import { addTask, tasks } from './tasks'
+import { estimatedMinutes, scheduleWithinCapacity } from '@/lib/planningCapacity'
 
 export interface WeeklyPlanInput {
+  estimatedMinutes?: number
   title: string
   notes: string
   weekStart: string
@@ -100,6 +102,8 @@ export function normalizePlanner(value?: PlannerState): PlannerState {
     }
   }
   return {
+    ...value,
+    dayCapacities: Array.isArray(value?.dayCapacities) ? value.dayCapacities.filter(day => typeof day.date === 'string' && Number.isInteger(day.minutes) && day.minutes >= 0 && day.minutes <= 1440) : [],
     energy: value && VALID_ENERGY.includes(value.energy) ? value.energy : 'steady',
     restDates: Array.isArray(value?.restDates)
       ? [...new Set(value.restDates.filter((date): date is string => typeof date === 'string'))].slice(-90)
@@ -235,6 +239,20 @@ function linkedTasks(planId: string) {
   return tasks.value.filter((task) => task.weeklyPlanId === planId)
 }
 
+export function dayCapacity(date: string): number {
+  if (planner.value.restDates.includes(date)) return 0
+  return planner.value.dayCapacities?.find(day => day.date === date)?.minutes ?? { gentle: 60, steady: 180, focused: 300 }[plannerEnergyForDate(date)]
+}
+
+export function dayLoad(date: string): number {
+  return tasks.value.filter(task => !task.done && task.date === date).reduce((sum, task) => sum + estimatedMinutes(task.estimatedMinutes), 0)
+}
+
+export function setDayCapacity(date: string, minutes?: number): void {
+  if (minutes !== undefined && (!Number.isInteger(minutes) || minutes < 0 || minutes > 1440)) throw new Error('可用时间应为 0–1440 分钟')
+  planner.value.dayCapacities = [...(planner.value.dayCapacities ?? []).filter(day => day.date !== date), ...(minutes === undefined ? [] : [{ date, minutes }])]
+}
+
 export function createWeekScheduleDraft(planId: string): WeekScheduleDraft | null {
   const plan = weeklyPlans.value.find((item) => item.id === planId)
   if (!plan) return null
@@ -242,36 +260,12 @@ export function createWeekScheduleDraft(planId: string): WeekScheduleDraft | nul
   const missing = Math.max(0, plan.sessions - existing.length)
   const allDates = weekDates(plan.weekStart)
   const availableDates = allDates.filter((date) => date >= todayYMD() && !planner.value.restDates.includes(date))
-  const load = new Map(
-    availableDates.map((date) => [
+  const dates = scheduleWithinCapacity(availableDates.map(date => ({ date, capacity: dayCapacity(date), load: dayLoad(date), preferred: plan.preferredWeekdays.includes(weekdayIndex(date)), energy: energyPreference(date) })), missing, estimatedMinutes(plan.estimatedMinutes))
+  const entries: WeekScheduleEntry[] = dates.map((date, position) => ({
       date,
-      tasks.value.filter((task) => !task.done && task.date === date).length,
-    ]),
-  )
-  const entries: WeekScheduleEntry[] = []
-
-  for (let position = 0; position < missing; position += 1) {
-    const desiredIndex = missing <= 1
-      ? 0
-      : Math.round((position / (missing - 1)) * Math.max(0, availableDates.length - 1))
-    const candidate = availableDates
-      .sort((a, b) => {
-        const loadDiff = (load.get(a) ?? 0) - (load.get(b) ?? 0)
-        if (loadDiff !== 0) return loadDiff
-        const preferredDiff = Number(plan.preferredWeekdays.includes(weekdayIndex(b))) - Number(plan.preferredWeekdays.includes(weekdayIndex(a)))
-        if (preferredDiff !== 0) return preferredDiff
-        const energyDiff = energyPreference(a) - energyPreference(b)
-        if (energyDiff !== 0) return energyDiff
-        return Math.abs(availableDates.indexOf(a) - desiredIndex) - Math.abs(availableDates.indexOf(b) - desiredIndex)
-      })[0]
-    if (!candidate) break
-    load.set(candidate, (load.get(candidate) ?? 0) + 1)
-    entries.push({
-      date: candidate,
       title: plan.sessions > 1 ? `${plan.title} · 第 ${existing.length + position + 1}/${plan.sessions} 次` : plan.title,
       position: existing.length + position + 1,
-    })
-  }
+    }))
 
   return {
     planId,
@@ -284,6 +278,8 @@ export function createWeekScheduleDraft(planId: string): WeekScheduleDraft | nul
 export function applyWeekScheduleDraft(draft: WeekScheduleDraft): string[] {
   const plan = weeklyPlans.value.find((item) => item.id === draft.planId)
   if (!plan || draft.entries.length === 0) return []
+  const fresh = createWeekScheduleDraft(plan.id)
+  if (!fresh || JSON.stringify(fresh.entries) !== JSON.stringify(draft.entries)) throw new Error('本周任务或可用时间已变化，请重新预览安排')
   const created = draft.entries.map((entry) =>
     addTask({
       title: entry.title,
@@ -291,6 +287,7 @@ export function applyWeekScheduleDraft(draft: WeekScheduleDraft): string[] {
       date: entry.date,
       time: '',
       priority: plan.priority,
+      estimatedMinutes: estimatedMinutes(plan.estimatedMinutes),
       repeat: 'none',
       tags: [],
       weeklyPlanId: plan.id,

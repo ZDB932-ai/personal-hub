@@ -12,7 +12,6 @@ import {
   Coffee,
   Compass,
   Inbox,
-  Lightbulb,
   ListPlus,
   ListTodo,
   Pause,
@@ -21,7 +20,6 @@ import {
   Plus,
   Search as SearchIcon,
   Sparkles,
-  Star,
   Tag as TagIcon,
   Target,
   Trash2,
@@ -53,6 +51,7 @@ import {
   weeklyPlans,
 } from '@/stores/planning'
 import TaskModal from '@/components/TaskModal.vue'
+import PlanningCapacity from '@/components/PlanningCapacity.vue'
 import TaskCompletionModal from '@/components/TaskCompletionModal.vue'
 import TaskDeleteModal from '@/components/TaskDeleteModal.vue'
 import TaskRow from '@/components/TaskRow.vue'
@@ -80,6 +79,8 @@ const selected = ref(today)
 const weekStart = ref(weekStartYMD(today))
 const selectedWeekDate = ref(today)
 const view = ref<'today' | 'week' | 'inbox' | 'long' | 'all' | 'done'>('today')
+const showSearch = ref(false)
+const showArrange = ref(false)
 const searchQ = ref('')
 const activeTag = ref<string | null>(null)
 const quickInput = ref('')
@@ -259,13 +260,8 @@ const pendingTaskCount = computed(() => overdueList.value.length + inboxList.val
 const selectedTasks = computed(() => tasks.value.filter((t) => t.date === selected.value && match(t)))
 const selectedTotal = computed(() => selectedTasks.value.length)
 const selectedDone = computed(() => selectedTasks.value.filter((t) => t.done).length)
+const todayDisplayTasks = computed(() => [...todayList.value].sort((a, b) => Number(b.focusDate === selected.value) - Number(a.focusDate === selected.value)))
 const todayList = computed(() => selectedTasks.value.filter((t) => !t.done).sort(sortFn))
-const todayRemainingTasks = computed(() => todayList.value.filter((task) => task.focusDate !== selected.value))
-
-const progressPercent = computed(() =>
-  selectedTotal.value === 0 ? 0 : Math.round((selectedDone.value / selectedTotal.value) * 100),
-)
-
 interface Group {
   key: string
   label: string
@@ -357,62 +353,6 @@ const deletingPlanTaskStats = computed(() => {
   if (!target || target.kind !== '周计划') return { total: 0, done: 0 }
   const linked = relatedPlanTasks(target.plan as WeeklyPlan)
   return { total: linked.length, done: linked.filter((task) => task.done).length }
-})
-
-const focusedTasks = computed(() => tasks.value
-  .filter((task) => !task.done && task.focusDate === selected.value)
-  .sort(sortFn))
-
-type TodayTimeGroup = {
-  key: 'morning' | 'afternoon' | 'evening' | 'anytime'
-  label: string
-  items: Task[]
-}
-
-const todayTimeGroups = computed<TodayTimeGroup[]>(() => {
-  const buckets: Record<TodayTimeGroup['key'], Task[]> = {
-    morning: [],
-    afternoon: [],
-    evening: [],
-    anytime: [],
-  }
-  for (const task of todayRemainingTasks.value) {
-    const hour = Number(task.time.slice(0, 2))
-    const key: TodayTimeGroup['key'] = !task.time || Number.isNaN(hour)
-      ? 'anytime'
-      : hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'
-    buckets[key].push(task)
-  }
-  const groups: TodayTimeGroup[] = [
-    { key: 'morning', label: '上午', items: buckets.morning },
-    { key: 'afternoon', label: '下午', items: buckets.afternoon },
-    { key: 'evening', label: '晚上', items: buckets.evening },
-    { key: 'anytime', label: '任选时间', items: buckets.anytime },
-  ]
-  return groups.filter((group) => group.items.length > 0)
-})
-
-type FocusSuggestion = {
-  task: Task
-  reason: string
-  tone: 'overdue' | 'inbox' | 'today' | 'upcoming'
-  rank: number
-}
-
-const focusSuggestions = computed(() => {
-  const upcomingEnd = shiftYMD(selected.value, 3)
-  return tasks.value
-    .filter((task) => !task.done && !task.focusDate)
-    .map<FocusSuggestion | null>((task) => {
-      if (!task.date) return { task, reason: '来自收集箱', tone: 'inbox', rank: 1 }
-      if (task.date < selected.value) return { task, reason: '已逾期', tone: 'overdue', rank: 0 }
-      if (task.date === selected.value) return { task, reason: '当天待办', tone: 'today', rank: 2 }
-      if (task.priority === 3 && task.date <= upcomingEnd) return { task, reason: '临近高优', tone: 'upcoming', rank: 3 }
-      return null
-    })
-    .filter((item): item is FocusSuggestion => item !== null)
-    .sort((a, b) => a.rank - b.rank || sortFn(a.task, b.task))
-    .slice(0, 3)
 })
 
 const visibleCount = computed(() => {
@@ -589,7 +529,9 @@ function applyWeekSchedule(): void {
   const plan = schedulePlan.value
   const draft = scheduleDraft.value
   if (!plan || !draft) return
-  const taskIds = applyWeekScheduleDraft(draft)
+  let taskIds: string[]
+  try { taskIds = applyWeekScheduleDraft(draft) }
+  catch (error) { toast(error instanceof Error ? error.message : '安排失败', 'error'); scheduleDraft.value = createWeekScheduleDraft(plan.id); return }
   lastSchedule.value = taskIds.length > 0 ? { planId: plan.id, taskIds } : null
   schedulePlan.value = null
   scheduleDraft.value = null
@@ -722,11 +664,11 @@ onUnmounted(() => {
 
 <template>
   <div>
-    <PageHeader title="计划工作台" eyebrow="日常">
+    <PageHeader :title="view === 'today' ? '今天' : '计划'" eyebrow="日常">
       <template #description>
         <template v-if="view === 'today'">
           {{ displayDate(selected) }}
-          <span v-if="selectedTotal > 0">· 完成 {{ selectedDone }}/{{ selectedTotal }}</span>
+
         </template>
         <span v-else-if="view === 'week'">{{ weekRangeLabel }} · 已完成 {{ weekDoneCount }} 件</span>
         <span v-else-if="view === 'inbox'">{{ pendingTaskCount }} 项待安排 · {{ overdueList.length }} 项需要重新决定日期</span>
@@ -778,11 +720,12 @@ onUnmounted(() => {
         </div>
       </template>
     </PageHeader>
+    <PlanningCapacity v-if="view === 'week'" :date="view === 'week' ? selectedWeekDate : selected" />
 
     <div class="control-bar mt-4">
       <div role="tablist" aria-label="任务视图" class="filter-rail">
         <button
-          v-for="v in VIEWS"
+          v-for="v in VIEWS.slice(0, 3)"
           :key="v.key"
           role="tab"
           :aria-selected="view === v.key"
@@ -794,93 +737,22 @@ onUnmounted(() => {
           {{ v.label }}
         </button>
       </div>
-      <span class="ml-auto shrink-0 text-xs tabular-nums text-t4">显示 {{ visibleCount }} 项</span>
+      <details class="relative">
+        <summary class="ui-ghost-button cursor-pointer text-xs">{{ VIEWS.slice(3).find(v => v.key === view)?.label ?? '更多' }} ▾</summary>
+        <div class="absolute left-0 top-full z-20 mt-2 min-w-32 rounded-lg border border-line bg-surface p-2">
+          <button v-for="v in VIEWS.slice(3)" :key="v.key" class="block w-full rounded-lg px-3 py-2 text-left text-sm text-t2 hover:bg-surface-2" @click="view = v.key; ($event.currentTarget as HTMLElement).closest('details')?.removeAttribute('open')">{{ v.label }}</button>
+        </div>
+      </details>
+      <div class="ml-auto flex items-center gap-2">
+        <button v-if="view === 'today'" class="ui-ghost-button text-xs" :aria-expanded="showArrange" @click="showArrange = !showArrange">安排设置</button>
+        <button v-if="view !== 'long'" class="ui-icon-button" aria-label="搜索与筛选任务" :aria-expanded="showSearch" :class="{ 'text-primary': hasFilters }" @click="showSearch = !showSearch"><SearchIcon class="h-4 w-4" /></button>
+        <span v-if="view !== 'today'" class="text-xs text-t4">{{ visibleCount }} 项</span>
+      </div>
     </div>
 
-    <div v-if="view === 'today' && selectedTotal > 0" class="mt-4 h-1.5 overflow-hidden rounded-full bg-surface-2">
-      <div
-        class="h-full rounded-full bg-primary transition-all duration-300"
-        :style="{ width: `${progressPercent}%` }"
-      ></div>
-    </div>
-
-    <section v-if="view === 'today'" class="task-focus-board mt-4" aria-labelledby="focus-heading">
-      <div class="task-focus-header">
-        <div>
-          <p class="task-focus-eyebrow">{{ selected === today ? '今日工作台' : '当日工作台' }}</p>
-          <h2 id="focus-heading" class="task-focus-title">
-            {{ focusedTasks.length ? `本日重点 · ${focusedTasks.length} 项` : '先选出今天最重要的事' }}
-          </h2>
-        </div>
-        <span class="task-focus-count">{{ focusedTasks.length }} 项</span>
-      </div>
-
-      <div v-if="focusedTasks.length" class="task-focus-grid mt-4">
-        <article v-for="task in focusedTasks" :key="task.id" class="task-focus-card">
-          <button
-            type="button"
-            class="task-focus-check"
-            :aria-label="`完成任务：${task.title}`"
-            @click="handleToggle(task)"
-          >
-            <CheckCheck class="h-4 w-4" aria-hidden="true" />
-          </button>
-          <button type="button" class="task-focus-content" @click="openEdit(task)">
-            <span class="task-priority" :class="priorityTone[task.priority]">
-              <span class="task-priority-dot" aria-hidden="true"></span>
-              {{ priorityLabel[task.priority] }}
-            </span>
-            <p class="task-focus-task-title">{{ task.title }}</p>
-            <p v-if="task.time" class="task-focus-task-meta">{{ task.time }}</p>
-            <p v-if="task.notes" class="task-focus-task-note">{{ task.notes }}</p>
-          </button>
-          <button
-            type="button"
-            class="task-focus-remove"
-            :aria-label="`移出本日重点：${task.title}`"
-            title="移出本日重点"
-            @click="toggleFocus(task)"
-          >
-            <Star class="h-4 w-4" fill="currentColor" aria-hidden="true" />
-          </button>
-        </article>
-      </div>
-      <div v-else class="task-focus-empty mt-4">
-        <Star class="h-5 w-5" aria-hidden="true" />
-        <div>
-          <p>把最重要的事放在这里</p>
-          <span>想放几件都可以；完成后会自动移出。</span>
-        </div>
-      </div>
-
-      <div v-if="focusSuggestions.length" class="task-focus-suggestions">
-        <div class="task-focus-suggestion-heading">
-          <span class="task-focus-suggestion-heading-main">
-            <Lightbulb class="h-4 w-4" aria-hidden="true" />
-            值得优先处理
-          </span>
-        </div>
-        <div class="task-focus-suggestion-list">
-          <button
-            v-for="suggestion in focusSuggestions"
-            :key="suggestion.task.id"
-            type="button"
-            class="task-focus-suggestion"
-            @click="toggleFocus(suggestion.task)"
-          >
-            <span class="task-focus-suggestion-copy">
-              <span class="task-suggestion-reason" :class="`is-${suggestion.tone}`">{{ suggestion.reason }}</span>
-              <span class="task-focus-suggestion-title">{{ suggestion.task.title }}</span>
-            </span>
-            <span class="task-focus-suggestion-action">
-              设为重点
-              <Plus class="h-3.5 w-3.5" aria-hidden="true" />
-            </span>
-          </button>
-        </div>
-      </div>
-
-      <details class="plan-day-support">
+    <section v-if="view === 'today' && showArrange" class="mt-4 rounded-xl border border-line bg-surface p-4" aria-label="安排设置">
+      <PlanningCapacity :date="selected" />
+      <details class="plan-day-support" open>
         <summary>
           <span class="plan-day-support-copy">
             <span class="gentle-plan-icon"><Coffee class="h-4 w-4" /></span>
@@ -926,7 +798,7 @@ onUnmounted(() => {
       <Plus class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-t4" />
       <input
         v-model="quickInput"
-        :placeholder="view === 'week' ? `添加到 ${displayDate(selectedWeekDate)}，支持语法：下午3点 写周报 #工作` : view === 'inbox' ? '先收下这件事，之后再决定日期' : '添加任务，支持语法：明天 下午3点 写周报 #工作'"
+        :placeholder="view === 'week' ? `添加到 ${displayDate(selectedWeekDate)}，支持语法：下午3点 写周报 #工作` : view === 'inbox' ? '先收下这件事，之后再决定日期' : '添加任务…'"
         aria-label="快速添加任务"
         class="control-input py-3 pl-10 pr-4"
         @keydown.enter.prevent
@@ -951,7 +823,7 @@ onUnmounted(() => {
       <button type="button" @click="undoQuickAdd">撤销</button>
     </div>
 
-    <div v-if="view !== 'long' && tasks.length > 0" class="control-bar mt-3">
+    <div v-if="view !== 'long' && (showSearch || hasFilters)" class="control-bar mt-3">
       <label class="control-search w-full sm:w-48">
         <SearchIcon class="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-t4" />
         <input
@@ -986,28 +858,25 @@ onUnmounted(() => {
       <div v-if="todayList.length === 0" class="empty-state mt-8">
         <ListTodo class="mx-auto h-10 w-10 text-t4" />
         <p class="mt-4 text-sm font-medium text-t2">{{ hasFilters ? '没有匹配的任务' : selectedTotal > 0 ? '这一天的任务已经完成' : '这一天还没有安排' }}</p>
-        <p class="mt-1 text-xs text-t4">{{ hasFilters ? '清除筛选后查看全部任务' : selectedTotal > 0 ? '可以停下来休息一下，或为之后留下一件小事。' : '在上方输入框回车即可秒加，试试「明天 下午3点 开会」' }}</p>
+        <p class="mt-1 text-xs text-t4">{{ hasFilters ? '清除筛选后查看全部任务' : selectedTotal > 0 ? '可以停下来休息一下，或为之后留下一件小事。' : '在上方输入任务，预览后确认添加。' }}</p>
         <button v-if="hasFilters" class="ui-secondary-button mt-4 text-xs" @click="clearFilters">清除筛选</button>
       </div>
-      <div v-else-if="todayRemainingTasks.length" class="mt-6">
+      <div v-else class="mt-6">
         <div class="plan-task-section-heading">
           <div>
-            <p>{{ focusedTasks.length ? '其余安排' : '今天的安排' }}</p>
-            <span>{{ focusedTasks.length ? '重点已单独呈现，剩下的按优先级排列。' : '按优先级和时间排列。' }}</span>
+            <p>今天的任务</p>
+
           </div>
-          <span>{{ todayRemainingTasks.length }} 项</span>
+          <span>完成 {{ selectedDone }}/{{ selectedTotal }}</span>
         </div>
         <div class="mt-3 space-y-5">
-          <section v-for="group in todayTimeGroups" :key="group.key" class="plan-time-group">
-            <div class="plan-time-group-heading">
-              <span>{{ group.label }}</span>
-              <span>{{ group.items.length }} 项</span>
-            </div>
+          <section v-for="group in [{ key: 'today', items: todayDisplayTasks }]" :key="group.key" class="plan-time-group">
             <div class="mt-1 space-y-2">
               <TaskRow
                 v-for="t in group.items"
                 :key="t.id"
                 :task="t"
+                show-focus-action
                 @toggle="handleToggle(t)"
                 @edit="openEdit(t)"
                 @dispatch="dispatchToAI(t)"
@@ -1019,13 +888,6 @@ onUnmounted(() => {
               />
             </div>
           </section>
-        </div>
-      </div>
-      <div v-else class="plan-today-settled mt-6">
-        <CheckCheck class="h-4 w-4" aria-hidden="true" />
-        <div>
-          <p>今天的重点已经清楚了</p>
-          <span>先从上面的重点开始；完成后，其余安排会自然出现。</span>
         </div>
       </div>
     </template>

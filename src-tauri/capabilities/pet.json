@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "pet",
+  "description": "Desktop companion dragging and event transport only",
+  "windows": ["pet"],
+  "permissions": ["core:event:default", "core:window:allow-outer-position", "core:window:allow-scale-factor", "core:window:allow-set-position", "core:window:allow-set-size", "core:window:allow-current-monitor", "core:window:allow-outer-size", "core:window:allow-is-visible"]
+}

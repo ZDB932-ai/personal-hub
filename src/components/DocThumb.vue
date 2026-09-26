@@ -9,16 +9,20 @@ const props = defineProps<{
 
 const url = ref('')
 const failed = ref(false)
+let disposed = false
 
 onMounted(async () => {
   try {
-    url.value = await openDocObjectUrl(props.meta)
+    const value = await openDocObjectUrl(props.meta, false)
+    if (disposed) URL.revokeObjectURL(value)
+    else url.value = value
   } catch {
     failed.value = true
   }
 })
 
 onBeforeUnmount(() => {
+  disposed = true
   if (url.value) URL.revokeObjectURL(url.value)
 })
 </script>

@@ -26,22 +26,29 @@ export async function revealDesktopWindow(): Promise<void> {
   }
 }
 
-function openDesktopTask(taskId: string): void {
-  location.hash = `#/today?task=${encodeURIComponent(taskId)}`
-  void revealDesktopWindow()
-}
-
-export async function sendDesktopNotification(taskId: string, title: string, body: string): Promise<void> {
+export async function prepareDesktopDialog(): Promise<void> {
   if (!isTauriDesktop()) return
   try {
-    const notification = new Notification(title, {
-      body,
-      tag: `task-${taskId}`,
-      data: { taskId },
-    })
-    notification.onclick = () => openDesktopTask(taskId)
+    const { getCurrentWindow } = await import('@tauri-apps/api/window')
+    const window = getCurrentWindow()
+    await window.show()
+    await window.unminimize()
+    await window.setFocus()
+    if (!await window.isVisible() || await window.isMinimized()) throw new Error('窗口不可见')
   } catch {
-    return
+    throw new Error('无法显示主窗口，请从托盘打开 Personal Hub 后重试')
+  }
+}
+
+export async function sendDesktopNotification(taskId: string, title: string, body: string): Promise<boolean> {
+  if (!isTauriDesktop()) return false
+  try {
+    const { invoke } = await import('@tauri-apps/api/core')
+    if (!await invoke<boolean | null>('plugin:notification|is_permission_granted')) return false
+    await invoke('plugin:notification|notify', { options: { title, body, extra: { taskId } } })
+    return true
+  } catch {
+    return false
   }
 }
 

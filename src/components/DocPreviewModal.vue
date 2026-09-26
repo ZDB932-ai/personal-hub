@@ -10,6 +10,7 @@ import {
   ZoomOut,
 } from '@lucide/vue'
 import { downloadDoc, openDocBuffer, openDocObjectUrl } from '@/stores/docs'
+import { toast } from '@/lib/toast'
 import type { DocMeta } from '@/types'
 
 const props = defineProps<{
@@ -290,7 +291,11 @@ function onPointerUp(): void {
 
 async function handleDownload(): Promise<void> {
   if (!props.meta) return
-  await downloadDoc(props.meta)
+  try {
+    await downloadDoc(props.meta)
+  } catch (error) {
+    toast(error instanceof Error ? error.message : '下载失败', 'error')
+  }
 }
 </script>
 

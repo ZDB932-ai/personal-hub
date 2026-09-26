@@ -1,4 +1,5 @@
 node_modules/
+.sync-data/
 dist/
 .npm-cache/
 .skills-tmp/
@@ -13,3 +14,20 @@ android/keystore.properties
 bridge/pi-projects.local.json
 *.local
 .DS_Store
+release/
+/phone-*.bin
+/qa-windows-save-*.bin
+*.log
+*.blend1
+/assets/pet-models/**
+!/assets/pet-models/tripo-fixed/
+!/assets/pet-models/tripo-fixed/README.md
+!/assets/pet-models/tripo-fixed/nailong-expression-polish.blend
+/assets/pet-reference/
+/assets/icon-candidates/
+/assets/wallpaper-originals/
+.env
+.env.*
+!.env.example
+*.phub
+*.phub-device

@@ -1,0 +1,100 @@
+.calendar-workspace { display: flex; flex-direction: column; height: calc(100dvh - 24px); min-height: 480px; color: var(--tk-t1); }
+.calendar-toolbar { display: flex; flex: 0 0 auto; align-items: center; gap: 12px; min-height: 72px; padding: 0 4px 12px; }
+.calendar-brand { display: flex; flex: 0 0 208px; align-items: center; gap: 4px; }
+.calendar-brand h1 { font-size: 20px; font-weight: 500; }
+.calendar-icon { display: inline-flex; width: 44px; height: 44px; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 50%; color: var(--tk-t3); transition: background 150ms, color 150ms; }
+.calendar-icon:hover { color: var(--tk-t1); background: var(--tk-surface-2); }
+.calendar-icon.is-active { color: var(--tk-primary); background: color-mix(in srgb, var(--tk-primary) 12%, transparent); }
+.calendar-period-nav { display: flex; align-items: center; gap: 0; }
+.calendar-today-button { min-height: 44px; padding: 0 24px; margin-right: 8px; border: 1px solid var(--tk-line); border-radius: 24px; font-size: 14px; }
+.calendar-today-button:hover { background: var(--tk-surface-2); }
+.calendar-period-title { min-width: 132px; }
+.calendar-period-title h2 { font-size: 22px; line-height: 28px; font-weight: 500; }
+.calendar-period-title > span { font-size: 11px; color: var(--tk-t3); }
+.calendar-toolbar-actions { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.calendar-view-switch { display: flex; padding: 3px; border: 1px solid var(--tk-line); border-radius: 24px; }
+.calendar-view-switch button { min-width: 44px; min-height: 38px; border-radius: 20px; font-size: 13px; color: var(--tk-t3); }
+.calendar-view-switch button:hover { background: var(--tk-surface-2); }
+.calendar-view-switch button.is-active { color: var(--tk-primary); background: color-mix(in srgb, var(--tk-primary) 12%, transparent); font-weight: 600; }
+.calendar-create-compact { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; color: var(--tk-ink); background: var(--tk-primary); }
+.calendar-create-compact:hover { background: var(--tk-primary-strong); }
+.calendar-search-bar { display: flex; flex-shrink: 0; align-items: center; gap: 12px; padding: 0 16px; margin: 0 0 12px; border: 1px solid var(--tk-line); border-radius: 12px; background: var(--tk-surface); }
+.calendar-search-bar input { min-height: 44px; min-width: 0; flex: 1; background: transparent; font-size: 14px; outline: none; }
+.calendar-search-bar:focus-within { border-color: var(--tk-primary); }
+.calendar-body { position: relative; display: flex; flex: 1; min-height: 0; gap: 12px; }
+.calendar-navigation { display: flex; flex: 0 0 208px; min-width: 0; flex-direction: column; gap: 24px; padding: 0 8px 16px 4px; overflow-y: auto; scrollbar-width: thin; }
+.calendar-create-button { display: flex; flex-shrink: 0; min-height: 56px; align-items: center; gap: 12px; align-self: flex-start; padding: 0 20px; border-radius: 16px; border: 1px solid var(--tk-line); background: var(--tk-surface); font-size: 14px; font-weight: 500; }
+.calendar-create-button:hover { border-color: var(--tk-primary); background: var(--tk-surface-2); }
+.calendar-day-summary { display: flex; flex-shrink: 0; min-height: 48px; align-items: center; gap: 8px; border-radius: 8px; padding: 0 8px; background: color-mix(in srgb, var(--tk-primary) 7%, transparent); color: var(--tk-t2); font-size: 12px; }
+.calendar-day-summary > span:nth-child(2) { margin-left: auto; font-size: 11px; color: var(--tk-t3); }
+.calendar-day-summary:hover { background: color-mix(in srgb, var(--tk-primary) 12%, transparent); }
+.calendar-sources h2 { margin-bottom: 8px; font-size: 13px; font-weight: 600; }
+.calendar-sources label { display: flex; align-items: center; gap: 12px; min-height: 40px; font-size: 13px; color: var(--tk-t2); cursor: pointer; }
+.calendar-sources input { width: 16px; height: 16px; accent-color: var(--tk-primary); }
+.calendar-sources .source-linked input { accent-color: var(--tk-info); }
+.calendar-memo-link { display: flex; align-items: center; gap: 12px; min-height: 44px; color: var(--tk-t2); font-size: 13px; text-align: left; }
+.calendar-memo-link:hover { color: var(--tk-primary); }
+.calendar-help { margin-top: auto; font-size: 11px; color: var(--tk-t3); }
+.calendar-help summary { display: flex; min-height: 44px; align-items: center; cursor: pointer; }
+.calendar-help p { margin-top: 8px; line-height: 1.7; }
+.calendar-canvas { display: flex; min-width: 0; min-height: 0; flex: 1; flex-direction: column; overflow: hidden; border: 1px solid color-mix(in srgb, var(--tk-line) 65%, transparent); border-radius: 24px; background: var(--tk-surface); }
+.calendar-panel-host { position: absolute; inset: 0 0 0 auto; z-index: 25; width: min(340px, 100%); border: 1px solid var(--tk-line); border-radius: 16px; overflow: hidden; }
+.calendar-sidebar-backdrop { display: none; }
+.calendar-month-head { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); flex-shrink: 0; padding: 20px 0 12px; text-align: center; font-size: 12px; color: var(--tk-t3); }
+.calendar-month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-template-rows: repeat(6, minmax(144px, 1fr)); flex: 1; min-height: 0; overflow: auto; }
+.calendar-month-cell { min-width: 0; padding: 4px; border-top: 1px solid color-mix(in srgb, var(--tk-line) 75%, transparent); border-right: 1px solid color-mix(in srgb, var(--tk-line) 75%, transparent); }
+.calendar-month-cell:nth-child(7n) { border-right: 0; }
+.calendar-month-cell.is-outside { background: color-mix(in srgb, var(--tk-surface-2) 50%, var(--tk-surface)); }
+.calendar-month-cell.is-selected { background: color-mix(in srgb, var(--tk-primary) 4%, var(--tk-surface)); }
+.calendar-month-date { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; width: 100%; font-size: 13px; }
+.calendar-month-date > span:first-child { display: flex; width: 32px; height: 32px; align-items: center; justify-content: center; border-radius: 50%; }
+.calendar-month-date:hover > span:first-child { background: var(--tk-surface-2); }
+.calendar-month-date.is-today > span:first-child { background: var(--tk-primary); color: var(--tk-ink); }
+.calendar-month-lunar { font-size: 11px; color: var(--tk-t3); }
+.calendar-month-task { display: block; width: 100%; min-height: 28px; padding: 4px 8px; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-radius: 8px; color: var(--tk-t1); background: color-mix(in srgb, var(--tk-primary) 12%, var(--tk-surface)); font-size: 12px; text-align: left; }
+.calendar-month-task.is-linked { background: color-mix(in srgb, var(--tk-info) 12%, var(--tk-surface)); }
+.calendar-month-task:hover { outline: 1px solid var(--tk-primary); outline-offset: -1px; }
+.calendar-month-task.is-done { text-decoration: line-through; opacity: .65; }
+.calendar-month-more { min-height: 28px; width: 100%; text-align: left; padding: 4px 8px; color: var(--tk-t3); font-size: 11px; }
+.calendar-month-more:hover { background: var(--tk-surface-2); }
+@media (min-width: 1800px) { .calendar-panel-host { position: static; flex: 0 0 340px; } }
+@media (max-width: 1279px) { .calendar-brand { flex-basis: auto; margin-right: 4px; } .calendar-toolbar { gap: 8px; } .calendar-period-title h2 { font-size: 20px; } }
+@media (max-width: 1099px) {
+  .calendar-toolbar { flex-wrap: wrap; }
+  .calendar-navigation { position: absolute; inset: 0 auto 0 0; z-index: 30; width: 232px; padding: 16px; background: var(--tk-surface); border: 1px solid var(--tk-line); border-radius: 16px; }
+  .calendar-sidebar-backdrop { position: absolute; inset: 0; z-index: 29; display: block; background: color-mix(in srgb, var(--tk-body) 55%, transparent); }
+}
+@media (max-width: 767px) {
+  .calendar-workspace { height: calc(100dvh - 152px - env(safe-area-inset-bottom)); min-height: 360px; }
+  .calendar-toolbar { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: 44px 44px; gap: 8px; min-height: 0; padding: 0 0 12px; }
+  .calendar-brand { grid-area: 1 / 1; gap: 4px; }
+  .calendar-brand h1 { font-size: 18px; }
+  .calendar-period-nav { grid-area: 2 / 1; }
+  .calendar-period-nav .calendar-icon { width: 36px; }
+  .calendar-period-title { grid-area: 2 / 2; min-width: 0; padding-left: 0; }
+  .calendar-period-title h2 { font-size: 18px; }
+  .calendar-period-title > span { display: none; }
+  .calendar-toolbar-actions { grid-area: 1 / 2; justify-self: end; gap: 0; }
+  .calendar-toolbar-actions > .calendar-icon { width: 36px; }
+  .calendar-toolbar-actions > .calendar-view-switch { position: absolute; right: 0; top: 52px; }
+  .calendar-view-switch { padding: 2px; }
+  .calendar-view-switch button { min-width: 32px; min-height: 36px; }
+  .calendar-today-button { padding: 0 12px; margin-right: 0; }
+  .calendar-period-title { margin-right: 104px; }
+  .calendar-workspace { position: relative; }
+  .calendar-create-compact { margin-left: 4px; width: 40px; height: 40px; }
+  .calendar-canvas { border-radius: 16px; }
+  .calendar-month-head { padding: 12px 0; font-size: 11px; }
+  .calendar-month-grid { grid-template-rows: repeat(6, minmax(160px, 1fr)); }
+  .calendar-month-cell { padding: 1px; }
+  .calendar-month-lunar { display: none; }
+  .calendar-month-task { font-size: 10px; min-height: 36px; padding: 4px 2px; }
+  .calendar-month-task > span { display: none; }
+  .calendar-panel-host { width: 100%; border-radius: 16px; }
+}
+@media (max-width: 399px) {
+  .calendar-period-nav .calendar-icon { width: 28px; }
+  .calendar-period-title h2 { font-size: 15px; }
+  .calendar-period-title { margin-right: 100px; }
+  .calendar-today-button { padding: 0 8px; }
+}

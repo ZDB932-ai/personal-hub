@@ -21,6 +21,7 @@ const props = defineProps<{
   task: Task
   showDate?: string
   showOverdueQuickActions?: boolean
+  showFocusAction?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -99,7 +100,7 @@ const PRIORITY_TONE: Record<TaskPriority, string> = {
         <span class="task-priority-dot"></span>
         {{ PRIORITY_LABEL[task.priority] }}
       </span>
-      <span v-if="task.focusDate" class="task-focus-indicator" title="已设为日重点">
+      <span v-if="task.focusDate && !showFocusAction" class="task-focus-indicator" title="已设为日重点">
         <Star class="h-3.5 w-3.5" aria-hidden="true" />
         日重点
       </span>
@@ -113,6 +114,7 @@ const PRIORITY_TONE: Record<TaskPriority, string> = {
         </p>
         <p v-if="task.notes" class="mt-0.5 truncate text-xs text-t4">{{ task.notes }}</p>
         <p v-if="task.weeklyPlanId" class="task-plan-indicator" title="来自周计划">来自周计划</p>
+        <p v-if="task.estimatedMinutes || task.links?.length" class="mt-1 text-xs text-t3"><span v-if="task.estimatedMinutes">预计 {{ task.estimatedMinutes }} 分钟</span><span v-if="task.links?.length" class="ml-2">{{ task.links.length }} 项关联资料</span></p>
         <div v-if="(task.tags ?? []).length > 0" class="mt-1 flex flex-wrap gap-1">
           <span
             v-for="tag in task.tags"
@@ -125,6 +127,9 @@ const PRIORITY_TONE: Record<TaskPriority, string> = {
         </div>
       </button>
 
+      <button v-if="showFocusAction && !task.done" class="ui-icon-button shrink-0" :class="task.focusDate ? 'text-primary' : 'text-t4'" :aria-label="`${task.focusDate ? '取消重点' : '设为重点'}：${task.title}`" :aria-pressed="Boolean(task.focusDate)" @click="requestFocus">
+        <Star class="h-4 w-4" :fill="task.focusDate ? 'currentColor' : 'none'" />
+      </button>
       <span
         v-if="hasSubs"
         class="shrink-0 rounded-md bg-surface-2 px-1.5 py-0.5 text-[10px] tabular-nums"

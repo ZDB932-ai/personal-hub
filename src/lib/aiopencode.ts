@@ -3,6 +3,7 @@ import { decryptJSON, encryptJSON } from './crypto'
 import { getActiveKey } from './keyring'
 import { ensureSyncAuth } from './sync'
 import { writeJSON } from './utils'
+import { commitRepository, readRepository } from './vaultRepository'
 
 export type AiChannel = 'lan' | 'relay'
 
@@ -133,21 +134,14 @@ async function persistSecrets(): Promise<void> {
       }
     }
   }
-  writeJSON(SECRETS_KEY, await encryptJSON(key, secrets))
+  await commitRepository({ [SECRETS_KEY]: await encryptJSON(key, secrets) }, () => getActiveKey() === key)
 }
 
 export async function hydrateAiSecrets(): Promise<void> {
   if (aiSecretsReady.value) return
   const key = getActiveKey()
   if (!key) return
-  const stored = (() => {
-    try {
-      const raw = localStorage.getItem(SECRETS_KEY)
-      return raw ? (JSON.parse(raw) as { ivB64: string; ctB64: string }) : null
-    } catch {
-      return null
-    }
-  })()
+  const stored = readRepository<{ ivB64: string; ctB64: string }>(SECRETS_KEY)
   let secrets: AiProfileSecrets = {}
   if (stored) {
     try {
@@ -156,14 +150,15 @@ export async function hydrateAiSecrets(): Promise<void> {
       throw new Error('AI 凭据无法解密，请重新填写连接密码和 Bridge Token')
     }
   }
+  const needsMigration = Object.keys(legacySecrets).length > 0
   secrets = { ...secrets, ...legacySecrets }
   for (const profile of aiProfiles.value) {
     const secret = secrets[profile.id]
     profile.password = secret?.password ?? ''
     profile.bridgeToken = secret?.bridgeToken ?? ''
   }
+  if (needsMigration) await persistSecrets()
   legacySecrets = {}
-  await persistSecrets()
   persistProfiles()
   try {
     localStorage.removeItem('xk.ai.cfg')

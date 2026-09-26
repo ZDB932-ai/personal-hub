@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '@/lib/confirmAction'
 import { computed, reactive, ref, watch } from 'vue'
 import ModalShell from '@/components/ModalShell.vue'
 import AppSelect from '@/components/AppSelect.vue'
@@ -131,7 +132,7 @@ async function saveAsNew(): Promise<void> {
 
 async function handleDelete(): Promise<void> {
   if (!canDelete.value) return
-  if (!window.confirm(`确定删除配置「${activeProfile.value.name}」吗？`)) return
+  if (!await confirmAction(`确定删除配置「${activeProfile.value.name}」吗？`)) return
   await deleteProfile(activeProfileId.value)
   loadForm()
   toast('配置已删除')

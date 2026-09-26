@@ -2,23 +2,23 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314b8a6'/%3E%3Ctext x='32' y='44' font-family='Arial' font-size='34' font-weight='bold' fill='%2304211f' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E"
-    />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>我的主页 · Personal Hub</title>
     <script>
       ;(function () {
         try {
           var t = JSON.parse(localStorage.getItem('xk.theme.v1') || '{}')
-          var m = t.mode === 'light' || t.mode === 'system' ? t.mode : 'dark'
+          var m = t.mode === 'dark' || t.mode === 'system' ? t.mode : 'light'
+          if (!localStorage.getItem('xk.theme.light-baseline.v1')) m = 'light'
           if (m === 'system') {
             m = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
           }
           document.documentElement.dataset.theme = m
-          document.documentElement.dataset.accent = t.accent || 'teal'
-          document.documentElement.style.background = m === 'light' ? '#f2f5f4' : '#0b0f14'
+          document.documentElement.dataset.accent = ['teal', 'indigo', 'blue', 'violet', 'rose', 'amber', 'coral', 'cobalt', 'orchid'].includes(t.accent) ? t.accent : 'teal'
+          document.documentElement.dataset.interface = ['classic', 'sunrise', 'aurora', 'precision'].includes(t.style) ? t.style : 'classic'
+          document.documentElement.style.colorScheme = m
         } catch (e) {}
       })()
     </script>

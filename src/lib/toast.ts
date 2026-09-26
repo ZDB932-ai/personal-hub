@@ -30,8 +30,13 @@ export async function copyText(text: string, label: string): Promise<void> {
     ta.style.opacity = '0'
     document.body.appendChild(ta)
     ta.select()
-    document.execCommand('copy')
-    ta.remove()
-    toast(`${label}已复制`)
+    try {
+      if (!document.execCommand('copy')) throw new Error('复制失败')
+      toast(`${label}已复制`)
+    } catch {
+      toast('复制失败，请手动选择并复制', 'error')
+    } finally {
+      ta.remove()
+    }
   }
 }

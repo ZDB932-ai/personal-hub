@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '@/lib/confirmAction'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
@@ -216,7 +217,7 @@ async function handlePiProjectCreated(project: PiProject): Promise<void> {
 async function removeActivePiProject(): Promise<void> {
   const project = activePiProject.value
   if (!project) return
-  if (!window.confirm(`确定移除项目「${project.name}」吗？这会停止该项目的 pi 进程，但不会删除任何文件或历史记录。`)) return
+  if (!await confirmAction(`确定移除项目「${project.name}」吗？这会停止该项目的 pi 进程，但不会删除任何文件或历史记录。`)) return
   const api = aiApi()
   if (!api.removePiProject) {
     toast('当前 Agent 不支持 pi 项目管理', 'error')
@@ -425,7 +426,7 @@ async function newSession(): Promise<void> {
 }
 
 async function removeSession(id: string): Promise<void> {
-  if (!window.confirm('确定删除该会话及其全部消息吗？')) return
+  if (!await confirmAction('确定删除该会话及其全部消息吗？')) return
   try {
     await aiApi().deleteSession(id)
     if (selectedId.value === id) selectedId.value = null

@@ -61,6 +61,12 @@ export async function deriveVaultKey(
   password: string,
   kdf: KdfParamsLike,
 ): Promise<CryptoKey> {
+  if (!/^[0-9a-f]{32,128}$/i.test(kdf.saltHex) || kdf.saltHex.length % 2 ||
+    !Number.isInteger(kdf.memKiB) || kdf.memKiB < 8192 || kdf.memKiB > 262144 ||
+    !Number.isInteger(kdf.timeCost) || kdf.timeCost < 1 || kdf.timeCost > 10 ||
+    !Number.isInteger(kdf.parallelism) || kdf.parallelism < 1 || kdf.parallelism > 16) {
+    throw new Error('密钥派生参数无效或超出支持范围')
+  }
   const { argon2id } = await import('hash-wasm')
   const bits = (await argon2id({
     password,
@@ -71,13 +77,13 @@ export async function deriveVaultKey(
     hashLength: 32,
     outputType: 'binary',
   })) as Uint8Array
-  return crypto.subtle.importKey(
+  try { return await crypto.subtle.importKey(
     'raw',
     bits as unknown as Uint8Array<ArrayBuffer>,
     'AES-GCM',
     false,
     ['encrypt', 'decrypt'],
-  )
+  ) } finally { bits.fill(0) }
 }
 
 export async function encryptJSON(

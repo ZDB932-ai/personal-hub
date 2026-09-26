@@ -27,7 +27,9 @@ async function withStore<T>(
   return new Promise<T>((resolve, reject) => {
     const tx = db.transaction(STORE, mode)
     const req = run(tx.objectStore(STORE))
-    req.onsuccess = () => resolve(req.result as T)
+    tx.oncomplete = () => resolve(req.result as T)
+    tx.onabort = () => reject(tx.error ?? new Error('图片事务已中止'))
+    tx.onerror = () => reject(tx.error ?? new Error('图片事务失败'))
     req.onerror = () => reject(req.error ?? new Error('IndexedDB 操作失败'))
   })
 }

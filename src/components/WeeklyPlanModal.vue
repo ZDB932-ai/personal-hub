@@ -19,6 +19,7 @@ const emit = defineEmits<{
 }>()
 
 const form = reactive({
+  estimatedMinutes: 30,
   title: '',
   notes: '',
   priority: 2 as TaskPriority,
@@ -43,6 +44,7 @@ watch(
     error.value = ''
     if (props.entry) {
       Object.assign(form, {
+        estimatedMinutes: props.entry.estimatedMinutes ?? 30,
         title: props.entry.title,
         notes: props.entry.notes,
         priority: props.entry.priority,
@@ -53,6 +55,7 @@ watch(
       return
     }
     Object.assign(form, {
+      estimatedMinutes: 30,
       title: '',
       notes: '',
       priority: 2 as TaskPriority,
@@ -71,6 +74,7 @@ function toggleWeekday(day: number): void {
 }
 
 function save(): void {
+  if (!Number.isInteger(form.estimatedMinutes) || form.estimatedMinutes < 1 || form.estimatedMinutes > 1440) { error.value = '每次时长应为 1–1440 分钟'; return }
   const title = form.title.trim()
   if (!title) {
     error.value = '写下一件这周想照顾的事'
@@ -82,6 +86,7 @@ function save(): void {
     return
   }
   const draft = {
+    estimatedMinutes: form.estimatedMinutes,
     title,
     notes: form.notes.trim(),
     weekStart: props.weekStart,
@@ -153,6 +158,7 @@ const inputCls =
         <span class="mb-1.5 block text-xs font-medium text-t3">关联长期方向</span>
         <AppSelect v-model="form.longPlanId" :options="longPlanOptions" />
       </label>
+      <label class="block"><span class="mb-1.5 block text-xs font-medium text-t3">每次预计时长（分钟）</span><input v-model.number="form.estimatedMinutes" type="number" min="1" max="1440" step="1" :class="inputCls" /></label>
       <div>
         <p class="text-xs font-medium text-t3">倾向安排到哪几天 <span class="font-normal text-t4">（可选）</span></p>
         <div class="mt-2 grid grid-cols-7 gap-1.5">

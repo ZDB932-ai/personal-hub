@@ -1,10 +1,8 @@
 import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
-import './stores/theme'
+import { initializeVaultRepository } from './lib/vaultRepository'
 import './style.css'
-
-const app = createApp(App)
+import './interface-styles.css'
+import './appearance-studio.css'
 
 function showError(title: string, detail: string): void {
   console.error(title, detail)
@@ -31,11 +29,6 @@ function showError(title: string, detail: string): void {
   overlay.insertBefore(line, overlay.firstChild)
 }
 
-app.config.errorHandler = (err) => {
-  const e = err as Error
-  showError('应用内部错误', e?.stack || String(err))
-}
-
 window.addEventListener('error', (e) => {
   showError('脚本错误', `${e.message}\n${e.error?.stack ?? ''}`)
 })
@@ -45,4 +38,21 @@ window.addEventListener('unhandledrejection', (e) => {
   showError('未处理的异步异常', reason?.stack || String(reason))
 })
 
-app.use(router).mount('#app')
+async function start(): Promise<void> {
+  if (new URLSearchParams(location.search).get('pet') === '1') {
+    document.documentElement.classList.add('pet-window')
+    const { default: DesktopPet } = await import('./components/DesktopPet.vue')
+    createApp(DesktopPet).mount('#app')
+    return
+  }
+  await initializeVaultRepository()
+  const [{ default: App }, { default: router }] = await Promise.all([import('./App.vue'), import('./router'), import('./stores/theme')])
+  const app = createApp(App)
+  app.config.errorHandler = (err) => {
+    const e = err as Error
+    showError('应用内部错误', e?.stack || String(err))
+  }
+  app.use(router).mount('#app')
+}
+
+void start().catch(error => showError('本机数据加载失败，未进入应用', `${error instanceof Error ? error.message : String(error)}\n请保留浏览器数据，关闭其他窗口后重新打开应用。`))

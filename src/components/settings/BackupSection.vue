@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '@/lib/confirmAction'
 import { ref, watch } from 'vue'
 import { applyBackup, exportBackup, NEED_PASSWORD, parseBackup, type BackupFile } from '@/lib/backup'
 import { toast } from '@/lib/toast'
@@ -56,7 +57,7 @@ async function handleImportFile(file: File): Promise<void> {
   try {
     const parsed = await parseBackup(file)
     if (
-      !window.confirm(
+      !await confirmAction(
         '导入将完全覆盖当前的全部数据（含资料库文件）。确定继续吗？建议先导出一份当前备份。',
       )
     ) {
@@ -147,7 +148,7 @@ const inputCls =
       </div>
 
       <p class="text-[11px] leading-relaxed text-t4">
-        备份文件本身是加密的，恢复时需要对应的主密码。换新设备：先用相同主密码完成初始化，再导入备份即可。建议养成每月导出一次的习惯。
+        备份文件本身是加密的，恢复时需要备份的主密码。新设备可设置不同主密码，再导入备份；恢复后继续使用新设备的主密码。建议养成每月导出一次的习惯。
       </p>
     </div>
   </div>

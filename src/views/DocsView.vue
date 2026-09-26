@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { confirmAction } from '@/lib/confirmAction'
+import { cancelTextExtraction, extractDocumentText, indexedText, textProgress } from '@/lib/documentText'
 import { computed, onMounted, ref } from 'vue'
 import {
   ArrowUpDown,
@@ -34,6 +36,10 @@ import AppSelect from '@/components/AppSelect.vue'
 import PageHeader from '@/components/PageHeader.vue'
 
 const query = ref('')
+async function extractText(meta: DocMeta): Promise<void> {
+  try { await extractDocumentText(meta); toast('已加入本次解锁会话的正文搜索') }
+  catch (error) { toast(error instanceof Error ? error.message : '提取失败', 'error') }
+}
 const activeCat = ref('全部')
 const uploading = ref(false)
 const sortBy = ref<'time' | 'name' | 'size'>('time')
@@ -117,6 +123,7 @@ const filtered = computed(() => {
       (d) =>
         !q ||
         d.name.toLowerCase().includes(q) ||
+        indexedText(d).toLowerCase().includes(q) ||
         d.note.toLowerCase().includes(q) ||
         d.tags.some((t) => t.toLowerCase().includes(q)),
     )
@@ -177,8 +184,8 @@ async function handleDownload(meta: DocMeta): Promise<void> {
   }
 }
 
-function handleDelete(meta: DocMeta): void {
-  if (!window.confirm(`确定删除「${meta.name}」吗？文件数据将一并清除。`)) return
+async function handleDelete(meta: DocMeta): Promise<void> {
+  if (!await confirmAction(`确定删除「${meta.name}」吗？文件数据将一并清除。`)) return
   void removeDoc(meta.id).then(refreshStorage)
 }
 
@@ -205,7 +212,7 @@ function selectAllVisible(): void {
 async function batchDelete(): Promise<void> {
   const ids = [...selectedIds.value]
   if (ids.length === 0) return
-  if (!window.confirm(`确定删除选中的 ${ids.length} 个文件吗？数据将一并清除。`)) return
+  if (!await confirmAction(`确定删除选中的 ${ids.length} 个文件吗？数据将一并清除。`)) return
   for (const id of ids) await removeDoc(id)
   selectedIds.value = new Set()
   refreshStorage()
@@ -236,6 +243,8 @@ async function batchDelete(): Promise<void> {
         </label>
       </template>
     </PageHeader>
+    <p class="mt-3 text-xs leading-relaxed text-t3">正文搜索：可在文件卡片提取文本或 PDF 正文（≤10 MiB，最多 200 页 / 10 万字符）。仅保存在当前解锁会话，锁定后清空，不上传到服务器。</p>
+    <div v-if="textProgress" class="mt-2 flex items-center gap-3 text-xs text-primary"><span>{{ textProgress }}</span><button class="min-h-11 underline" @click="cancelTextExtraction">取消提取</button></div>
 
     <div v-if="storage && storage.quota > 0" class="mt-4 h-1 overflow-hidden rounded-full bg-surface-2">
       <div
@@ -361,6 +370,7 @@ async function batchDelete(): Promise<void> {
           </div>
           <span v-if="d.pinned" class="rounded-md bg-warn/15 px-1.5 py-0.5 text-[10px] text-warn">置顶</span>
         </div>
+        <button v-if="!manageMode" :disabled="Boolean(textProgress)" class="mt-2 min-h-11 text-left text-xs text-primary disabled:opacity-40" @click.stop="extractText(d)">{{ indexedText(d) ? '重新提取正文' : '提取正文用于搜索' }}</button>
 
         <button
           v-if="d.note"

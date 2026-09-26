@@ -11,25 +11,38 @@ const emit = defineEmits<{
 }>()
 
 const panel = ref<HTMLElement | null>(null)
+let returnFocus: HTMLElement | null = null
 
 function onKeydown(e: KeyboardEvent) {
+  if (document.querySelectorAll('[role="dialog"]').item(document.querySelectorAll('[role="dialog"]').length - 1) !== panel.value) return
   if (e.key === 'Escape') emit('close')
+  if (e.key === 'Tab') {
+    const focusable = Array.from(panel.value?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), a[href], [tabindex="0"]') ?? []).filter(element => element.getClientRects().length > 0)
+    const first = focusable[0], last = focusable.at(-1)
+    if (!first) { e.preventDefault(); panel.value?.focus() }
+    else if (e.shiftKey && (document.activeElement === first || document.activeElement === panel.value)) { e.preventDefault(); last?.focus() }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+  }
 }
 
 watch(
   () => props.open,
   (open) => {
     if (open) {
+      returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
       window.addEventListener('keydown', onKeydown)
       void nextTick(() => panel.value?.focus())
     } else {
       window.removeEventListener('keydown', onKeydown)
+      returnFocus?.focus()
     }
   },
+  { immediate: true },
 )
 
 onUnmounted(() => {
   window.removeEventListener('keydown', onKeydown)
+  if (returnFocus?.isConnected) returnFocus.focus()
 })
 </script>
 

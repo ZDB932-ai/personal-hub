@@ -1,16 +1,21 @@
 {
   "name": "personal-hub",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.1.1",
+  "androidVersionCode": 3,
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "node scripts/versions.mjs && vue-tsc --noEmit && vite build",
+    "version:sync": "node scripts/versions.mjs --write",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
     "test": "vitest run",
+    "sync:server": "node server/start.ts",
+    "sync:typecheck": "tsc -p server/tsconfig.json",
     "desktop:dev": "tauri dev",
-    "desktop:build": "tauri build"
+    "desktop:build": "tauri build",
+    "test:ui": "node scripts/verify-hub-ui.mjs && node scripts/verify-today-simple.mjs && node scripts/verify-release-ui.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",
@@ -19,11 +24,14 @@
     "@capgo/capacitor-native-biometric": "^8.6.7",
     "@lucide/vue": "^1.33.0",
     "@tauri-apps/api": "2.11.1",
+    "@tauri-apps/plugin-dialog": "^2.7.3",
+    "@tauri-apps/plugin-fs": "^2.5.2",
     "@tauri-apps/plugin-notification": "2.3.3",
     "@tauri-apps/plugin-opener": "2.5.4",
     "docx-preview": "^0.4.0",
     "hash-wasm": "^4.12.0",
     "pdfjs-dist": "^6.2.108",
+    "three": "^0.186.0",
     "vue": "^3.5.41",
     "vue-router": "^5.2.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
@@ -33,11 +41,18 @@
     "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/cli": "2.11.4",
     "@types/node": "^24.0.0",
+    "@types/three": "^0.186.0",
     "@vitejs/plugin-vue": "^6.0.8",
+    "fake-indexeddb": "^6.2.5",
+    "playwright": "1.63.0",
     "tailwindcss": "^4.3.3",
     "typescript": "~5.9.3",
     "vite": "^8.2.2",
     "vitest": "^5.0.0",
     "vue-tsc": "^3.3.11"
-  }
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "license": "MIT"
 }

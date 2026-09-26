@@ -35,7 +35,7 @@ export interface KdfParams {
   parallelism: number
 }
 
-export interface DataEnvelope {
+export interface LegacyEnvelope {
   v: 2
   kdf: KdfParams
   ts: number
@@ -43,7 +43,19 @@ export interface DataEnvelope {
   ctB64: string
 }
 
+export interface WrappedEnvelope extends Omit<LegacyEnvelope, 'v'> {
+  v: 3
+  vaultId: string
+  keyId: string
+  wrappedKey: { ivB64: string; ctB64: string }
+}
+
+export type DataEnvelope = LegacyEnvelope | WrappedEnvelope
+
 export interface VaultPayload {
+  recoveryItems?: import('@/lib/recovery').RecoveryItem[]
+  schemaVersion?: 1
+  offlineJournal?: import('@/lib/offlineJournal').OfflineJournal
   profile: ProfileInfo
   entries: VaultEntry[]
   tasks?: Task[]
@@ -88,7 +100,10 @@ export interface SubTask {
 }
 
 export interface Task {
+  estimatedMinutes?: number
+  links?: EntityLink[]
   id: string
+  repeatSourceId?: string
   title: string
   notes: string
   date: string
@@ -110,6 +125,7 @@ export interface Task {
 }
 
 export interface WeeklyPlan {
+  estimatedMinutes?: number
   id: string
   title: string
   notes: string
@@ -137,6 +153,7 @@ export interface LongPlan {
 }
 
 export interface PlannerState {
+  dayCapacities?: Array<{ date: string; minutes: number }>
   energy: PlannerEnergy
   restDates: string[]
   dayEnergies: PlannerDayEnergy[]
@@ -198,6 +215,8 @@ export interface Memo {
 
 export interface DocMeta {
   id: string
+  blobId?: string
+  attachment?: { version: 1; ivB64: string; bytes: number; chunks: string[] }
   name: string
   category: string
   tags: string[]
@@ -206,4 +225,9 @@ export interface DocMeta {
   mime: string
   pinned: boolean
   createdAt: number
+}
+
+export interface EntityLink {
+  kind: 'memos' | 'docMetas' | 'repos'
+  id: string
 }

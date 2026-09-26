@@ -18,6 +18,7 @@ import { entries } from '@/stores/vault'
 import { tasks } from '@/stores/tasks'
 import ProfileModal from '@/components/ProfileModal.vue'
 import PageHeader from '@/components/PageHeader.vue'
+import DashboardWorkspace from '@/components/DashboardWorkspace.vue'
 import { formatDate, passwordStrength, todayYMD } from '@/lib/utils'
 import { remindTsOf } from '@/lib/reminders'
 
@@ -97,6 +98,8 @@ const contactRows = computed(() =>
         </template>
       </PageHeader>
 
+      <DashboardWorkspace />
+
       <div class="dashboard-overview mt-7">
         <div
           class="dashboard-profile"
@@ -110,7 +113,7 @@ const contactRows = computed(() =>
             </div>
             <div class="min-w-0">
               <p class="truncate text-lg font-semibold">
-                {{ profile.nickname }}
+                {{ profile.nickname || profile.name }}
                 <span v-if="profile.nickname && profile.name" class="ml-2 text-sm font-normal text-t4">
                   {{ profile.name }}
                 </span>
@@ -155,7 +158,7 @@ const contactRows = computed(() =>
             </div>
             <div>
               <p class="font-medium text-t2">完善你的个人资料</p>
-              <p class="mt-1 text-sm text-t4">填写昵称、联系方式等信息，只保存在你的浏览器里</p>
+              <p class="mt-1 text-sm text-t3">补充昵称与联系方式，方便需要时查找。资料加密保存。</p>
             </div>
           </div>
           <button
@@ -209,10 +212,10 @@ const contactRows = computed(() =>
             </span>
             <div class="min-w-0">
               <p class="text-sm font-semibold" :class="weakCount > 0 ? 'text-danger' : 'text-ok'">
-                {{ weakCount > 0 ? `${weakCount} 个弱密码` : '密码强度良好' }}
+                {{ total === 0 ? '尚未添加账号' : weakCount > 0 ? `${weakCount} 个弱密码` : '密码强度良好' }}
               </p>
               <p class="mt-0.5 text-xs text-t4">
-                {{ weakCount > 0 ? '建议更换' : '继续保持' }}
+                {{ total === 0 ? '集中管理常用账号' : weakCount > 0 ? '建议更换' : '继续保持' }}
               </p>
             </div>
           </RouterLink>
@@ -221,7 +224,7 @@ const contactRows = computed(() =>
 
       <div class="mt-7 border-t border-line pt-5">
       <div class="flex items-center justify-between">
-        <h2 class="text-base font-semibold">最近更新</h2>
+        <h2 class="text-base font-semibold">最近更新的账号</h2>
         <RouterLink class="text-xs font-medium text-primary transition-colors duration-150 hover:text-primary-strong" to="/vault">
           查看全部
         </RouterLink>

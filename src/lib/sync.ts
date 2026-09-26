@@ -1,9 +1,14 @@
+import { confirmAction } from './confirmAction'
 import { computed, ref } from 'vue'
 import { decryptJSON, encryptJSON } from '@/lib/crypto'
 import type { DataEnvelope } from '@/types'
+import { commitRepository, readRepository } from './vaultRepository'
 import {
   dataEnvelope,
+  databaseBusy,
+  flushPendingSave,
   getActiveKey,
+  getDataRevision,
   initFromEnvelope,
   onDataSaved,
 } from '@/stores/database'
@@ -29,6 +34,14 @@ export const syncMeta = ref<SyncMeta>(
   readJSON<SyncMeta>(META_KEY) ?? { lastSyncAt: 0, lastError: '' },
 )
 export const syncing = ref(false)
+
+export const syncStatusText = computed(() => {
+  if (dataEnvelope.value?.v === 3) return '仅本机'
+  if (!syncConfig.value) return '仅本机'
+  if (syncing.value) return '同步中'
+  if (syncMeta.value.lastError) return '同步异常'
+  return syncMeta.value.lastSyncAt ? '已连接' : '尚未同步'
+})
 
 export const isSyncConfigured = computed(() => syncConfig.value !== null)
 
@@ -128,7 +141,7 @@ async function encryptWithActiveKey(value: unknown): Promise<{ ivB64: string; ct
 }
 
 async function loadStoredPassword(): Promise<string | null> {
-  const secure = readJSON<{ ivB64: string; ctB64: string }>(SECURE_KEY)
+  const secure = readRepository<{ ivB64: string; ctB64: string }>(SECURE_KEY)
   const key = getActiveKey()
   if (!secure || !key) return null
   try {
@@ -187,6 +200,7 @@ export async function connectSync(
   password: string,
   autoSync: boolean,
 ): Promise<void> {
+  if (dataEnvelope.value?.v === 3) fail('此保险库已使用设备独立密码，请在同步设置中连接逐条同步服务；旧版整库同步已停用')
   if (!getActiveKey()) fail('请先解锁后再连接同步')
   if (password.length < 6) fail('同步密码至少需要 6 位')
 
@@ -206,7 +220,7 @@ export async function connectSync(
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     if (msg.includes('登录失败')) {
-      const signup = window.confirm(
+      const signup = await confirmAction(
         '该账号在服务器上不存在。是否用该邮箱注册新账号并开启同步？',
       )
       if (!signup) {
@@ -232,8 +246,9 @@ export async function connectSync(
     }
   }
 
+  const activeKey = getActiveKey()
   const secure = await encryptWithActiveKey(password)
-  writeJSON(SECURE_KEY, secure)
+  await commitRepository({ [SECURE_KEY]: secure }, () => getActiveKey() === activeKey && !databaseBusy.value)
   syncConfig.value = { serverUrl, email, autoSync }
   writeJSON(CFG_KEY, { ...syncConfig.value })
 
@@ -241,7 +256,8 @@ export async function connectSync(
 }
 
 export async function disconnectSync(): Promise<void> {
-  removeKeys([CFG_KEY, SECURE_KEY, META_KEY])
+  await commitRepository({ [SECURE_KEY]: undefined })
+  removeKeys([CFG_KEY, META_KEY])
   syncConfig.value = null
   syncMeta.value = { lastSyncAt: 0, lastError: '' }
   token = ''
@@ -255,14 +271,19 @@ export async function setAutoSync(enabled: boolean): Promise<void> {
 }
 
 export async function syncNow(): Promise<void> {
-  if (syncing.value || !syncConfig.value) return
+  if (dataEnvelope.value?.v === 3) {
+    syncMeta.value.lastError = '设备独立密码保险库不支持旧版整库同步'
+    return
+  }
+  if (syncing.value || !syncConfig.value || databaseBusy.value || !getActiveKey()) return
   syncing.value = true
   try {
     await ensureAuth()
 
-    const local = dataEnvelope.value
-    if (!local) throw new Error('本地数据尚未就绪')
     const remote = await fetchRemoteRecord()
+    if (databaseBusy.value || !getActiveKey()) throw new Error('数据状态已变化，请重新同步')
+    const local = await flushPendingSave()
+    if (local.v !== 2) fail('保险库已升级，旧版整库同步已停止')
 
     if (!remote) {
       await createRemoteRecord(local)
@@ -275,7 +296,7 @@ export async function syncNow(): Promise<void> {
       }
       if (!remoteEnv || !remoteEnv.kdf) {
         await updateRemoteRecord(remote.id, local)
-      } else if (!local || remoteEnv.ts > local.ts) {
+      } else if (remoteEnv.ts > local.ts) {
         await pullRemote(remoteEnv)
       } else if (local.ts > remoteEnv.ts) {
         await updateRemoteRecord(remote.id, local)
@@ -298,24 +319,33 @@ export async function syncNow(): Promise<void> {
 }
 
 async function pullRemote(remoteEnv: DataEnvelope): Promise<void> {
+  if (remoteEnv.v !== 2) fail('远端保险库版本不兼容，请使用设备加入功能')
   const key = getActiveKey()
   if (!key) fail('数据已锁定')
+  const revision = getDataRevision()
+  const localEnvelope = dataEnvelope.value
+  const canApply = () => getActiveKey() === key && !databaseBusy.value && getDataRevision() === revision && dataEnvelope.value === localEnvelope
   try {
     await decryptJSON(key!, remoteEnv.ivB64, remoteEnv.ctB64)
-    await initFromEnvelope(remoteEnv, key!)
   } catch {
-    const overwrite = window.confirm(
+    if (!canApply()) fail('同步期间本地数据已变化，请重新同步')
+    const overwrite = await confirmAction(
       '云端数据与本机的主密码不一致（或已损坏），无法解密合并。\n\n是否用本机当前数据覆盖云端？',
     )
     if (!overwrite) fail('云端数据无法解密，同步已取消')
-    const local = dataEnvelope.value
-    if (!local) fail('本地数据尚未就绪')
     const remote = await fetchRemoteRecord()
-    if (remote) await updateRemoteRecord(remote.id, local!)
+    if (databaseBusy.value || getActiveKey() !== key) fail('数据状态已变化，请重新同步')
+    const local = await flushPendingSave()
+    if (remote) await updateRemoteRecord(remote.id, local)
+    return
+  }
+  if (!await initFromEnvelope(remoteEnv, key!, canApply)) {
+    fail('同步期间本地数据已变化，已保留本地修改，请重新同步')
   }
 }
 
 export function scheduleAutoPush(): void {
+  if (dataEnvelope.value?.v === 3) return
   if (!syncConfig.value?.autoSync) return
   if (pushTimer) clearTimeout(pushTimer)
   pushTimer = setTimeout(() => {

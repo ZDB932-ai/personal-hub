@@ -1,3 +1,5 @@
+mod pet;
+
 use tauri::{
   menu::{Menu, MenuItem},
   tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
@@ -9,14 +11,20 @@ fn show_main_window(app: &tauri::AppHandle) {
     let _ = window.unminimize();
     let _ = window.show();
     let _ = window.set_focus();
+    pet::refresh(app);
   }
 }
 
 pub fn run() {
   tauri::Builder::default()
+    .manage(pet::PetState::default())
+    .invoke_handler(tauri::generate_handler![pet::pet_preferences, pet::pet_configure, pet::pet_home, pet::pet_reset_position])
     .plugin(tauri_plugin_notification::init())
     .plugin(tauri_plugin_opener::init())
+    .plugin(tauri_plugin_dialog::init())
+    .plugin(tauri_plugin_fs::init())
     .setup(|app| {
+      pet::setup(app.handle())?;
       let open = MenuItem::with_id(app, "open", "打开 Personal Hub", true, None::<&str>)?;
       let lock = MenuItem::with_id(app, "lock", "锁定应用", true, None::<&str>)?;
       let quit = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
@@ -57,9 +65,14 @@ pub fn run() {
       Ok(())
     })
     .on_window_event(|window, event| {
+      if window.label() != "main" { return; }
+      if matches!(event, WindowEvent::Resized(_) | WindowEvent::Focused(_)) {
+        pet::refresh(window.app_handle());
+      }
       if let WindowEvent::CloseRequested { api, .. } = event {
         api.prevent_close();
         let _ = window.hide();
+        pet::refresh(window.app_handle());
       }
     })
     .run(tauri::generate_context!())

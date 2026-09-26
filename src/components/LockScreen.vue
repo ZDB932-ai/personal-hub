@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import { confirmAction } from '@/lib/confirmAction'
 import { computed, onMounted, ref, watch } from 'vue'
 import { Eye, EyeOff, Fingerprint, LockKeyhole, ShieldCheck } from '@lucide/vue'
 import { isGated, lockHint, setupLock, unlockApp, usesSetupScreen } from '@/stores/lock'
 import { biometricAvailable, biometricClear, biometricEnabled, biometricGetSecret } from '@/lib/biometric'
 import { deleteAllBlobs } from '@/lib/docdb'
 import { deleteAllImgs } from '@/lib/wallpaperdb'
+import { resetVaultRepository } from '@/lib/vaultRepository'
+import { clearNativeReminders } from '@/lib/reminders'
+import DeviceJoin from './DeviceJoin.vue'
+import { lockMode } from '@/stores/lock'
 
 const mode = computed<'setup' | 'locked'>(() => (usesSetupScreen.value ? 'setup' : 'locked'))
 
@@ -72,19 +77,23 @@ async function submit() {
 
 async function resetAll(): Promise<void> {
   if (resetting.value) return
-  const confirmed = window.confirm(
+  const confirmed = await confirmAction(
     '重置将清除本机保存的全部数据（个人资料 + 所有账号密码），且无法恢复。云端备份不会被删除。确定继续吗？',
   )
   if (!confirmed) return
-  const doubleCheck = window.confirm('再次确认：真的要清除所有本地数据吗？')
+  const doubleCheck = await confirmAction('再次确认：真的要清除所有本地数据吗？')
   if (!doubleCheck) return
   resetting.value = true
   try {
+    await clearNativeReminders()
+    await resetVaultRepository()
     await Promise.allSettled([deleteAllBlobs(), deleteAllImgs(), biometricClear()])
     localStorage.clear()
     sessionStorage.clear()
-  } finally {
     location.reload()
+  } catch (e) {
+    fail(e instanceof Error ? e.message : '重置失败，请重试')
+    resetting.value = false
   }
 }
 
@@ -95,7 +104,7 @@ const inputCls =
 <template>
   <div class="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-body p-4">
     <div
-      class="relative w-full max-w-sm rounded-xl border border-line bg-surface p-8 shadow-2xl shadow-black/50"
+      class="relative max-h-[calc(100dvh-2rem)] w-full max-w-sm overflow-y-auto rounded-xl border border-line bg-surface p-8 shadow-2xl shadow-black/50"
       :class="{ shake }"
     >
       <div class="flex flex-col items-center text-center">
@@ -188,6 +197,7 @@ const inputCls =
           指纹解锁
         </button>
       </form>
+      <DeviceJoin v-if="lockMode === 'fresh'" :disabled="busy" @busy="busy = $event" />
 
       <p v-if="mode === 'setup'" class="mt-5 text-center text-[11px] leading-relaxed text-t4">
         主密码忘记后数据将永久无法解密找回，请务必牢记。<br />

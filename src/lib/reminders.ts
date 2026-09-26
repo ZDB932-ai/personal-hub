@@ -1,5 +1,5 @@
 import { Capacitor } from '@capacitor/core'
-import { watch } from 'vue'
+import { ref, watch } from 'vue'
 import type { Task } from '@/types'
 import { tasks } from '@/stores/tasks'
 import { toast } from '@/lib/toast'
@@ -17,6 +17,12 @@ async function ln() {
 
 let timer: ReturnType<typeof setInterval> | undefined
 let rescheduleTimer: ReturnType<typeof setTimeout> | null = null
+let canSchedule = () => false
+let nativeQueue: Promise<void> = Promise.resolve()
+let nativeGeneration = 0
+let ticking = false
+let webGeneration = 0
+export const reminderError = ref('')
 
 export function remindTsOf(t: Task): number | null {
   if (!t.date || !t.time || t.done) return null
@@ -57,8 +63,9 @@ export async function ensureNotificationPermission(): Promise<boolean> {
   return true
 }
 
-function fireWebNotification(t: Task): void {
+function fireWebNotification(t: Task): boolean {
   try {
+    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return false
     const n = new Notification('任务提醒', {
       body: `${t.title}${t.time ? ` · ${t.time}` : ''}`,
       tag: t.id,
@@ -67,29 +74,42 @@ function fireWebNotification(t: Task): void {
       window.focus()
       location.hash = '#/today'
     }
+    return true
   } catch {
-    /* ignore */
+    return false
   }
 }
 
-async function fireNotification(t: Task): Promise<void> {
+async function fireNotification(t: Task): Promise<boolean> {
   if (isTauriDesktop()) {
-    await sendDesktopNotification(t.id, '任务提醒', `${t.title}${t.time ? ` · ${t.time}` : ''}`)
-    return
+    const sent = await sendDesktopNotification(t.id, '任务提醒', `${t.title}${t.time ? ` · ${t.time}` : ''}`)
+    if (sent) void import('@tauri-apps/api/event').then(({ emitTo }) => emitTo('pet', 'pet://reminder')).catch(() => {})
+    return sent
   }
-  fireWebNotification(t)
+  return fireWebNotification(t)
 }
 
 async function tick(): Promise<void> {
-  const now = Date.now()
-  for (const t of tasks.value) {
-    const rts = remindTsOf(t)
-    if (rts === null) continue
-    if ((t.lastRemindedTs ?? 0) >= rts) continue
-    if (now < rts) continue
-    t.lastRemindedTs = rts
-    if (!isNative) void fireNotification(t)
-  }
+  if (ticking || isNative) return
+  ticking = true
+  const generation = webGeneration
+  try {
+    const now = Date.now()
+    for (const t of tasks.value) {
+      if (generation !== webGeneration) break
+      const rts = remindTsOf(t)
+      if (rts === null) continue
+      if ((t.lastRemindedTs ?? 0) >= rts) continue
+      if (now < rts) continue
+      if (await fireNotification(t)) {
+        t.lastRemindedTs = rts
+        reminderError.value = ''
+      } else {
+        reminderError.value = '任务提醒未发送，请检查系统通知权限后重试。'
+        break
+      }
+    }
+  } finally { ticking = false }
 }
 
 export function startReminders(): void {
@@ -99,6 +119,7 @@ export function startReminders(): void {
 }
 
 export function stopReminders(): void {
+  webGeneration++
   if (timer !== undefined) {
     clearInterval(timer)
     timer = undefined
@@ -111,44 +132,96 @@ function nativeIdOf(taskId: string): number {
   return h
 }
 
-export async function rescheduleNative(): Promise<void> {
-  if (!isNative) return
-  try {
-    const { LocalNotifications } = await ln()
-    await LocalNotifications.cancelAll()
+function nativePlan() {
     const now = Date.now()
-    const upcoming = tasks.value
+    const ids = new Set<number>()
+    return tasks.value
       .filter((t) => {
         const rts = remindTsOf(t)
         return rts !== null && rts > now && (t.lastRemindedTs ?? 0) < rts
       })
+      .sort((a, b) => remindTsOf(a)! - remindTsOf(b)! || a.id.localeCompare(b.id))
       .slice(0, 60)
-      .map((t) => ({
-        id: nativeIdOf(t.id),
+      .map((t) => {
+        let id = nativeIdOf(t.id) & 0x7fffffff
+        while (ids.has(id)) id = (id + 1) & 0x7fffffff
+        ids.add(id)
+        return {
+        id,
         title: '任务提醒',
-        body: `${t.title} ${t.time}`.trim(),
+        body: '有任务到时间啦，请解锁 Personal Hub 查看。',
         schedule: { at: new Date(remindTsOf(t)!), allowWhileIdle: true },
         extra: { taskId: t.id },
-      }))
-    if (upcoming.length > 0) {
-      await LocalNotifications.schedule({ notifications: upcoming })
-    }
-  } catch {
-    /* ignore */
-  }
+      } })
 }
 
-export function bindNativeScheduleWatcher(): () => void {
+function schedulePlan(upcoming: ReturnType<typeof nativePlan>): Promise<void> {
+  const generation = nativeGeneration
+  nativeQueue = nativeQueue.then(async () => {
+    if (generation !== nativeGeneration) return
+    try {
+      const { LocalNotifications } = await ln()
+      if (generation !== nativeGeneration) return
+      const pending = await LocalNotifications.getPending()
+      if (upcoming.length > 0) {
+        if ((await LocalNotifications.checkPermissions()).display !== 'granted') throw new Error('未授予通知权限，请在系统设置中开启后重试。')
+        await LocalNotifications.schedule({ notifications: upcoming })
+      }
+      const desired = new Set(upcoming.map(item => item.id))
+      const removed = pending.notifications.filter(item => !desired.has(item.id))
+      if (removed.length) await LocalNotifications.cancel({ notifications: removed.map(({ id }) => ({ id })) })
+      reminderError.value = upcoming.length && (await LocalNotifications.checkExactNotificationSetting()).exact_alarm !== 'granted'
+        ? '精确闹钟权限未开启，提醒可能延迟，请在系统设置中开启后重试。' : ''
+    } catch (error) {
+      reminderError.value = error instanceof Error ? `提醒安排失败：${error.message}` : '提醒安排失败，请检查系统通知设置后重试。'
+    }
+  })
+  return nativeQueue
+}
+
+export async function rescheduleNative(): Promise<void> {
+  if (!isNative || !canSchedule()) return
+  if (rescheduleTimer) clearTimeout(rescheduleTimer)
+  rescheduleTimer = null
+  await schedulePlan(nativePlan())
+}
+
+export async function retryReminders(): Promise<void> {
+  if (isNative) await rescheduleNative()
+  else await tick()
+}
+
+export async function clearNativeReminders(): Promise<void> {
+  if (!isNative) return
+  nativeGeneration++
+  if (rescheduleTimer) clearTimeout(rescheduleTimer)
+  rescheduleTimer = null
+  await nativeQueue
+  const { LocalNotifications } = await ln()
+  await LocalNotifications.cancelAll()
+  reminderError.value = ''
+}
+
+export function bindNativeScheduleWatcher(ready: () => boolean): () => void {
   if (!isNative) return () => {}
-  return watch(
-    tasks,
+  canSchedule = ready
+  const stop = watch(
+    [tasks, ready],
     () => {
+      if (!ready()) return
+      const upcoming = nativePlan()
       if (rescheduleTimer) clearTimeout(rescheduleTimer)
       rescheduleTimer = setTimeout(() => {
         rescheduleTimer = null
-        void rescheduleNative()
+        void schedulePlan(upcoming)
       }, 800)
     },
-    { deep: true },
+    { deep: true, immediate: true, flush: 'sync' },
   )
+  return () => {
+    stop()
+    canSchedule = () => false
+    if (rescheduleTimer) clearTimeout(rescheduleTimer)
+    rescheduleTimer = null
+  }
 }

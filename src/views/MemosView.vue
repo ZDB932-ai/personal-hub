@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { confirmAction } from '@/lib/confirmAction'
 import { computed, ref } from 'vue'
 import {
+  CalendarDays,
   ListPlus,
   Pencil,
   Pin,
@@ -11,7 +13,7 @@ import {
   Tag as TagIcon,
   Trash2,
 } from '@lucide/vue'
-import { addTask } from '@/stores/tasks'
+import { addTask, tasks } from '@/stores/tasks'
 import {
   addMemo,
   memoCardClass,
@@ -43,8 +45,8 @@ function openEdit(memo: Memo): void {
   showModal.value = true
 }
 
-function handleDelete(memo: Memo): void {
-  if (window.confirm('确定删除这条便签吗？')) removeMemo(memo.id)
+async function handleDelete(memo: Memo): Promise<void> {
+  if (await confirmAction('确定删除这条便签吗？')) removeMemo(memo.id)
 }
 
 const TAG_RE = /#([\p{L}\p{N}_-]+)/gu
@@ -122,6 +124,7 @@ function convertToTask(memo: Memo): void {
   addTask({
     title,
     notes: memo.content,
+    links: [{ kind: 'memos', id: memo.id }],
     date: todayYMD(),
     time: '',
     priority: 2,
@@ -130,6 +133,10 @@ function convertToTask(memo: Memo): void {
   })
   toast('已转为今日任务，去「计划」查看')
 }
+
+function scheduledTasks(memo: Memo) {
+  return tasks.value.filter(task => task.date && task.links?.some(link => link.kind === 'memos' && link.id === memo.id)).sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+}
 </script>
 
 <template>
@@ -137,6 +144,7 @@ function convertToTask(memo: Memo): void {
     <PageHeader title="备忘录" eyebrow="日常">
       <template #description>共 {{ memos.length }} 条便签 · 支持 #标签 与 [ ] 清单语法</template>
       <template #actions>
+        <RouterLink to="/calendar" class="ui-secondary-button gap-2"><CalendarDays class="h-4 w-4" />日历</RouterLink>
         <button class="ui-secondary-button gap-2" @click="quickAdd">
           <Plus class="mr-1 inline h-4 w-4" />
           快速新建
@@ -252,6 +260,10 @@ function convertToTask(memo: Memo): void {
           </template>
         </div>
 
+        <div class="mt-3 border-t border-line pt-2">
+          <RouterLink :to="{ path: '/calendar', query: { memo: m.id } }" class="inline-flex min-h-11 items-center gap-2 text-xs text-primary hover:underline"><CalendarDays class="h-4 w-4" />安排到日历</RouterLink>
+          <RouterLink v-for="task in scheduledTasks(m)" :key="task.id" :to="{ path: '/calendar', query: { date: task.date } }" class="flex min-h-11 items-center gap-2 text-xs text-t3 hover:text-primary"><span>{{ task.date.slice(5) }} {{ task.time || '不定时' }}</span><span class="min-w-0 truncate" :class="{ 'line-through': task.done }">{{ task.title }}</span><span v-if="task.done" class="shrink-0">已完成</span></RouterLink>
+        </div>
         <div class="memo-card-footer flex items-center justify-between text-[11px] text-t4">
           <div class="flex min-w-0 flex-wrap items-center gap-1">
             <span
