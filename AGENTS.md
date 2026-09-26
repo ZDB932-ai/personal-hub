@@ -199,7 +199,7 @@ npm run desktop:build   # = vue-tsc + vite build + cargo build + NSIS 打包
 ## 后续路线
 
 1. AI 工作台：五 agent 适配器已完成（opencode/pi/codex/dsh/zcode，bridge v2 多 agent 架构）；剩余安卓审批推送、E2E 加密（详见 docs/AI-WORKBENCH.md）
-2. 远程备份：git 已有首次提交（main 分支），尚未配置远程私有仓库
+2. 远程备份：已配置 GitHub 私有仓库 `ZDB932-ai/personal-hub`（main 分支，origin 已跟踪，日常提交后直接 push）
 3. 正式发布：keystore 已生成，版本迭代记得递增 versionCode/versionName（Android 与 Tauri 两处）
 4. 巨型视图拆分：TodayView(1400+行)/AiView(1100+行) 下次大改前先下沉 composables
 5. 远期备选：Ctrl+K 全局搜索、备忘录 Markdown、docs 文件本体云同步、日历视图（详见 docs/P5-FEATURES.md）
