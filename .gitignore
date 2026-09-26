@@ -31,3 +31,4 @@ release/
 !.env.example
 *.phub
 *.phub-device
+.zcodeignore
