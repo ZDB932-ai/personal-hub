@@ -1,5 +1,7 @@
 # Personal Hub · 个人信息管理台
 
+本地账户更新：新账户直接创建 v3，可预设恢复密钥并在忘记密码时重设密码；旧账户保持兼容，在安全设置主动升级。恢复信息为设备本地配置，不随普通备份/设备加入/云同步转移。下方“首次创建 v2”“忘记密码不可恢复”仅适用于历史路径及未设置恢复方式的账户。详见 `docs/LOCAL-ACCOUNT.md`。
+
 非 AI 优化增量见 `docs/HUB-IMPROVEMENTS.md`：全局搜索与收集、任务来源关联、按分钟容量排期、本机回收站与修改历史、字段冲突对比、前台周期同步、附件按需下载与密文断点缓存、会话内文本/PDF 正文搜索。AI 远程功能按用户要求暂缓；下方历史路线中的全局搜索、附件同步等待办以专题文档为准。
 
 当前 1.1.1 预览发布准备见 `docs/PREVIEW-RELEASE.md`：桌面宠物纳入 Windows 交付；Android 锁定保留系统提醒，Windows/Web 锁定暂停扫描。托盘已实现。桌面通知通过原生 IPC 等待提交回执，通知点击跳转尚未实现，不沿用历史“点击唤窗”描述。Tailwind 扫描范围限定 src，避免文档与本机实验文件影响 CSS。
@@ -220,4 +222,3 @@ npm run desktop:build   # = vue-tsc + vite build + cargo build + NSIS 打包
 - `design` / `design-system` — 设计与设计系统专项
 - `ui-styling` — 样式实现专项（22 技术栈适配）
 - `brand` / `banner-design` / `slides` — 品牌 / 横幅 / 幻灯片专项
-

@@ -46,6 +46,32 @@ export interface CalendarBlock {
   lanes: number
 }
 
+export const TIMELINE_HOUR_HEIGHT = 96
+export const TIMELINE_MIN_EVENT_HEIGHT = 44
+
+export function timelineBlocks(tasks: Task[], date: string) {
+  const blocks = dayBlocks(tasks, date).map(block => ({
+    ...block,
+    top: block.start / 60 * TIMELINE_HOUR_HEIGHT,
+    height: Math.max(TIMELINE_MIN_EVENT_HEIGHT, (block.end - block.start) / 60 * TIMELINE_HOUR_HEIGHT - 2),
+  }))
+  let group: typeof blocks = []
+  let ends: number[] = []
+  let groupEnd = -1
+  const finish = () => { for (const block of group) block.lanes = ends.length }
+  for (const block of blocks) {
+    if (block.top >= groupEnd) { finish(); group = []; ends = []; groupEnd = -1 }
+    let lane = ends.findIndex(end => end <= block.top)
+    if (lane < 0) lane = ends.length
+    ends[lane] = block.top + block.height + 2
+    block.lane = lane
+    group.push(block)
+    groupEnd = Math.max(groupEnd, ends[lane]!)
+  }
+  finish()
+  return blocks
+}
+
 export function dayBlocks(tasks: Task[], date: string): CalendarBlock[] {
   const blocks: CalendarBlock[] = []
   for (const task of tasks) {

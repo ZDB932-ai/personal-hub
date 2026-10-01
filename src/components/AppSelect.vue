@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { Check, ChevronDown } from '@lucide/vue'
+defineOptions({ inheritAttrs: false })
 
 interface Option {
   value: string | number
@@ -140,6 +141,7 @@ onBeforeUnmount(() => close(false))
 
 <template>
   <button
+    v-bind="$attrs"
     ref="trigger"
     type="button"
     role="combobox"

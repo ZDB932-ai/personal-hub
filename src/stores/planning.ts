@@ -12,6 +12,7 @@ import type {
 import { todayYMD, uid, weekDates, weekStartYMD } from '@/lib/utils'
 import { addTask, tasks } from './tasks'
 import { estimatedMinutes, scheduleWithinCapacity } from '@/lib/planningCapacity'
+import { protectedIntervals, taskMinutesOnDate } from '@/lib/attention'
 
 export interface WeeklyPlanInput {
   estimatedMinutes?: number
@@ -25,6 +26,7 @@ export interface WeeklyPlanInput {
 }
 
 export interface LongPlanInput {
+  deferredUntil?: string
   title: string
   description: string
   area: string
@@ -241,11 +243,13 @@ function linkedTasks(planId: string) {
 
 export function dayCapacity(date: string): number {
   if (planner.value.restDates.includes(date)) return 0
-  return planner.value.dayCapacities?.find(day => day.date === date)?.minutes ?? { gentle: 60, steady: 180, focused: 300 }[plannerEnergyForDate(date)]
+  const base = planner.value.dayCapacities?.find(day => day.date === date)?.minutes ?? { gentle: 60, steady: 180, focused: 300 }[plannerEnergyForDate(date)]
+  const reserved = protectedIntervals(planner.value.protectedTimes ?? [], date).reduce((sum, item) => sum + Math.max(0, Math.min(1080, item.end) - Math.max(540, item.start)), 0)
+  return Math.min(base, Math.max(0, 540 - reserved))
 }
 
 export function dayLoad(date: string): number {
-  return tasks.value.filter(task => !task.done && task.date === date).reduce((sum, task) => sum + estimatedMinutes(task.estimatedMinutes), 0)
+  return tasks.value.reduce((sum, task) => sum + taskMinutesOnDate(task, date), 0)
 }
 
 export function setDayCapacity(date: string, minutes?: number): void {
@@ -259,7 +263,8 @@ export function createWeekScheduleDraft(planId: string): WeekScheduleDraft | nul
   const existing = linkedTasks(plan.id)
   const missing = Math.max(0, plan.sessions - existing.length)
   const allDates = weekDates(plan.weekStart)
-  const availableDates = allDates.filter((date) => date >= todayYMD() && !planner.value.restDates.includes(date))
+  const goal = longPlans.value.find(item => item.id === plan.longPlanId)
+  const availableDates = allDates.filter((date) => date >= todayYMD() && !planner.value.restDates.includes(date) && (!goal || (goal.status === 'active' && (!goal.deferredUntil || goal.deferredUntil <= date))))
   const dates = scheduleWithinCapacity(availableDates.map(date => ({ date, capacity: dayCapacity(date), load: dayLoad(date), preferred: plan.preferredWeekdays.includes(weekdayIndex(date)), energy: energyPreference(date) })), missing, estimatedMinutes(plan.estimatedMinutes))
   const entries: WeekScheduleEntry[] = dates.map((date, position) => ({
       date,
@@ -271,7 +276,7 @@ export function createWeekScheduleDraft(planId: string): WeekScheduleDraft | nul
     planId,
     entries,
     unscheduled: missing - entries.length,
-    skippedRestDays: allDates.length - availableDates.length,
+    skippedRestDays: allDates.filter(date => planner.value.restDates.includes(date)).length,
   }
 }
 

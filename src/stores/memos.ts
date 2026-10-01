@@ -17,9 +17,11 @@ export function memoCardClass(colorKey: string): string {
   return MEMO_COLORS.find((c) => c.key === colorKey)?.card ?? MEMO_COLORS[5].card
 }
 
-export function addMemo(draft: Omit<Memo, 'id' | 'createdAt' | 'updatedAt'>): void {
+export function addMemo(draft: Omit<Memo, 'id' | 'createdAt' | 'updatedAt'>): Memo {
   const now = Date.now()
-  memos.value.push({ id: uid(), createdAt: now, updatedAt: now, ...draft })
+  const memo = { id: uid(), createdAt: now, updatedAt: now, ...draft }
+  memos.value.push(memo)
+  return memo
 }
 
 export function updateMemo(id: string, patch: Partial<Memo>): void {

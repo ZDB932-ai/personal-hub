@@ -13,6 +13,7 @@ import { databaseBusy } from '@/stores/database'
 
 const props = defineProps<{
   open: boolean
+  initialTab?: 'appearance' | 'security' | 'sync'
 }>()
 
 const emit = defineEmits<{
@@ -39,7 +40,7 @@ const tabs = computed(() => [
 watch(
   () => props.open,
   (open) => {
-    if (open) tab.value = 'appearance'
+    if (open) tab.value = props.initialTab ?? 'appearance'
   },
 )
 </script>
@@ -52,7 +53,8 @@ watch(
         设置
       </h3>
       <button
-        class="rounded-lg p-1.5 text-t4 transition hover:bg-surface hover:text-t2"
+        class="ui-icon-button"
+        aria-label="关闭设置"
         :disabled="databaseBusy"
         @click="close"
       >
@@ -60,12 +62,13 @@ watch(
       </button>
     </div>
 
-    <div class="mt-4 grid grid-cols-6 gap-1 rounded-xl border border-line bg-inset p-1">
+    <div class="mt-4 grid grid-cols-3 gap-1 rounded-xl border border-line bg-inset p-1 sm:grid-cols-6" role="group" aria-label="设置分区">
       <button
         v-for="t in tabs"
         :key="t.key"
         :disabled="databaseBusy"
-        class="flex items-center justify-center gap-1 rounded-lg py-2 text-xs font-medium transition-colors duration-150"
+        class="flex min-h-11 items-center justify-center gap-1 rounded-lg py-2 text-xs font-medium transition-colors duration-150"
+        :aria-pressed="tab === t.key"
         :class="
           tab === t.key
             ? 'bg-primary/15 text-primary'

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, nextTick, onUnmounted, ref, watch } from 'vue'
-import { Search, X } from '@lucide/vue'
+import { useRouter } from 'vue-router'
+import { CalendarDays, Play, Search, X } from '@lucide/vue'
 import ModalShell from './ModalShell.vue'
 import { hubSearchOpen, hubSelection, openHubItem, type HubKind } from '@/stores/hub'
 import { tasks } from '@/stores/tasks'
@@ -17,6 +18,8 @@ const MemoModal = defineAsyncComponent(() => import('./MemoModal.vue'))
 const RepoModal = defineAsyncComponent(() => import('./RepoModal.vue'))
 const EntryModal = defineAsyncComponent(() => import('./EntryModal.vue'))
 const DocPreviewModal = defineAsyncComponent(() => import('./DocPreviewModal.vue'))
+const router = useRouter()
+function locateTask(id: string): void { hubSearchOpen.value = false; void router.push({ path: '/calendar', query: { task: id } }) }
 const query = ref('')
 const kind = ref('all')
 const input = ref<HTMLInputElement | null>(null)
@@ -56,7 +59,7 @@ async function upload(event: Event) {
       <button class="ui-secondary-button min-h-11" :disabled="uploading" @click="fileInput?.click()">{{ uploading ? '正在加密导入…' : '收集文件' }}</button>
     </div>
     <ul v-else class="mt-4 max-h-80 space-y-2 overflow-y-auto">
-      <li v-for="item in results" :key="`${item.kind}:${item.id}`"><button class="w-full rounded-lg border border-line p-3 text-left hover:bg-surface-2" @click="openHubItem(item.kind, item.id)"><span class="text-xs text-primary">{{ hubLabels[item.kind] }}</span><p class="truncate text-sm text-t1">{{ item.title }}</p><p class="truncate text-xs text-t3">{{ item.detail }}</p></button></li>
+      <li v-for="item in results" :key="`${item.kind}:${item.id}`" class="flex items-center gap-2"><button class="min-w-0 flex-1 rounded-lg border border-line p-3 text-left hover:bg-surface-2" @click="openHubItem(item.kind, item.id)"><span class="text-xs text-primary">{{ hubLabels[item.kind] }}</span><p class="truncate text-sm text-t1">{{ item.title }}</p><p class="truncate text-xs text-t3">{{ item.detail }}</p></button><RouterLink v-if="item.kind === 'tasks'" :to="{ path: '/focus', query: { task: item.id } }" class="ui-icon-button shrink-0" :aria-label="`打开专注 ${item.title}`" @click="hubSearchOpen = false"><Play class="h-5 w-5" /></RouterLink><button v-if="item.kind === 'tasks' && tasks.some(task => task.id === item.id && task.date)" class="ui-icon-button shrink-0" :aria-label="`在日历定位 ${item.title}`" title="在日历定位" @click="locateTask(item.id)"><CalendarDays class="h-5 w-5" /></button></li>
       <li v-if="!results.length" class="p-4 text-sm text-t3">没有找到匹配内容，可以换个关键词。</li>
     </ul>
     <p class="mt-4 text-xs text-t4">Ctrl / ⌘ + K 打开。账号仅搜索名称、用户名、网址与分类，不搜索密码或验证码。最多显示 80 项。</p>

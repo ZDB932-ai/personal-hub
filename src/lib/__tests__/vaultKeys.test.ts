@@ -48,3 +48,16 @@ describe('数据密钥封装', () => {
     await expect(deriveVaultKey('password', { ...created.header.kdf, saltHex: 'invalid' })).rejects.toThrow('参数')
   })
 })
+
+it('恢复封装绑定保险库，错误密钥与篡改不能重设密码', async () => {
+  const { generateRecoveryCode, createLocalRecovery, recoverLocalPassword } = await import('../vaultKeys')
+  const created = await createVaultKey('password')
+  const env = { ...created.header, ts: 1, ...await encryptJSON(created.key, 'data') }
+  const code = generateRecoveryCode()
+  const record = await createLocalRecovery(env, 'password', code)
+  await expect(recoverLocalPassword(env, record, generateRecoveryCode(), 'new-password')).rejects.toThrow()
+  await expect(recoverLocalPassword({ ...env, keyId: crypto.randomUUID() }, record, code, 'new-password')).rejects.toThrow()
+  await expect(recoverLocalPassword(env, { ...record, ctB64: record.ctB64.slice(4) }, code, 'new-password')).rejects.toThrow()
+  const next = await recoverLocalPassword(env, record, code.toLowerCase().replaceAll('-', ' '), 'new-password')
+  expect(await decryptJSON(await unlockEnvelope(next, 'new-password'), next.ivB64, next.ctB64)).toBe('data')
+})

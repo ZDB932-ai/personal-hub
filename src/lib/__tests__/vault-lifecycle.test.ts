@@ -18,7 +18,7 @@ vi.mock('@/lib/docdb', () => ({
   getBlob: async (id: string) => fixture.blobs.get(id),
   deleteBlob: async (id: string) => { fixture.blobs.delete(id) },
 }))
-vi.mock('@/lib/biometric', () => ({ biometricEnabled: () => false, biometricStoreSecret: vi.fn() }))
+vi.mock('@/lib/biometric', () => ({ biometricEnabled: () => false, biometricStoreSecret: vi.fn(), biometricClear: vi.fn(async () => {}) }))
 vi.mock('@/lib/crypto', async (original) => {
   const actual = await original<typeof import('@/lib/crypto')>()
   return {
@@ -764,4 +764,132 @@ describe('重复任务', () => {
     toggleTaskDone(a.id)
     expect(tasks.value).toHaveLength(4)
   })
+})
+
+
+it('pocket draft survives the shared lock path and unlock, and failed capture remains retryable', async () => {
+  const { lock, db } = await setup()
+  const attention = await import('@/stores/attention')
+  attention.writePocketDraft('自动锁定也要保留')
+  await lock.lockApp()
+  expect(attention.pocketDraft()).toBeUndefined()
+  expect(await lock.unlockApp('old-password')).toBe(true)
+  expect(attention.pocketDraft()?.content).toBe('自动锁定也要保留')
+  vi.spyOn((await import('@/lib/vaultRepository')).vaultRepository, 'commit').mockRejectedValueOnce(new Error('quota'))
+  await expect(attention.collectPocketDraft(undefined, db.persistNow)).rejects.toThrow('quota')
+  expect(attention.pocketDraft()?.content).toBe('自动锁定也要保留')
+  await attention.collectPocketDraft(undefined, db.persistNow)
+  const saved = await readSaved()
+  expect(saved.memos?.filter(memo => memo.content === '自动锁定也要保留')).toHaveLength(1)
+  expect(saved.memos?.find(memo => memo.content === '自动锁定也要保留')?.captureStatus).toBe('inbox')
+})
+
+ describe('本地账户与恢复', () => {
+  it('创建账户为 v3，重设密码保留数据并拒绝旧密码', async () => {
+    const lock = await import('@/stores/lock')
+    const db = await import('@/stores/database')
+    const keys = await import('@/lib/vaultKeys')
+    const repo = await import('@/lib/vaultRepository')
+    const code = keys.generateRecoveryCode()
+    await lock.createLocalAccount('测试账户', 'first-password', code)
+    expect(db.dataEnvelope.value?.v).toBe(3)
+    expect(lock.localAccountName.value).toBe('测试账户')
+    expect(lock.hasLocalRecovery.value).toBe(true)
+    const { profile } = await import('@/stores/profile')
+    profile.name = '必须保留的内容'
+    await db.flushPendingSave()
+    await lock.lockApp()
+    const before = repo.readRepository<DataEnvelope>('xk.data.v2')!
+    expect(JSON.stringify(repo.readRepository('xk.lock.v2'))).not.toContain(code)
+    await expect(lock.resetLocalPassword(keys.generateRecoveryCode(), 'new-password')).rejects.toThrow()
+    expect(repo.readRepository('xk.data.v2')).toEqual(before)
+    await lock.resetLocalPassword(code, 'new-password')
+    const after = repo.readRepository<DataEnvelope>('xk.data.v2')!
+    expect(after.ctB64).toBe(before.ctB64)
+    expect(after.ts).toBe(before.ts)
+    expect(lock.isGated.value).toBe(true)
+    expect(await lock.unlockApp('first-password')).toBe(false)
+    expect(await lock.unlockApp('new-password')).toBe(true)
+    expect(profile.name).toBe('必须保留的内容')
+    expect((await lock.changePassword('new-password', 'third-password', '')).ok).toBe(true)
+    await lock.lockApp()
+    await lock.resetLocalPassword(code, 'fourth-password')
+    expect(await lock.unlockApp('fourth-password')).toBe(true)
+  })
+
+  it('旧账户升级并轮换恢复密钥，旧密钥失效', async () => {
+    const { lock, db } = await setup()
+    const { generateRecoveryCode } = await import('@/lib/vaultKeys')
+    const code = generateRecoveryCode(), next = generateRecoveryCode()
+    await lock.configureLocalAccount('旧账户', 'old-password', code)
+    expect(db.dataEnvelope.value?.v).toBe(3)
+    await lock.configureLocalAccount('新名称', 'old-password', next)
+    await lock.lockApp()
+    await expect(lock.resetLocalPassword(code, 'new-password')).rejects.toThrow()
+    await lock.resetLocalPassword(next, 'new-password')
+    expect(await lock.unlockApp('new-password')).toBe(true)
+    expect(lock.localAccountName.value).toBe('新名称')
+  })
+
+  it('创建与恢复写入失败不破坏已有状态', async () => {
+    const lock = await import('@/stores/lock')
+    const repo = await import('@/lib/vaultRepository')
+    const { generateRecoveryCode } = await import('@/lib/vaultKeys')
+    const code = generateRecoveryCode()
+    vi.spyOn(repo.vaultRepository, 'commit').mockRejectedValueOnce(new Error('quota'))
+    await expect(lock.createLocalAccount('账户', 'first-password', code)).rejects.toThrow('quota')
+    expect(repo.readRepository('xk.data.v2')).toBeNull()
+    expect(lock.isGated.value).toBe(true)
+    await lock.createLocalAccount('账户', 'first-password', code)
+    await lock.lockApp()
+    const before = repo.readRepository('xk.data.v2')
+    vi.spyOn(repo.vaultRepository, 'commit').mockRejectedValueOnce(new Error('quota'))
+    await expect(lock.resetLocalPassword(code, 'new-password')).rejects.toThrow('quota')
+    expect(repo.readRepository('xk.data.v2')).toEqual(before)
+    expect(await lock.unlockApp('first-password')).toBe(true)
+  })
+})
+
+it('旧账户带附件及连接凭据升级后，恢复密码仍可解密', async () => {
+  const { lock, db, docs, crypto } = await setup()
+  const { generateRecoveryCode } = await import('@/lib/vaultKeys')
+  const repo = await import('@/lib/vaultRepository')
+  const bytes = new TextEncoder().encode('附件中的原始内容')
+  fixture.blobs.set('recovery-doc', await crypto.encryptBytes(db.getActiveKey()!, bytes.buffer))
+  docs.docMetas.value = [{ id: 'recovery-doc', name: '恢复附件.txt', mime: 'text/plain', size: bytes.length, category: '其他', tags: [], note: '', pinned: false, createdAt: 1 }]
+  await repo.commitRepository({ 'xk.github.secure': await crypto.encryptJSON(db.getActiveKey()!, { token: 'synthetic-test-token' }) })
+  await db.flushPendingSave()
+  const code = generateRecoveryCode()
+  await lock.configureLocalAccount('附件账户', 'old-password', code)
+  const blobId = docs.docMetas.value[0].blobId!
+  const storedBlob = fixture.blobs.get(blobId)!
+  const storedCredential = repo.readRepository('xk.github.secure')
+  await lock.lockApp()
+  await lock.resetLocalPassword(code, 'recovered-password')
+  expect(fixture.blobs.get(blobId)).toEqual(storedBlob)
+  expect(repo.readRepository('xk.github.secure')).toEqual(storedCredential)
+  expect(await lock.unlockApp('recovered-password')).toBe(true)
+  expect(new TextDecoder().decode(await crypto.decryptBytes(db.getActiveKey()!, storedBlob.ivB64, storedBlob.ct))).toBe('附件中的原始内容')
+  const credential = storedCredential as { ivB64: string; ctB64: string }
+  expect(await crypto.decryptJSON(db.getActiveKey()!, credential.ivB64, credential.ctB64)).toEqual({ token: 'synthetic-test-token' })
+})
+
+it('登录正在解密时拒绝并行恢复，避免旧封装覆盖新密码', async () => {
+  const lock = await import('@/stores/lock')
+  const { generateRecoveryCode } = await import('@/lib/vaultKeys')
+  const code = generateRecoveryCode()
+  await lock.createLocalAccount('账户', 'old-password', code)
+  await lock.lockApp()
+  const entered = deferred<void>(), resume = deferred<void>()
+  fixture.onDecrypt = async () => { entered.resolve(); await resume.promise }
+  const login = lock.unlockApp('old-password')
+  await entered.promise
+  try {
+    await expect(lock.resetLocalPassword(code, 'new-password')).rejects.toThrow('等待登录操作完成')
+    expect(await lock.unlockApp('old-password')).toBe(false)
+  } finally { resume.resolve() }
+  expect(await login).toBe(true)
+  await lock.lockApp()
+  await lock.resetLocalPassword(code, 'new-password')
+  expect(await lock.unlockApp('new-password')).toBe(true)
 })

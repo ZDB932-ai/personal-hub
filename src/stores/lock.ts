@@ -13,7 +13,7 @@ import { emptyProfile, readJSON, uid } from '@/lib/utils'
 import { deleteBlob, getBlob, putBlob } from '@/lib/docdb'
 import { commitRepository, readRepository, refreshVaultRepository, repositoryRevision, type RepositoryKey } from '@/lib/vaultRepository'
 import { toast } from '@/lib/toast'
-import { biometricEnabled, biometricStoreSecret } from '@/lib/biometric'
+import { biometricClear, biometricEnabled, biometricStoreSecret } from '@/lib/biometric'
 import {
   dataEnvelope,
   adoptOfflinePayload,
@@ -38,7 +38,7 @@ import { docMetas } from './docs'
 import { recoveryItems } from './recovery'
 import { resetRecoveryBaseline } from './database'
 import { recoveryAttachmentMetas } from '@/lib/recovery'
-import { createVaultKey, rewrapVaultKey, unlockEnvelope } from '@/lib/vaultKeys'
+import { createLocalRecovery, recoverLocalPassword, createVaultKey, rewrapVaultKey, unlockEnvelope, type LocalRecovery } from '@/lib/vaultKeys'
 
 const PREFS_KEY = 'xk.lock.v2'
 const LEGACY_LOCK_KEY = 'xk.lock.v1'
@@ -49,6 +49,8 @@ const LEGACY_SKIP_KEY = 'xk.lock.skip'
 export interface LockPrefs {
   hint: string
   autoLockMinutes: number
+  accountName?: string
+  recovery?: LocalRecovery
 }
 
 function hasLegacyRecord(): boolean {
@@ -99,6 +101,83 @@ export const usesSetupScreen = computed(() => {
 })
 export const lockHint = computed(() => prefs.value.hint)
 export const autoLockMinutes = computed(() => prefs.value.autoLockMinutes)
+export const localAccountName = computed(() => prefs.value.accountName ?? '')
+export const hasLocalRecovery = computed(() => dataEnvelope.value?.v === 3 && prefs.value.recovery?.vaultId === dataEnvelope.value.vaultId && prefs.value.recovery?.keyId === dataEnvelope.value.keyId)
+
+function validateAccount(name: string, password: string): void {
+  if (!name.trim() || name.trim().length > 40) throw new Error('账户名称需要 1–40 个字符')
+  if (password.length < 8 || password.length > 256) throw new Error('密码需要 8–256 个字符')
+}
+
+let accountBusy = false
+let unlocking = false
+
+export async function createLocalAccount(name: string, password: string, code: string): Promise<void> {
+  validateAccount(name, password)
+  if (accountBusy || mode.value !== 'fresh') throw new Error('当前无法创建账户')
+  accountBusy = true
+  try {
+    await refreshVaultRepository()
+    const revision = repositoryRevision()
+    if (readRepository('xk.data.v2')) throw new Error('本机已有数据，请刷新后登录')
+    const created = await createVaultKey(password)
+    const payload = prepareOfflinePayload({ schemaVersion: 1, profile: emptyProfile(), entries: seedEntries() })
+    const env = { ...created.header, ts: Date.now(), ...await encryptJSON(created.key, payload) }
+    const recovery = await createLocalRecovery(env, password, code)
+    const nextPrefs = { ...prefs.value, accountName: name.trim(), hint: '', recovery }
+    await commitRepository({ 'xk.data.v2': env, [PREFS_KEY]: nextPrefs }, () => repositoryRevision() === revision)
+    prefs.value = nextPrefs
+    dataEnvelope.value = env
+    await initFromEnvelope(env, created.key)
+    setActiveKey(created.key)
+    finishUnlock()
+  } finally { accountBusy = false }
+}
+
+export async function configureLocalAccount(name: string, password: string, code: string): Promise<void> {
+  if (!name.trim() || name.trim().length > 40) throw new Error('账户名称需要 1–40 个字符')
+  if (accountBusy || passwordChange || isGated.value) throw new Error('请先解锁并等待其他操作完成')
+  accountBusy = true
+  try {
+    if (dataEnvelope.value?.v !== 3) {
+      const result = await changePassword(password, password, prefs.value.hint, true)
+      if (!result.ok) throw new Error(result.error)
+    }
+    await flushPendingSave()
+    await beginDatabaseUpdate()
+    try {
+      const env = dataEnvelope.value
+      const key = getActiveKey()
+      const revision = repositoryRevision()
+      if (env?.v !== 3 || isGated.value) throw new Error('请重新解锁后再设置')
+      const recovery = await createLocalRecovery(env, password, code)
+      const nextPrefs = { ...prefs.value, accountName: name.trim(), recovery }
+      await commitRepository({ [PREFS_KEY]: nextPrefs }, () => !isGated.value && getActiveKey() === key && repositoryRevision() === revision)
+      prefs.value = nextPrefs
+    } finally { endDatabaseUpdate() }
+  } finally { accountBusy = false }
+}
+
+export async function resetLocalPassword(code: string, password: string): Promise<void> {
+  if (password.length < 8 || password.length > 256) throw new Error('新密码需要 8–256 个字符')
+  if (accountBusy || unlocking || !isGated.value || locking.value) throw new Error('请在锁定页面恢复密码，并等待登录操作完成')
+  accountBusy = true
+  try {
+    await refreshVaultRepository()
+    const env = readRepository<DataEnvelope>('xk.data.v2')
+    const savedPrefs = readRepository<LockPrefs>(PREFS_KEY)
+    const revision = repositoryRevision()
+    if (env?.v !== 3 || !savedPrefs?.recovery) throw new Error('此设备尚未设置恢复密钥')
+    let nextEnvelope: DataEnvelope
+    try { nextEnvelope = await recoverLocalPassword(env, savedPrefs.recovery, code, password) }
+    catch { throw new Error('恢复密钥不正确，或本机恢复信息已失效') }
+    const nextPrefs = { ...savedPrefs, hint: '' }
+    await commitRepository({ 'xk.data.v2': nextEnvelope, [PREFS_KEY]: nextPrefs }, () => isGated.value && repositoryRevision() === revision)
+    prefs.value = nextPrefs
+    dataEnvelope.value = nextEnvelope
+    await biometricClear().catch(() => {})
+  } finally { accountBusy = false }
+}
 
 let timer: ReturnType<typeof setTimeout> | null = null
 let watching = false
@@ -144,8 +223,9 @@ export async function setupLock(password: string, hint: string): Promise<void> {
 }
 
 export async function unlockApp(password: string): Promise<boolean> {
-  if (locking.value) return false
+  if (locking.value || accountBusy || unlocking) return false
   if (!unlockedGuardOk()) return false
+  unlocking = true
   try {
     await refreshVaultRepository()
     dataEnvelope.value = readRepository<DataEnvelope>('xk.data.v2')
@@ -179,6 +259,8 @@ export async function unlockApp(password: string): Promise<boolean> {
     return true
   } catch {
     return false
+  } finally {
+    unlocking = false
   }
 }
 

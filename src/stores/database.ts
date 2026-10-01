@@ -70,6 +70,8 @@ function suppressNextSave(): void {
 
 export { suppressNextSave }
 
+export function hasPendingSave(): boolean { return dirty }
+
 export function getDataRevision(): number {
   return revision
 }

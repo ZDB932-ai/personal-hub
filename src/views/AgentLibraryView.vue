@@ -14,7 +14,6 @@ import {
   Puzzle,
   Search as SearchIcon,
   Send,
-  Tags,
   Trash2,
   X,
 } from '@lucide/vue'
@@ -41,6 +40,7 @@ import type { AgentResource } from '@/types'
 import type { AgentResourceTaxonomyGroup } from '@/stores/agentResources'
 
 const router = useRouter()
+const filtersOpen = ref(false)
 const query = ref('')
 const activeKind = ref('all')
 const activeCategory = ref('全部')
@@ -180,27 +180,19 @@ function formatGithubUpdatedAt(value: string): string {
       </template>
     </PageHeader>
 
-    <section class="agent-library-intro mt-6" aria-label="资源库说明">
-      <div class="flex min-w-0 items-start gap-3">
-        <span class="agent-library-intro-icon"><Tags class="h-4 w-4" /></span>
-        <div class="min-w-0 flex-1">
-          <p class="text-sm font-semibold text-t1">先收录，再按需交给 Agent</p>
-          <p class="mt-1 text-xs leading-relaxed text-t3">资源库记录来源、作用与调用说明；“带到工作台”只会预填消息，真正安装、启动 MCP 或外部操作仍需你确认。</p>
-        </div>
-        <span class="agent-library-count">{{ agentResources.length }} 项</span>
-      </div>
-    </section>
+    <details class="resource-guidance"><summary>资源库如何使用</summary><p>记录来源、作用与调用说明。“带到工作台”只会预填消息，安装、启动 MCP 或外部操作仍需确认。</p></details>
 
     <section class="control-bar mt-5" aria-label="筛选 Agent 资源">
       <label class="control-search min-w-0 flex-1 sm:max-w-80">
         <SearchIcon class="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-t4" />
         <input v-model="query" class="control-input py-2 pl-9 pr-3 text-xs" placeholder="搜索名称、作用、标签或 GitHub" aria-label="搜索 Agent 资源" />
       </label>
+      <button class="ui-secondary-button text-xs" :aria-expanded="filtersOpen" aria-controls="resource-filters" @click="filtersOpen = !filtersOpen">筛选<span v-if="activeKind !== 'all' || activeCategory !== '全部' || activeAgent !== '全部'" class="ml-1 text-primary">已生效</span></button>
       <button v-if="hasFilters" class="filter-reset" @click="clearFilters">清除筛选</button>
       <span class="ml-auto text-xs tabular-nums text-t4">显示 {{ filteredResources.length }} 项</span>
     </section>
 
-    <section class="agent-library-filters mt-3" aria-label="资源分类器">
+    <section v-show="filtersOpen" id="resource-filters" class="agent-library-filters mt-3" aria-label="资源分类器">
       <div class="agent-library-filter-row">
         <p>类型</p>
         <div class="min-w-0">
@@ -269,6 +261,7 @@ function formatGithubUpdatedAt(value: string): string {
       </div>
     </section>
 
+    <p v-if="activeKind !== 'all' || activeCategory !== '全部' || activeAgent !== '全部'" class="mt-3 text-xs text-t3">当前筛选：{{ [activeKind !== 'all' ? agentResourceKindLabel(activeKind) : '', activeCategory !== '全部' ? activeCategory : '', activeAgent !== '全部' ? activeAgent : ''].filter(Boolean).join(' · ') }}</p>
     <div v-if="filteredResources.length === 0" class="empty-state mt-6">
       <BookOpen class="mx-auto h-10 w-10 text-t4" />
       <p class="mt-4 text-sm font-medium text-t2">{{ hasFilters ? '没有匹配的资源' : '还没有收录任何 Agent 资源' }}</p>

@@ -100,6 +100,11 @@ export interface SubTask {
 }
 
 export interface Task {
+  sceneSavedAt?: number
+  sceneExpanded?: boolean
+  resumeNote?: string
+  resumeNextStep?: string
+  resumeUpdatedAt?: number
   estimatedMinutes?: number
   links?: EntityLink[]
   id: string
@@ -140,6 +145,7 @@ export interface WeeklyPlan {
 }
 
 export interface LongPlan {
+  deferredUntil?: string
   id: string
   title: string
   description: string
@@ -153,10 +159,19 @@ export interface LongPlan {
 }
 
 export interface PlannerState {
+  protectedTimes?: ProtectedTime[]
   dayCapacities?: Array<{ date: string; minutes: number }>
   energy: PlannerEnergy
   restDates: string[]
   dayEnergies: PlannerDayEnergy[]
+}
+
+export interface ProtectedTime {
+  id: string
+  date: string
+  start: number
+  end: number
+  label: string
 }
 
 export interface PlannerDayEnergy {
@@ -204,6 +219,11 @@ export interface AgentResourceTaxonomy {
 }
 
 export interface Memo {
+  ideaStage?: 'resting' | 'try' | 'growing' | 'archived'
+  closingDate?: string
+  openingNote?: string
+  captureStatus?: 'draft' | 'inbox' | 'kept'
+  capturedFromTaskId?: string
   id: string
   title: string
   content: string

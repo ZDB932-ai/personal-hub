@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   close: []
-  confirm: [payload: { note: string; nextTitle: string }]
+  confirm: [payload: { note: string; nextTitle: string; saveMemo: boolean }]
 }>()
 
 const priorityLabel: Record<TaskPriority, string> = {
@@ -31,10 +31,12 @@ const incompleteSubtasks = computed(() => props.task?.subtasks.filter((item) => 
 const completionNote = ref('')
 const createNextStep = ref(false)
 const nextTitle = ref('')
+const saveMemo = ref(true)
 
 function confirm(): void {
   emit('confirm', {
     note: completionNote.value.trim(),
+    saveMemo: saveMemo.value,
     nextTitle: createNextStep.value ? nextTitle.value.trim() : '',
   })
 }
@@ -44,6 +46,7 @@ watch(
   (open) => {
     if (!open) return
     completionNote.value = ''
+    saveMemo.value = true
     createNextStep.value = false
     nextTitle.value = props.task ? `继续推进：${props.task.title}` : ''
   },
@@ -156,8 +159,10 @@ watch(
           v-model="completionNote"
           rows="2"
           placeholder="记录一句进展（可选）"
+          aria-label="完成进展"
           class="control-input mt-3 min-h-18 resize-y px-3 py-2 text-sm"
         ></textarea>
+        <label v-if="completionNote.trim()" class="mt-2 flex min-h-11 items-center gap-2 text-xs text-t2"><input v-model="saveMemo" type="checkbox" class="accent-primary" />同时存为进展便签，关联到这项任务</label>
         <input
           v-if="createNextStep"
           v-model="nextTitle"

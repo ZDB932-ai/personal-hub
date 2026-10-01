@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch } from 'vue'
+import { usePlanView } from '@/composables/usePlanView'
 import { useRoute, useRouter } from 'vue-router'
 import {
   CalendarDays,
@@ -66,6 +67,7 @@ import PlanDeleteModal from '@/components/PlanDeleteModal.vue'
 import WeekSchedulePreviewModal from '@/components/WeekSchedulePreviewModal.vue'
 import WeeklyPlanModal from '@/components/WeeklyPlanModal.vue'
 import { toast } from '@/lib/toast'
+import { completeWithProgress, type CompletionInput } from '@/lib/taskCompletion'
 import { dispatchToAgent } from '@/lib/aiopencode'
 import { parseQuickInput } from '@/lib/quickparse'
 import { nextOccurrence, shiftYMD, todayYMD, weekDates, weekStartYMD, weekdayLabel } from '@/lib/utils'
@@ -78,7 +80,7 @@ const router = useRouter()
 const selected = ref(today)
 const weekStart = ref(weekStartYMD(today))
 const selectedWeekDate = ref(today)
-const view = ref<'today' | 'week' | 'inbox' | 'long' | 'all' | 'done'>('today')
+const view = usePlanView()
 const showSearch = ref(false)
 const showArrange = ref(false)
 const searchQ = ref('')
@@ -111,7 +113,7 @@ const VIEWS = [
   { key: 'week' as const, label: '本周', icon: CalendarRange },
   { key: 'inbox' as const, label: '待安排', icon: Inbox },
   { key: 'long' as const, label: '长期方向', icon: Compass },
-  { key: 'all' as const, label: '全部', icon: ListTodo },
+  { key: 'all' as const, label: '已排期', icon: ListTodo },
   { key: 'done' as const, label: '已完成', icon: CheckCheck },
 ]
 
@@ -167,7 +169,7 @@ function openTaskFromDesktop(rawTaskId: unknown): void {
   searchQ.value = ''
   activeTag.value = null
   openEdit(task)
-  void router.replace({ path: '/today' })
+  void router.replace({ path: '/today', query: { view: task.date ? 'today' : 'inbox' } })
 }
 
 watch(
@@ -449,26 +451,11 @@ const priorityTone: Record<Task['priority'], string> = {
   3: 'is-high',
 }
 
-function confirmCompletion(payload: { note: string; nextTitle: string }): void {
+function confirmCompletion(payload: CompletionInput): void {
   const task = completing.value
-  if (!task || task.done) {
+  if (!task || !completeWithProgress(task.id, payload)) {
     completing.value = null
     return
-  }
-  if (payload.note) {
-    updateTask(task.id, { notes: task.notes ? `${task.notes}\n\n完成记录：${payload.note}` : `完成记录：${payload.note}` })
-  }
-  toggleTaskDone(task.id)
-  if (payload.nextTitle) {
-    addTask({
-      title: payload.nextTitle,
-      notes: '',
-      date: '',
-      time: '',
-      priority: task.priority,
-      repeat: 'none',
-      tags: task.tags,
-    })
   }
   completing.value = null
   if (task.repeat !== 'none') {
@@ -663,7 +650,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div>
+  <div class="planning-workspace">
     <PageHeader :title="view === 'today' ? '今天' : '计划'" eyebrow="日常">
       <template #description>
         <template v-if="view === 'today'">
@@ -673,7 +660,7 @@ onUnmounted(() => {
         <span v-else-if="view === 'week'">{{ weekRangeLabel }} · 已完成 {{ weekDoneCount }} 件</span>
         <span v-else-if="view === 'inbox'">{{ pendingTaskCount }} 项待安排 · {{ overdueList.length }} 项需要重新决定日期</span>
         <span v-else-if="view === 'long'">{{ activeLongPlans.length }} 个方向正在慢慢靠近</span>
-        <span v-else-if="view === 'all'">所有已安排日期的待办</span>
+        <span v-else-if="view === 'all'">今天及之后的待办 · 较早的任务在待安排中整理</span>
         <span v-else>最近完成的任务</span>
         <button v-if="overdueList.length > 0 && view !== 'done' && view !== 'long'" type="button" class="task-overdue-link" @click="showOverdueQueue = true">
           {{ overdueList.length }} 项待重新安排 · 整理
@@ -720,9 +707,9 @@ onUnmounted(() => {
         </div>
       </template>
     </PageHeader>
-    <PlanningCapacity v-if="view === 'week'" :date="view === 'week' ? selectedWeekDate : selected" />
 
-    <div class="control-bar mt-4">
+
+    <div class="control-bar plan-view-navigation mt-4">
       <div role="tablist" aria-label="任务视图" class="filter-rail">
         <button
           v-for="v in VIEWS.slice(0, 3)"
@@ -744,15 +731,15 @@ onUnmounted(() => {
         </div>
       </details>
       <div class="ml-auto flex items-center gap-2">
-        <button v-if="view === 'today'" class="ui-ghost-button text-xs" :aria-expanded="showArrange" @click="showArrange = !showArrange">安排设置</button>
+        <button v-if="view === 'today' || view === 'week'" class="ui-ghost-button text-xs" :aria-expanded="showArrange" @click="showArrange = !showArrange">安排设置</button>
         <button v-if="view !== 'long'" class="ui-icon-button" aria-label="搜索与筛选任务" :aria-expanded="showSearch" :class="{ 'text-primary': hasFilters }" @click="showSearch = !showSearch"><SearchIcon class="h-4 w-4" /></button>
         <span v-if="view !== 'today'" class="text-xs text-t4">{{ visibleCount }} 项</span>
       </div>
     </div>
 
-    <section v-if="view === 'today' && showArrange" class="mt-4 rounded-xl border border-line bg-surface p-4" aria-label="安排设置">
-      <PlanningCapacity :date="selected" />
-      <details class="plan-day-support" open>
+    <section v-if="(view === 'today' || view === 'week') && showArrange" class="plan-arrange-settings mt-4" aria-label="安排设置">
+      <PlanningCapacity :date="view === 'week' ? selectedWeekDate : selected" />
+      <details v-if="view === 'today'" class="plan-day-support">
         <summary>
           <span class="plan-day-support-copy">
             <span class="gentle-plan-icon"><Coffee class="h-4 w-4" /></span>
@@ -893,16 +880,7 @@ onUnmounted(() => {
     </template>
 
     <template v-else-if="view === 'week'">
-      <section class="week-rhythm-card mt-6">
-        <div class="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p class="text-xs font-medium text-primary">本周节奏</p>
-            <h2 class="mt-1 text-base font-semibold text-t1">不用排满，给自己留一点空间</h2>
-            <p class="mt-1 text-xs leading-relaxed text-t3">自动安排会参考每天的节奏和留白日，并尽量分散行动；不会设置每日数量上限。</p>
-          </div>
-          <span class="week-rhythm-count">{{ weekOpenCount }} 项待办 · {{ weekDoneCount }} 项完成</span>
-        </div>
-      </section>
+      <div class="plan-week-summary mt-5"><h2 class="text-sm font-semibold text-t1">本周安排</h2><span class="text-xs text-t3">{{ weekOpenCount }} 项待办 · {{ weekDoneCount }} 项完成</span></div>
 
       <div v-if="lastSchedule" class="week-schedule-undo mt-4">
         <p>刚刚自动安排的行动块还可以撤回。</p>
@@ -929,8 +907,8 @@ onUnmounted(() => {
               </span>
               <span class="mt-3 block text-sm font-semibold text-t1">{{ day.state }}</span>
               <p v-if="day.open[0]" class="mt-2 truncate text-xs text-t2">{{ day.open[0].title }}</p>
-              <p v-else class="mt-2 text-xs text-t4">{{ day.rest ? '不安排也很好' : '还留着空白' }}</p>
-              <span class="mt-3 block text-xs tabular-nums text-t4">{{ day.open.length }} 项待办</span>
+
+              <span v-if="day.open.length" class="mt-2 block text-xs tabular-nums text-t3">{{ day.open.length }} 项待办</span>
             </button>
             <button
               type="button"
@@ -950,7 +928,7 @@ onUnmounted(() => {
             <p class="text-xs font-medium text-primary">本周方向</p>
             <h2 id="week-plan-heading" class="mt-1 text-base font-semibold text-t1">这周想照顾的事</h2>
           </div>
-          <button class="ui-secondary-button gap-1.5 text-xs" @click="openWeeklyPlanCreate()">
+          <button v-if="weekPlansForView.length" class="ui-secondary-button gap-1.5 text-xs" @click="openWeeklyPlanCreate()">
             <Plus class="h-3.5 w-3.5" />
             新建周计划
           </button>
@@ -1171,8 +1149,9 @@ onUnmounted(() => {
     <template v-else-if="view === 'all'">
       <div v-if="allGroups.length === 0" class="empty-state mt-8">
         <ListTodo class="mx-auto h-10 w-10 text-t4" />
-        <p class="mt-4 text-sm font-medium text-t2">{{ hasFilters ? '没有匹配的待办任务' : '没有待办任务' }}</p>
+        <p class="mt-4 text-sm font-medium text-t2">{{ hasFilters ? '没有匹配的已排期任务' : '今天起还没有排期' }}</p>
         <button v-if="hasFilters" class="ui-secondary-button mt-4 text-xs" @click="clearFilters">清除筛选</button>
+        <button v-else-if="pendingTaskCount" class="ui-secondary-button mt-4 text-xs" @click="view = 'inbox'">查看待安排 · {{ pendingTaskCount }}</button>
       </div>
       <template v-else>
         <section v-for="g in allGroups" :key="g.key" class="mt-7">

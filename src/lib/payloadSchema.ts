@@ -1,3 +1,4 @@
+import { validCalendarDate } from './attention'
 import type { VaultPayload } from '@/types'
 
 export const collectionKinds = ['entries', 'tasks', 'weeklyPlans', 'longPlans', 'agentResources', 'memos', 'docMetas', 'repos'] as const
@@ -10,6 +11,22 @@ const object = (value: unknown): value is Record<string, unknown> => Boolean(val
 export function validateEntity(kind: string, value: unknown): void {
   const fail = () => { throw new Error(`「${kind}」数据格式不兼容，已保留原数据`) }
   if (!object(value)) return fail()
+  for (const name of ['resumeNote', 'resumeNextStep', 'deferredUntil', 'capturedFromTaskId', 'openingNote']) if (value[name] !== undefined && typeof value[name] !== 'string') fail()
+  if (value.deferredUntil !== undefined && value.deferredUntil !== '' && !validCalendarDate(value.deferredUntil)) fail()
+  if (value.resumeUpdatedAt !== undefined && (typeof value.resumeUpdatedAt !== 'number' || !Number.isFinite(value.resumeUpdatedAt) || value.resumeUpdatedAt < 0)) fail()
+  if (value.closingDate !== undefined && !validCalendarDate(value.closingDate)) fail()
+  if (value.ideaStage !== undefined && !['resting', 'try', 'growing', 'archived'].includes(String(value.ideaStage))) fail()
+  if (value.sceneExpanded !== undefined && typeof value.sceneExpanded !== 'boolean') fail()
+  if (value.sceneSavedAt !== undefined && (typeof value.sceneSavedAt !== 'number' || !Number.isFinite(value.sceneSavedAt) || value.sceneSavedAt < 0)) fail()
+  if (value.captureStatus !== undefined && !['draft', 'inbox', 'kept'].includes(String(value.captureStatus))) fail()
+  if (value.protectedTimes !== undefined) {
+    if (!Array.isArray(value.protectedTimes)) return fail()
+    const ids = new Set<string>()
+    for (const item of value.protectedTimes) {
+      if (!object(item) || typeof item.id !== 'string' || !item.id || ids.has(item.id) || !validCalendarDate(item.date) || typeof item.label !== 'string' || !Number.isInteger(item.start) || !Number.isInteger(item.end) || Number(item.start) < 0 || Number(item.end) > 1440 || Number(item.start) >= Number(item.end)) return fail()
+      ids.add(item.id)
+    }
+  }
   for (const name of strings) if (value[name] !== undefined && typeof value[name] !== 'string') fail()
   for (const name of numbers) if (value[name] !== undefined && (typeof value[name] !== 'number' || !Number.isFinite(value[name]) || value[name] < 0)) fail()
   for (const name of ['done', 'pinned', 'scheduleLocked']) if (value[name] !== undefined && typeof value[name] !== 'boolean') fail()

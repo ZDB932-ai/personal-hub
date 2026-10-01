@@ -1,0 +1,27 @@
+.attention-workspace { max-width: 1120px; margin: 0 auto; color: var(--tk-t1); }
+.attention-workspace.is-working { padding-bottom: 32px; }
+.attention-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-bottom: 20px; border-bottom: 1px solid var(--tk-line); }
+.attention-intro { padding: 40px 0 28px; }
+.attention-eyebrow { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; color: var(--tk-primary); }
+.attention-title { margin-top: 20px; font-size: clamp(24px, 3vw, 36px); line-height: 1.45; font-weight: 500; letter-spacing: -.03em; overflow-wrap: anywhere; }
+.attention-tabs { display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 28px; border-bottom: 1px solid var(--tk-line); }
+.attention-tabs a { min-height: 48px; display: flex; align-items: center; color: var(--tk-t3); font-size: 14px; border-bottom: 2px solid transparent; }
+.attention-tabs a[aria-current] { color: var(--tk-primary); border-bottom-color: var(--tk-primary); }
+.attention-focus-grid { display: grid; grid-template-columns: minmax(0, 1fr) 288px; align-items: start; gap: 32px; padding-top: 32px; }
+.attention-desk { min-width: 0; }
+.attention-bookmark { margin-top: 32px; padding: 24px; border-radius: 12px; border: 1px solid var(--tk-line); background: var(--tk-inset); }
+.attention-materials { margin-top: 24px; border-top: 1px solid var(--tk-line); padding-top: 12px; }
+.attention-materials summary { min-height: 44px; cursor: pointer; color: var(--tk-t2); font-size: 14px; }
+.attention-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.attention-pocket { padding: 24px; border: 1px solid var(--tk-line); border-radius: 12px; background: var(--tk-surface); }
+.attention-aside-note { display: flex; align-items: start; gap: 8px; padding: 20px 4px; font-size: 12px; line-height: 1.8; color: var(--tk-t3); }
+.attention-aside-note svg { flex-shrink: 0; margin-top: 3px; }
+.attention-choice { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--tk-line); border-radius: 12px; background: var(--tk-surface); }
+.attention-choice:hover { background: var(--tk-inset); border-color: var(--tk-primary); }
+.attention-empty { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 48px 20px; }
+.attention-trail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 24px; }
+.attention-artifact { min-width: 0; padding: 24px; border: 1px solid var(--tk-line); border-radius: 12px; background: var(--tk-surface); }
+html .focus-active .desktop-main { padding: 24px; }
+html .focus-active .desktop-main > div { padding: 0; background: var(--tk-surface); }
+@media (max-width: 900px) { .attention-focus-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; } }
+@media (max-width: 639px) { html .focus-active .desktop-main { padding: 16px; } .attention-intro { padding-top: 28px; } .attention-tabs { gap: 20px; } .attention-tabs a { font-size: 12px; } .attention-bookmark, .attention-pocket, .attention-artifact { padding: 16px; } .attention-trail { grid-template-columns: minmax(0, 1fr); } .attention-header > p { display: none; } .attention-actions > * { flex: 1 1 100%; } }

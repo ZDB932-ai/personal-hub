@@ -1,266 +1,66 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import {
-  Cake,
-  Globe,
-  KeyRound,
-  Layers,
-  Link2,
-  ListTodo,
-  Mail,
-  MapPin,
-  Pencil,
-  Phone,
-  ShieldAlert,
-} from '@lucide/vue'
-import { profile } from '@/stores/profile'
-import { entries } from '@/stores/vault'
-import { tasks } from '@/stores/tasks'
-import ProfileModal from '@/components/ProfileModal.vue'
+import { ref } from 'vue'
+import { ArrowRight, CalendarDays, CheckCheck, Plus } from '@lucide/vue'
 import PageHeader from '@/components/PageHeader.vue'
-import DashboardWorkspace from '@/components/DashboardWorkspace.vue'
-import { formatDate, passwordStrength, todayYMD } from '@/lib/utils'
-import { remindTsOf } from '@/lib/reminders'
+import TaskModal from '@/components/TaskModal.vue'
+import TaskCompletionModal from '@/components/TaskCompletionModal.vue'
+import TodayTaskList from '@/components/TodayTaskList.vue'
+import TodayQuickAdd from '@/components/TodayQuickAdd.vue'
+import { useTodayWorkspace } from '@/composables/useTodayWorkspace'
+import { toggleTaskDone } from '@/stores/tasks'
+import { flushPendingSave } from '@/stores/database'
+import { completeWithProgress, type CompletionInput } from '@/lib/taskCompletion'
+import { toast } from '@/lib/toast'
+import type { Task } from '@/types'
 
-const showProfileModal = ref(false)
-
-const hour = new Date().getHours()
-const greeting =
-  hour < 6 ? '凌晨好' : hour < 11 ? '早上好' : hour < 13 ? '中午好' : hour < 18 ? '下午好' : '晚上好'
-
-const today = new Date().toLocaleDateString('zh-CN', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-  weekday: 'long',
-})
-
-const displayName = computed(() => profile.nickname || profile.name || '朋友')
-const avatarChar = computed(() => displayName.value.trim().charAt(0) || 'P')
-
-const hasInfo = computed(() =>
-  Boolean(profile.nickname || profile.name || profile.bio || profile.email),
-)
-
-const total = computed(() => entries.value.length)
-const categoryCount = computed(() => new Set(entries.value.map((e) => e.category)).size)
-const weakCount = computed(
-  () => entries.value.filter((e) => passwordStrength(e.password).score <= 1).length,
-)
-
-const todayKey = todayYMD()
-const todayTasks = computed(() => tasks.value.filter((t) => t.date === todayKey))
-const todayDone = computed(() => todayTasks.value.filter((t) => t.done).length)
-const overdueToday = computed(
-  () => tasks.value.filter((t) => !t.done && t.date && t.date < todayKey).length,
-)
-
-const nextReminderLabel = computed(() => {
-  const now = Date.now()
-  let best: number | null = null
-  for (const t of tasks.value) {
-    const ts = remindTsOf(t)
-    if (ts === null || ts <= now) continue
-    if (best === null || ts < best) best = ts
-  }
-  if (best === null) return null
-  const diff = best - now
-  if (diff < 60_000) return `下一提醒 ${Math.max(1, Math.floor(diff / 1000))} 秒后`
-  if (diff < 3_600_000) return `下一提醒 ${Math.floor(diff / 60_000)} 分钟后`
-  if (diff < 86_400_000) return `下一提醒 ${Math.floor(diff / 3_600_000)} 小时后`
-  return `下一提醒 ${Math.ceil(diff / 86_400_000)} 天后`
-})
-
-const recent = computed(() =>
-  [...entries.value].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 4),
-)
-
-const contactRows = computed(() =>
-  [
-    { icon: Mail, label: '邮箱', value: profile.email },
-    { icon: Phone, label: '手机', value: profile.phone },
-    { icon: MapPin, label: '所在地', value: profile.location },
-    { icon: Cake, label: '生日', value: profile.birthday },
-    { icon: Link2, label: 'GitHub', value: profile.github, link: true },
-    { icon: Globe, label: '网站', value: profile.blog, link: true },
-  ].filter((r) => r.value),
-)
+const { day, dateLabel, opening, daily, pending, completed, groups, next, timed, upcoming, overdue, capacity, load } = useTodayWorkspace()
+const showTask = ref(false)
+const editing = ref<Task | null>(null)
+const completing = ref<Task | null>(null)
+const saving = ref(false)
+const saveError = ref(false)
+function edit(task: Task | null = null): void { editing.value = task; showTask.value = true }
+async function save(): Promise<void> {
+  saving.value = true
+  try { await flushPendingSave(); saveError.value = false }
+  catch { saveError.value = true }
+  finally { saving.value = false }
+}
+async function toggle(task: Task): Promise<void> {
+  if (saving.value) return
+  if (!task.done) { completing.value = task; return }
+  toggleTaskDone(task.id)
+  await save()
+}
+async function finish(input: CompletionInput): Promise<void> {
+  if (!completing.value || saving.value) return
+  if (!completeWithProgress(completing.value.id, input)) { completing.value = null; return }
+  completing.value = null
+  await save()
+  if (!saveError.value) toast('已完成，进展已记入回顾')
+}
 </script>
 
 <template>
-    <div>
-      <PageHeader :title="`${greeting}，${displayName}`" :description="today" eyebrow="个人概览">
-        <template #actions>
-          <button class="ui-secondary-button gap-2" @click="showProfileModal = true">
-          <Pencil class="h-4 w-4" />
-          编辑资料
-          </button>
-        </template>
-      </PageHeader>
-
-      <DashboardWorkspace />
-
-      <div class="dashboard-overview mt-7">
-        <div
-          class="dashboard-profile"
-      >
-        <template v-if="hasInfo">
-          <div class="flex items-center gap-4">
-            <div
-              class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-bold text-ink"
-            >
-              {{ avatarChar }}
-            </div>
-            <div class="min-w-0">
-              <p class="truncate text-lg font-semibold">
-                {{ profile.nickname || profile.name }}
-                <span v-if="profile.nickname && profile.name" class="ml-2 text-sm font-normal text-t4">
-                  {{ profile.name }}
-                </span>
-              </p>
-              <p v-if="profile.bio" class="mt-1 line-clamp-2 text-sm text-t3">
-                {{ profile.bio }}
-              </p>
-            </div>
-          </div>
-
-          <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-3.5 sm:grid-cols-2">
-            <div
-              v-for="row in contactRows"
-              :key="row.label"
-              class="flex min-w-0 items-center gap-3 text-sm"
-            >
-              <component
-                :is="row.icon"
-                class="h-4 w-4 shrink-0 text-primary"
-              />
-              <span class="shrink-0 text-xs text-t4">{{ row.label }}</span>
-              <a
-                v-if="'link' in row && row.link && row.value.startsWith('http')"
-                :href="row.value"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="truncate text-t2 underline-offset-4 hover:text-primary hover:underline"
-              >
-                {{ row.value }}
-              </a>
-              <span v-else class="truncate text-t2">{{ row.value }}</span>
-            </div>
-          </div>
-        </template>
-
-        <template v-else>
-          <div class="flex items-center gap-4">
-            <div
-              class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-surface-2 text-t3"
-            >
-              <Pencil class="h-6 w-6" />
-            </div>
-            <div>
-              <p class="font-medium text-t2">完善你的个人资料</p>
-              <p class="mt-1 text-sm text-t3">补充昵称与联系方式，方便需要时查找。资料加密保存。</p>
-            </div>
-          </div>
-          <button
-            class="ui-primary-button mt-5"
-            @click="showProfileModal = true"
-          >
-            立即填写
-          </button>
-        </template>
-      </div>
-
-        <div class="dashboard-summary sm:grid-cols-2 lg:grid-cols-1">
-          <RouterLink
-            to="/vault"
-            class="dashboard-summary-item"
-          >
-            <span class="dashboard-summary-icon text-primary"><KeyRound class="h-4 w-4" /></span>
-            <div>
-              <p class="text-xl font-bold tabular-nums text-t1">{{ total }}</p>
-              <p class="mt-0.5 text-xs text-t4">账号总数</p>
-            </div>
-          </RouterLink>
-          <RouterLink
-            to="/vault"
-            class="dashboard-summary-item"
-          >
-            <span class="dashboard-summary-icon text-info"><Layers class="h-4 w-4" /></span>
-            <div>
-              <p class="text-xl font-bold tabular-nums text-t1">{{ categoryCount }}</p>
-              <p class="mt-0.5 text-xs text-t4">分类数</p>
-            </div>
-          </RouterLink>
-          <RouterLink
-            to="/today"
-            class="dashboard-summary-item"
-          >
-            <span class="dashboard-summary-icon text-info"><ListTodo class="h-4 w-4" /></span>
-            <div class="min-w-0">
-              <p class="text-sm font-semibold text-t1">今日 {{ todayDone }}/{{ todayTasks.length }} 完成</p>
-              <p class="mt-0.5 truncate text-xs" :class="overdueToday > 0 ? 'text-warn' : 'text-t4'">
-                {{ overdueToday > 0 ? `${overdueToday} 个逾期` : nextReminderLabel ?? '暂无定时提醒' }}
-              </p>
-            </div>
-          </RouterLink>
-          <RouterLink
-            to="/vault"
-            class="dashboard-summary-item"
-          >
-            <span class="dashboard-summary-icon" :class="weakCount > 0 ? 'text-danger' : 'text-ok'">
-              <ShieldAlert class="h-4 w-4" />
-            </span>
-            <div class="min-w-0">
-              <p class="text-sm font-semibold" :class="weakCount > 0 ? 'text-danger' : 'text-ok'">
-                {{ total === 0 ? '尚未添加账号' : weakCount > 0 ? `${weakCount} 个弱密码` : '密码强度良好' }}
-              </p>
-              <p class="mt-0.5 text-xs text-t4">
-                {{ total === 0 ? '集中管理常用账号' : weakCount > 0 ? '建议更换' : '继续保持' }}
-              </p>
-            </div>
-          </RouterLink>
-        </div>
-      </div>
-
-      <div class="mt-7 border-t border-line pt-5">
-      <div class="flex items-center justify-between">
-        <h2 class="text-base font-semibold">最近更新的账号</h2>
-        <RouterLink class="text-xs font-medium text-primary transition-colors duration-150 hover:text-primary-strong" to="/vault">
-          查看全部
-        </RouterLink>
-      </div>
-
-      <div v-if="recent.length === 0" class="empty-state mt-4">
-        <KeyRound class="mx-auto h-8 w-8 text-t4" />
-        <p class="mt-3 text-sm font-medium text-t2">还没有保存任何账号</p>
-        <RouterLink class="ui-primary-button mt-4" to="/vault">新增账号</RouterLink>
-      </div>
-
-      <ul v-else class="mt-4 divide-y divide-line">
-        <li
-          v-for="item in recent"
-          :key="item.id"
-          class="first:pt-0 last:pb-0"
-        >
-          <RouterLink
-            to="/vault"
-            class="group flex min-h-14 items-center gap-3.5 py-3 transition-colors duration-150"
-          >
-            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-sm font-bold text-primary">
-              {{ (item.title || '未命名').charAt(0).toUpperCase() }}
-            </span>
-            <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-medium text-t1 group-hover:text-primary">{{ item.title }}</p>
-              <p class="truncate text-xs text-t4">{{ item.username }}</p>
-            </div>
-            <span class="hidden shrink-0 text-xs text-t4 sm:block">
-              {{ formatDate(item.updatedAt) }}
-            </span>
-          </RouterLink>
-        </li>
-      </ul>
+  <div class="today-workspace">
+    <PageHeader title="今天" :description="dateLabel"><template #actions><button :class="next ? 'ui-secondary-button' : 'ui-primary-button'" class="gap-2" @click="edit()"><Plus class="h-4 w-4" />新建任务</button></template></PageHeader>
+    <p v-if="opening" class="mt-4 break-words text-sm leading-6 text-primary">昨天留给今天：{{ opening }}</p>
+    <RouterLink v-if="upcoming" :to="{ path: '/calendar', query: { date: day } }" class="today-upcoming"><CalendarDays class="h-4 w-4 shrink-0" /><span class="shrink-0 text-xs">{{ upcoming.label }} · {{ upcoming.task.time }}</span><span class="min-w-0 flex-1 truncate text-sm text-t1">{{ upcoming.task.title }}</span><ArrowRight class="h-4 w-4 shrink-0" /></RouterLink>
+    <div v-if="saveError" role="alert" class="mt-4 rounded-lg border border-danger/30 bg-surface p-4 text-sm text-danger">修改尚未保存，请重试。<button class="ui-secondary-button ml-3" :disabled="saving" @click="save">重试保存</button></div>
+    <section v-if="next" class="today-resume" aria-label="从这里继续"><div class="min-w-0"><p class="text-xs text-t3">从上次停下的地方继续</p><h2 class="mt-2 break-words text-lg font-semibold text-t1">{{ next.title }}</h2><p class="mt-2 line-clamp-2 text-sm leading-6 text-t3">{{ next.resumeNextStep || next.resumeNote }}</p></div><RouterLink :to="{ path: '/focus', query: { task: next.id, from: '/' } }" class="ui-primary-button shrink-0 gap-2">从这里继续<ArrowRight class="h-4 w-4" /></RouterLink></section>
+    <div class="today-columns">
+      <section class="min-w-0" aria-label="今天的任务">
+        <div class="today-section-header"><h2 class="text-base font-semibold text-t1">今天的任务</h2><span class="text-xs tabular-nums text-t3">完成 {{ completed.length }} / {{ daily.length }}</span></div>
+        <TodayQuickAdd :date="day" />
+        <RouterLink v-if="overdue" to="/today?view=inbox" class="today-overdue">{{ overdue }} 项任务需要重新安排<ArrowRight class="h-4 w-4" /></RouterLink>
+        <div v-if="!pending.length" class="today-empty"><CheckCheck class="h-7 w-7 text-primary" /><h3 class="mt-4 text-base font-medium text-t1">{{ completed.length ? '今天的任务已完成' : '今天还没有安排' }}</h3><p class="mt-2 text-sm text-t3">{{ completed.length ? '可以留下今天的进展，也可以安心休息。' : '在上方记下一件想做的事，或从待安排中挑选。' }}</p><div class="mt-4 flex flex-wrap gap-2"><RouterLink :to="completed.length ? '/review?tab=closing' : '/today?view=inbox'" class="ui-ghost-button">{{ completed.length ? '一天收尾' : '查看待安排' }}</RouterLink></div></div>
+        <section v-for="group in groups" :key="group.label" class="today-task-group"><h3 v-if="groups.length > 1 || group.label === '今日重点'" class="text-xs text-t3">{{ group.label }} · {{ group.items.length }}</h3><TodayTaskList :day="day" :items="group.items" :busy="saving" @edit="edit" @toggle="toggle" /></section>
+        <details v-if="completed.length" class="today-completed"><summary>已完成 · {{ completed.length }}</summary><TodayTaskList :day="day" :items="completed" :busy="saving" @edit="edit" @toggle="toggle" /></details>
+        <div class="today-footer-links"><RouterLink to="/today?view=all">查看已排期任务<ArrowRight class="h-4 w-4" /></RouterLink><RouterLink to="/focus">选择一件事开始<ArrowRight class="h-4 w-4" /></RouterLink></div>
+      </section>
+      <aside class="today-agenda" aria-label="今日时间安排"><div class="today-section-header"><h2 class="text-base font-semibold text-t1">今日时间安排</h2><CalendarDays class="h-4 w-4 text-t3" /></div><p class="text-xs leading-6 text-t3">待办预计 {{ load }} / 可用 {{ capacity }} 分钟<span v-if="load > capacity" class="block text-warn">超出 {{ load - capacity }} 分钟，可到计划中调整</span></p><div v-if="timed.length" class="today-agenda-list"><button v-for="task in timed" :key="task.id" @click="edit(task)"><time class="text-xs tabular-nums text-primary">{{ task.time }}</time><span class="mt-1 block break-words text-sm text-t1">{{ task.title }}</span><span v-if="task.estimatedMinutes" class="mt-1 block text-xs text-t3">{{ task.estimatedMinutes }} 分钟</span></button></div><p v-else class="py-5 text-sm leading-6 text-t3">还没有定时任务，可以到日历安排时间或留白。</p><RouterLink :to="{ path: '/calendar', query: { date: day } }" class="today-agenda-link">到日历安排时间<ArrowRight class="h-4 w-4" /></RouterLink><div class="today-agenda-bottom"><RouterLink to="/collect">先记下一个想法<ArrowRight class="h-4 w-4" /></RouterLink><RouterLink to="/review?tab=closing">收好今天<ArrowRight class="h-4 w-4" /></RouterLink></div></aside>
     </div>
-
-    <ProfileModal :open="showProfileModal" @close="showProfileModal = false" />
+    <TaskModal :open="showTask" :entry="editing" :default-date="day" @close="showTask = false" />
+    <TaskCompletionModal :open="Boolean(completing)" :task="completing" @close="completing = null" @confirm="finish" />
   </div>
 </template>

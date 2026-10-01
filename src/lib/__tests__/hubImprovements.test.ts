@@ -105,3 +105,24 @@ describe('可恢复的修改与删除', () => {
     expect(payload.offlineJournal.conflicts).toHaveLength(0)
   })
 })
+
+
+it('continuation edits cannot evict deleted records, and are searchable', () => {
+  const base = rehearsalPayload()
+  const task = { id: 'focus', title: '作品', date: '', time: '', notes: '', priority: 2 as const, repeat: 'none' as const, done: false, tags: [], subtasks: [], createdAt: 1, updatedAt: 1, resumeNote: '独有检索词' }
+  let previous = { ...base, tasks: [task], recoveryItems: [{ id: 'deleted', kind: 'memos' as const, sourceId: 'lost', savedAt: 1000, reason: 'deleted' as const, value: { id: 'lost', title: '可恢复' } }] } as typeof base
+  for (let i = 0; i < 201; i++) {
+    const next = structuredClone(previous)
+    next.tasks![0]!.resumeNote = `继续 ${i}`
+    next.tasks![0]!.resumeUpdatedAt = 2000 + i
+    previous = captureRecovery(previous, next, 2000 + i)
+  }
+  expect(previous.recoveryItems!.some(item => item.id === 'deleted')).toBe(true)
+  expect(previous.recoveryItems!.filter(item => item.reason === 'changed')).toHaveLength(1)
+  expect(searchHub({ ...base, tasks: [task] }, '独有检索词')).toHaveLength(1)
+  const changed = previous.recoveryItems!.find(item => item.reason === 'changed')!
+  const many = Array.from({ length: 300 }, (_, i) => ({ ...changed, id: `v${i}`, savedAt: 4000 + i }))
+  const kept = retainRecovery([...many, previous.recoveryItems!.find(item => item.id === 'deleted')!], 5000)
+  expect(kept.some(item => item.id === 'deleted')).toBe(true)
+  expect(kept.filter(item => item.reason === 'changed')).toHaveLength(20)
+})

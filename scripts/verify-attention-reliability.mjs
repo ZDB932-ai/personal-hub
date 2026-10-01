@@ -1,0 +1,68 @@
+import { chromium } from 'playwright'
+import assert from 'node:assert/strict'
+import { mkdirSync } from 'node:fs'
+const browser=await chromium.launch({channel:'msedge',headless:true})
+const page=await browser.newPage({viewport:{width:1440,height:1000}})
+page.setDefaultTimeout(15000)
+const button=name=>page.getByRole('button',{name,exact:true})
+const link=name=>page.getByRole('link',{name,exact:true})
+const password='Isolated-Reliability-2026'
+const shots='.visual-qa/attention-reliability'
+mkdirSync(shots,{recursive:true})
+const errors=[]
+page.on('pageerror',e=>errors.push(e.message))
+page.on('dialog',dialog=>dialog.accept())
+try {
+ await page.goto(process.env.PHUB_VERIFY_URL??'http://127.0.0.1:4190')
+ await page.getByPlaceholder('创建主密码',{exact:true}).fill(password)
+ await page.getByPlaceholder('再次输入主密码',{exact:true}).fill(password)
+ await button('创建并进入').click()
+ await link('开始一件事').click()
+ await button('添加一件事').click()
+ await page.getByPlaceholder('要做什么？').fill('继续整理摄影集')
+ await button('添加任务').click()
+ await page.locator('.attention-choice').click()
+ const focusUrl=page.url()
+ await page.getByLabel('做到哪里了',{exact:true}).fill('独有线索青苔封面')
+ await page.getByLabel('记下一句话',{exact:true}).fill('草稿：以后做一份印刷指南')
+ await page.waitForTimeout(900)
+ await page.reload()
+ await page.getByPlaceholder('主密码',{exact:true}).fill(password)
+ await button('解锁').click()
+ await page.getByLabel('记下一句话',{exact:true}).waitFor()
+ assert.equal(await page.getByLabel('记下一句话',{exact:true}).inputValue(),'草稿：以后做一份印刷指南')
+ await link('选择另一件事').click()
+ await button('锁定').first().click()
+ await page.getByPlaceholder('主密码',{exact:true}).fill(password)
+ await button('解锁').click()
+ await page.goto(focusUrl)
+ await page.getByLabel('记下一句话',{exact:true}).waitFor()
+ assert.equal(await page.getByLabel('记下一句话',{exact:true}).inputValue(),'草稿：以后做一份印刷指南')
+ await page.evaluate(()=>{
+  globalThis.__qaFailWrites=true
+  const original=IDBObjectStore.prototype.put
+  IDBObjectStore.prototype.put=function(...args){if(globalThis.__qaFailWrites&&this.name==='state')throw new DOMException('QA quota','QuotaExceededError');return original.apply(this,args)}
+ })
+ await button('放进口袋').click()
+ await page.getByText('尚未保存，文字已保留，请重试。',{exact:true}).waitFor()
+ assert.equal(await page.getByText('已收好，继续手上的事。',{exact:true}).count(),0)
+ assert.equal(await page.getByLabel('记下一句话',{exact:true}).inputValue(),'草稿：以后做一份印刷指南')
+ await page.screenshot({path:`${shots}/retry.png`})
+ await page.evaluate(()=>{globalThis.__qaFailWrites=false})
+ await button('放进口袋').click()
+ await page.getByText('已收好，继续手上的事。',{exact:true}).waitFor()
+ await page.keyboard.press('Control+k')
+ await page.getByLabel('搜索所有内容',{exact:true}).fill('青苔封面')
+ await page.getByRole('link',{name:'打开专注 继续整理摄影集',exact:true}).click()
+ await link('结束后再整理').click()
+ await button('草稿：以后做一份印刷指南').waitFor()
+ assert.equal(await button('草稿：以后做一份印刷指南').count(),1)
+ await page.getByRole('link',{name:/产生于 · 继续整理摄影集/}).click()
+ await button('完成这一件').click()
+ await button('确认完成').click()
+ await page.getByText('当时留下的继续线索',{exact:true}).click()
+ await page.getByText('做到哪里了：独有线索青苔封面',{exact:true}).waitFor()
+ await page.screenshot({path:`${shots}/completed-clues.png`})
+ assert.deepEqual(errors,[])
+ console.log('PASS: encrypted draft reload/global lock, failed capture retry without duplicate, continuation search, source navigation, completed clue visibility')
+} catch(e){await page.screenshot({path:`${shots}/failure.png`,fullPage:true});throw e} finally{await browser.close()}

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   Check,
   ChevronDown,
   ChevronRight,
   Clock,
   MoreHorizontal,
+  Play,
   Pencil,
   Plus,
   Repeat,
@@ -39,6 +41,7 @@ const emit = defineEmits<{
 }>()
 
 const expanded = ref(false)
+const route = useRoute()
 const subInput = ref('')
 const actionMenu = ref<HTMLDetailsElement | null>(null)
 
@@ -78,7 +81,7 @@ const PRIORITY_TONE: Record<TaskPriority, string> = {
 
 <template>
   <div class="border-b border-line transition-colors duration-150 hover:bg-surface">
-    <div class="flex flex-wrap items-center gap-3 px-4 py-3">
+    <div class="task-row-layout flex flex-wrap items-center gap-3 px-4 py-3">
       <button
         class="group flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors duration-150 hover:bg-surface-2"
         :aria-label="task.done ? '取消完成任务' : '完成任务'"
@@ -105,7 +108,7 @@ const PRIORITY_TONE: Record<TaskPriority, string> = {
         日重点
       </span>
 
-      <button class="min-w-0 flex-1 text-left" @click="emit('edit')">
+      <button class="task-row-content min-w-0 flex-1 text-left" @click="emit('edit')">
         <p
           class="truncate text-sm"
           :class="task.done ? 'text-t4 line-through' : 'text-t1'"
@@ -127,6 +130,7 @@ const PRIORITY_TONE: Record<TaskPriority, string> = {
         </div>
       </button>
 
+      <RouterLink v-if="!task.done" :to="{ path: '/focus', query: { task: task.id, from: route.fullPath } }" class="ui-icon-button shrink-0" :aria-label="`专注：${task.title}`" title="专注这件事"><Play class="h-4 w-4" /></RouterLink>
       <button v-if="showFocusAction && !task.done" class="ui-icon-button shrink-0" :class="task.focusDate ? 'text-primary' : 'text-t4'" :aria-label="`${task.focusDate ? '取消重点' : '设为重点'}：${task.title}`" :aria-pressed="Boolean(task.focusDate)" @click="requestFocus">
         <Star class="h-4 w-4" :fill="task.focusDate ? 'currentColor' : 'none'" />
       </button>

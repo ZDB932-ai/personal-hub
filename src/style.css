@@ -491,6 +491,12 @@ body {
   padding: 0.875rem;
 }
 
+.modal-panel .date-picker-popover {
+  left: 0;
+  right: auto;
+  max-width: calc(100vw - 82px);
+}
+
 .date-picker-header {
   display: flex;
   align-items: center;

@@ -21,6 +21,7 @@ import { Capacitor } from '@capacitor/core'
 import { unlockEnvelope } from '@/lib/vaultKeys'
 import { toast } from '@/lib/toast'
 import DeviceSection from './DeviceSection.vue'
+import LocalAccountSection from './LocalAccountSection.vue'
 
 const props = defineProps<{
   open: boolean
@@ -72,8 +73,8 @@ const canSubmitPw = computed(
 
 async function submitChange() {
   pwError.value = ''
-  if (pwForm.newPw.length < 4) {
-    pwError.value = '新密码至少需要 4 位'
+  if (pwForm.newPw.length < 8 || pwForm.newPw.length > 256) {
+    pwError.value = '新密码需要 8–256 个字符'
     return
   }
   if (pwForm.newPw !== pwForm.confirmPw) {
@@ -123,6 +124,7 @@ async function disableBiometric(): Promise<void> {
 
 <template>
   <div>
+    <LocalAccountSection :key="String(props.open)" />
     <DeviceSection :key="String(props.open)" />
     <div class="flex items-center justify-between">
       <h4 class="text-xs font-semibold uppercase tracking-wider text-t4">加密保护 · 已开启</h4>

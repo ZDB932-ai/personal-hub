@@ -13,18 +13,31 @@ export interface RecoveryItem {
 
 export function recoveryFingerprint(kind: CollectionKind, value: unknown): string {
   const result = { ...(value as Record<string, unknown>) }
-  for (const field of ['updatedAt', 'lastUsedAt', 'lastRemindedTs', 'pinned']) delete result[field]
+  for (const field of ['updatedAt', 'lastUsedAt', 'lastRemindedTs', 'pinned', 'resumeUpdatedAt']) delete result[field]
   if (kind === 'docMetas') { delete result.blobId; delete result.attachment }
   return canonicalJSON(result)
 }
 
 export function retainRecovery(items: RecoveryItem[], now = Date.now()): RecoveryItem[] {
-  let bytes = 0
-  return [...items].sort((a, b) => b.savedAt - a.savedAt).filter(item => {
-    if (item.savedAt < now - 30 * 86400000) return false
-    bytes += new TextEncoder().encode(JSON.stringify(item)).byteLength
-    return bytes <= 2 * 1024 * 1024
-  }).slice(0, 200)
+  const result: RecoveryItem[] = []
+  for (const reason of ['deleted', 'changed'] as const) {
+    let bytes = 0, count = 0
+    const maxCount = reason === 'deleted' ? 200 : 100
+    const maxBytes = (reason === 'deleted' ? 2 : 1) * 1024 * 1024
+    const versions = new Map<string, number>()
+    for (const item of [...items].sort((a, b) => b.savedAt - a.savedAt)) {
+      if (item.reason !== reason || item.savedAt < now - 30 * 86400000 || count >= maxCount) continue
+      const key = `${item.kind}:${item.sourceId}`
+      if (reason === 'changed' && (versions.get(key) ?? 0) >= 20) continue
+      const size = new TextEncoder().encode(JSON.stringify(item)).byteLength
+      if (bytes + size > maxBytes) continue
+      bytes += size
+      count++
+      versions.set(key, (versions.get(key) ?? 0) + 1)
+      result.push(item)
+    }
+  }
+  return result.sort((a, b) => b.savedAt - a.savedAt)
 }
 
 export function captureRecovery(previous: VaultPayload | undefined, next: VaultPayload, now = Date.now()): VaultPayload {
@@ -34,6 +47,15 @@ export function captureRecovery(previous: VaultPayload | undefined, next: VaultP
     for (const before of previous[kind] ?? []) {
       const after = current.get(before.id)
       if (after && recoveryFingerprint(kind, before) === recoveryFingerprint(kind, after)) continue
+      if (kind === 'memos' && after && 'captureStatus' in before && before.captureStatus === 'draft') continue
+      if (kind === 'tasks' && after) {
+        const strip = (value: unknown) => {
+          const copy = { ...(value as Record<string, unknown>) }
+          for (const field of ['resumeNote', 'resumeNextStep', 'resumeUpdatedAt']) delete copy[field]
+          return recoveryFingerprint(kind, copy)
+        }
+        if (strip(before) === strip(after) && items.some(item => item.kind === kind && item.sourceId === before.id && item.reason === 'changed' && now - item.savedAt < 5 * 60000)) continue
+      }
       const reason = after ? 'changed' : 'deleted'
       if (items.some(item => item.kind === kind && item.sourceId === before.id && item.reason === reason && recoveryFingerprint(kind, item.value) === recoveryFingerprint(kind, before))) continue
       items.unshift({ id: crypto.randomUUID(), kind, sourceId: before.id, savedAt: now, reason, value: JSON.parse(JSON.stringify(before)) })

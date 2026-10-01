@@ -1,5 +1,5 @@
 import { chromium } from 'playwright'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs'
 import assert from 'node:assert/strict'
 
 const base = process.env.PHUB_VERIFY_URL ?? 'http://127.0.0.1:4183'
@@ -15,16 +15,21 @@ try {
   await page.goto(base)
   await page.getByPlaceholder('创建主密码', { exact: true }).fill('Preview-QA-Password')
   await page.getByPlaceholder('再次输入主密码', { exact: true }).fill('Preview-QA-Password')
-  await page.getByRole('button', { name: '创建并进入', exact: true }).click()
+  await page.getByPlaceholder('例如：我的工作台').fill('自动验收账户')
+  await page.getByRole('button', { name: '下一步：保存恢复密钥', exact: true }).click()
+  const recoveryCode = await page.locator('textarea[readonly]').inputValue()
+  await page.getByLabel('确认密钥最后 8 位').fill(recoveryCode.slice(-8))
+  await page.getByRole('checkbox', { name: '我已在应用之外保存完整密钥' }).check()
+  await page.getByRole('button', { name: '确认保存并启用', exact: true }).click()
   await page.getByRole('button', { name: '锁定', exact: true }).first().waitFor()
   await page.screenshot({ path: `${output}/dashboard.png`, fullPage: true })
   await page.getByRole('button', { name: '设置', exact: true }).first().click()
   await page.getByRole('button', { name: '关于', exact: true }).click()
-  await page.getByText('Personal Hub v1.1.1', { exact: true }).waitFor()
+  await page.getByText(`Personal Hub v${JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version}`, { exact: true }).waitFor()
   await page.keyboard.press('Escape')
   await page.getByRole('button', { name: '锁定', exact: true }).first().click()
   await page.getByPlaceholder('主密码', { exact: true }).fill('Preview-QA-Password')
-  await page.getByRole('button', { name: '解锁', exact: true }).click()
+  await page.getByRole('button', { name: '登录', exact: true }).click()
   await page.getByRole('button', { name: '锁定', exact: true }).first().waitFor()
   await page.goto(`${base}/?pet=1`)
   await page.getByRole('heading', { name: '奶龙，今天也陪着你。', exact: true }).waitFor()

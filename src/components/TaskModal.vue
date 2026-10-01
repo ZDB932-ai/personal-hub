@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import TaskResume from '@/components/TaskResume.vue'
 import { confirmAction } from '@/lib/confirmAction'
-import { reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import ModalShell from '@/components/ModalShell.vue'
 import AppSelect from '@/components/AppSelect.vue'
 import AppDatePicker from '@/components/AppDatePicker.vue'
 import TaskLinks from '@/components/TaskLinks.vue'
+import TaskScheduleHint from '@/components/TaskScheduleHint.vue'
+import { longPlans, weeklyPlans } from '@/stores/planning'
+import { taskPlans } from '@/lib/calendarConnections'
 import { openHubItem } from '@/stores/hub'
 import { Check, Plus, X } from '@lucide/vue'
 import { addTask, updateTask } from '@/stores/tasks'
@@ -18,6 +22,7 @@ const props = defineProps<{
   entry: Task | null
   defaultDate?: string
   defaultDraft?: Partial<Task>
+  scheduleProposal?: { date: string; time: string }
 }>()
 
 const emit = defineEmits<{
@@ -25,6 +30,7 @@ const emit = defineEmits<{
 }>()
 
 const form = reactive({
+  longPlanId: '',
   estimatedMinutes: '' as number | '',
   links: [] as EntityLink[],
   title: '',
@@ -38,6 +44,8 @@ const form = reactive({
 })
 const subInput = ref('')
 const error = ref('')
+const source = computed(() => props.entry ? taskPlans(props.entry, weeklyPlans.value, longPlans.value) : null)
+const goalOptions = computed(() => [{ value: '', label: '不关联方向' }, ...(form.longPlanId && !longPlans.value.some(goal => goal.id === form.longPlanId) ? [{ value: form.longPlanId, label: '原方向已删除或尚未同步' }] : []), ...longPlans.value.filter(goal => goal.status === 'active' || goal.id === form.longPlanId).map(goal => ({ value: goal.id, label: goal.title }))])
 
 watch(
   () => props.open,
@@ -47,12 +55,13 @@ watch(
     subInput.value = ''
     if (props.entry) {
       Object.assign(form, {
+        longPlanId: source.value?.goal?.id ?? props.entry.longPlanId ?? '',
         estimatedMinutes: props.entry.estimatedMinutes ?? '',
         links: (props.entry.links ?? []).map(link => ({ ...link })),
         title: props.entry.title,
         notes: props.entry.notes,
-        date: props.entry.date,
-        time: props.entry.time,
+        date: props.scheduleProposal?.date ?? props.entry.date,
+        time: props.scheduleProposal?.time ?? props.entry.time,
         priority: props.entry.priority,
         repeat: props.entry.repeat,
         tagsText: (props.entry.tags ?? []).join(', '),
@@ -60,6 +69,7 @@ watch(
       })
     } else {
       Object.assign(form, {
+        longPlanId: props.defaultDraft?.longPlanId ?? '',
         estimatedMinutes: props.defaultDraft?.estimatedMinutes ?? '',
         links: (props.defaultDraft?.links ?? []).map(link => ({ ...link })),
         title: props.defaultDraft?.title ?? '',
@@ -108,10 +118,10 @@ async function save() {
   }
   const tags = parsedTags()
   if (props.entry) {
-    updateTask(props.entry.id, { ...form, estimatedMinutes, tags, subtasks: form.subtasks.map(s => ({ ...s })), links: form.links.map(link => ({ ...link })) })
+    updateTask(props.entry.id, { ...form, longPlanId: form.longPlanId || undefined, estimatedMinutes, tags, subtasks: form.subtasks.map(s => ({ ...s })), links: form.links.map(link => ({ ...link })) })
     toast('已更新')
   } else {
-    addTask({ ...form, estimatedMinutes, tags, subtasks: form.subtasks.map(s => ({ ...s })), links: form.links.map(link => ({ ...link })) })
+    addTask({ ...form, longPlanId: form.longPlanId || undefined, estimatedMinutes, tags, subtasks: form.subtasks.map(s => ({ ...s })), links: form.links.map(link => ({ ...link })) })
     toast(form.time ? '已添加，到点会提醒你' : '已添加')
   }
   emit('close')
@@ -140,6 +150,7 @@ const inputCls =
       </button>
     </div>
 
+    <TaskResume v-if="entry" :task="entry" />
     <div class="mt-5 space-y-4">
       <label class="block">
         <span class="mb-1.5 block text-xs font-medium text-t3">任务内容 *</span>
@@ -159,6 +170,9 @@ const inputCls =
         </label>
       </div>
       <label class="block"><span class="mb-1.5 block text-xs font-medium text-t3">预计时长（分钟，可选）</span><input v-model.number="form.estimatedMinutes" type="number" min="1" max="1440" step="1" :class="inputCls" placeholder="未填写时，排期按 30 分钟估算" /></label>
+      <TaskScheduleHint :date="form.date" :time="form.time" :minutes="form.estimatedMinutes" :task-id="entry?.id" />
+      <p v-if="source?.weekly" class="rounded-lg bg-primary/10 p-3 text-xs leading-5 text-primary">来自周计划「{{ source.weekly.title }}」{{ source.goal ? `，朝向「${source.goal.title}」` : '' }}。方向关联跟随周计划。</p>
+      <label v-else class="block"><span class="mb-1.5 block text-xs font-medium text-t3">这一步，想靠近哪个方向？</span><AppSelect v-model="form.longPlanId" :options="goalOptions" aria-label="关联长期方向" /></label>
       <div class="grid grid-cols-2 gap-3">
         <label class="block">
           <span class="mb-1.5 block text-xs font-medium text-t3">优先级</span>

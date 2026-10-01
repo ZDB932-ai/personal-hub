@@ -222,36 +222,27 @@ async function batchDelete(): Promise<void> {
 
 <template>
   <div>
-    <PageHeader title="个人资料库" eyebrow="个人数据">
+    <PageHeader title="资料库" eyebrow="内容">
       <template #description>
-        共 {{ docMetas.length }} 个文件 · AES-GCM 加密存放于本机
-        <span v-if="storage && storage.quota > 0">· 已用 {{ formatSize(storage.usage) }} / {{ formatSize(storage.quota) }}</span>
+        {{ docMetas.length }} 个文件 · 加密保存，随时查找
       </template>
       <template #actions>
-        <label class="ui-secondary-button cursor-pointer gap-1.5 text-xs" :class="manageMode ? 'border-warn/40 bg-warn/10 text-warn' : ''">
+        <button class="ui-secondary-button gap-1.5 text-xs" :aria-pressed="manageMode" :class="manageMode ? 'border-warn/40 bg-warn/10 text-warn' : ''" @click="toggleManage">
           <CheckCircle2 class="h-4 w-4" />
           {{ manageMode ? '退出管理' : '批量管理' }}
-          <input type="checkbox" class="hidden" @change="toggleManage" />
-        </label>
+        </button>
         <label
-          class="ui-primary-button cursor-pointer gap-2"
+          class="ui-primary-button cursor-pointer gap-2 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary"
           :class="{ 'pointer-events-none opacity-60': uploading }"
         >
           <Upload class="h-4 w-4" />
           {{ uploading ? '加密入库中…' : '上传文件' }}
-          <input type="file" multiple class="hidden" :disabled="uploading" @change="handleFiles" />
+          <input type="file" multiple class="sr-only" aria-label="上传文件" :disabled="uploading" @change="handleFiles" />
         </label>
       </template>
     </PageHeader>
-    <p class="mt-3 text-xs leading-relaxed text-t3">正文搜索：可在文件卡片提取文本或 PDF 正文（≤10 MiB，最多 200 页 / 10 万字符）。仅保存在当前解锁会话，锁定后清空，不上传到服务器。</p>
+    <details class="resource-guidance"><summary>存储与正文搜索</summary><p>文件加密保存在本机。<span v-if="storage && storage.quota > 0">浏览器存储已用 {{ formatSize(storage.usage) }} / {{ formatSize(storage.quota) }}。</span>在文件的「更多操作」中提取文本或 PDF 正文后即可搜索（≤10 MiB，最多 200 页 / 10 万字符）。正文索引仅在本次解锁期间保留。</p></details>
     <div v-if="textProgress" class="mt-2 flex items-center gap-3 text-xs text-primary"><span>{{ textProgress }}</span><button class="min-h-11 underline" @click="cancelTextExtraction">取消提取</button></div>
-
-    <div v-if="storage && storage.quota > 0" class="mt-4 h-1 overflow-hidden rounded-full bg-surface-2">
-      <div
-        class="h-full rounded-full bg-primary"
-        :style="{ width: `${Math.min(100, (storage.usage / storage.quota) * 100)}%` }"
-      ></div>
-    </div>
 
     <div class="control-bar mt-4">
       <label class="control-search w-full sm:w-56">
@@ -310,8 +301,8 @@ async function batchDelete(): Promise<void> {
         :aria-checked="manageMode ? selectedIds.has(d.id) : undefined"
         :tabindex="manageMode ? 0 : undefined"
         @click="manageMode ? toggleSelect(d.id) : undefined"
-        @keydown.enter.prevent="manageMode ? toggleSelect(d.id) : undefined"
-        @keydown.space.prevent="manageMode ? toggleSelect(d.id) : undefined"
+        @keydown.enter.self="manageMode ? (toggleSelect(d.id), $event.preventDefault()) : undefined"
+        @keydown.space.self="manageMode ? (toggleSelect(d.id), $event.preventDefault()) : undefined"
       >
         <button
           v-if="manageMode"
@@ -320,7 +311,7 @@ async function batchDelete(): Promise<void> {
           @click.stop="toggleSelect(d.id)"
         >
           <CheckCircle2 v-if="selectedIds.has(d.id)" class="h-6 w-6 text-primary" />
-          <Circle class="h-6 w-6 text-t4" />
+          <Circle v-else class="h-6 w-6 text-t4" />
         </button>
 
         <div class="flex items-start gap-3">
@@ -338,7 +329,8 @@ async function batchDelete(): Promise<void> {
             <component :is="mimeIcon(d)" class="h-5 w-5" />
           </span>
           <div class="min-w-0 flex-1">
-            <p class="truncate pr-7 font-medium" :title="d.name">{{ d.name }}</p>
+            <p v-if="manageMode" class="truncate pr-7 font-medium" :title="d.name">{{ d.name }}</p>
+            <button v-else class="block min-h-11 max-w-full truncate text-left font-medium text-t1 hover:text-primary" :title="d.name" @click.stop="openPreview(d)">{{ d.name }}</button>
             <p class="mt-0.5 text-xs text-t4">{{ formatSize(d.size) }} · {{ new Date(d.createdAt).toLocaleDateString('zh-CN') }}</p>
             <div v-if="d.tags.length > 0" class="mt-1.5 flex flex-wrap gap-1">
               <span v-for="tag in d.tags.slice(0, 3)" :key="tag" class="rounded-md bg-surface-2 px-1.5 py-0.5 text-[10px] text-t3">
@@ -357,7 +349,8 @@ async function batchDelete(): Promise<void> {
           </button>
         </div>
 
-        <div class="mt-3 flex items-center gap-2">
+        <details v-if="!manageMode" class="resource-guidance" @click.stop @keydown.stop><summary>更多操作</summary>
+        <div class="mt-1 flex items-center gap-2">
           <div class="w-28">
             <AppSelect
               :model-value="d.category"
@@ -371,6 +364,7 @@ async function batchDelete(): Promise<void> {
           <span v-if="d.pinned" class="rounded-md bg-warn/15 px-1.5 py-0.5 text-[10px] text-warn">置顶</span>
         </div>
         <button v-if="!manageMode" :disabled="Boolean(textProgress)" class="mt-2 min-h-11 text-left text-xs text-primary disabled:opacity-40" @click.stop="extractText(d)">{{ indexedText(d) ? '重新提取正文' : '提取正文用于搜索' }}</button>
+        </details>
 
         <button
           v-if="d.note"

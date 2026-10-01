@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import ModalShell from '@/components/ModalShell.vue'
 import { X } from '@lucide/vue'
 import { addMemo, MEMO_COLORS, updateMemo } from '@/stores/memos'
+import MemoOrigin from './MemoOrigin.vue'
 import type { Memo } from '@/types'
 
 const props = defineProps<{
@@ -19,8 +20,10 @@ const form = reactive({
   content: '',
   color: 'indigo',
   pinned: false,
+  openingNote: '',
 })
 const error = ref('')
+const changed = computed(() => props.entry && (['title', 'content', 'color', 'pinned', 'openingNote'] as const).some(key => form[key] !== props.entry![key]))
 
 watch(
   () => props.open,
@@ -33,9 +36,10 @@ watch(
         content: props.entry.content,
         color: props.entry.color,
         pinned: props.entry.pinned,
+        openingNote: props.entry.openingNote ?? '',
       })
     } else {
-      Object.assign(form, { title: '', content: '', color: 'indigo', pinned: false })
+      Object.assign(form, { title: '', content: '', color: 'indigo', pinned: false, openingNote: '' })
     }
   },
   { immediate: true },
@@ -47,7 +51,7 @@ function save() {
     return
   }
   if (props.entry) {
-    updateMemo(props.entry.id, { ...form })
+    updateMemo(props.entry.id, { ...form, ...(props.entry.captureStatus === 'draft' ? { captureStatus: 'inbox' as const } : {}) })
   } else {
     addMemo({ ...form })
   }
@@ -71,7 +75,8 @@ const inputCls =
       </button>
     </div>
 
-    <div class="mt-5 space-y-4">
+    <MemoOrigin v-if="entry" :memo="entry" :confirm-leave="Boolean(changed)" @navigate="emit('close')" />
+    <div class="mt-5 space-y-4"><label v-if="entry?.closingDate" class="block text-sm text-t2">给明天的一句话<textarea v-model="form.openingNote" maxlength="2000" rows="2" class="control-input mt-2 px-3 py-2"></textarea></label>
       <label class="block">
         <span class="mb-1.5 block text-xs font-medium text-t3">标题</span>
         <input v-model="form.title" :class="inputCls" placeholder="一句话主题（选填）" />

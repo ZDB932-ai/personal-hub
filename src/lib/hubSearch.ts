@@ -13,8 +13,8 @@ export function searchHub(data: Pick<VaultPayload, 'tasks' | 'memos' | 'docMetas
     const text = [title, detail, ...fields].join(' ').toLocaleLowerCase()
     if (words.every(word => text.includes(word))) result.push({ kind: type, id, title, detail, text: '' })
   }
-  for (const x of data.tasks ?? []) add('tasks', x.id, x.title, x.date || '待安排', [x.notes, ...(x.tags ?? []), ...(x.subtasks ?? []).map(s => s.title)])
-  for (const x of data.memos ?? []) add('memos', x.id, x.title || '未命名备忘录', x.content.slice(0, 90), [x.content])
+  for (const x of data.tasks ?? []) add('tasks', x.id, x.title, x.date || '待安排', [x.notes, x.resumeNote ?? '', x.resumeNextStep ?? '', ...(x.tags ?? []), ...(x.subtasks ?? []).map(s => s.title)])
+  for (const x of data.memos ?? []) add('memos', x.id, x.title || '未命名备忘录', x.content.slice(0, 90), [x.content, x.openingNote ?? ''])
   for (const x of data.docMetas ?? []) add('docMetas', x.id, x.name, x.category, [x.note, ...x.tags])
   for (const x of data.repos ?? []) add('repos', x.id, x.fullName, x.description, [x.note, ...x.topics])
   for (const x of data.entries) add('entries', x.id, x.title, x.username, [x.url, x.category])

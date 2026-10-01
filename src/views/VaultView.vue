@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { confirmAction } from '@/lib/confirmAction'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import {
+  ArrowLeft,
   Copy,
   Eye,
   EyeOff,
@@ -24,10 +25,15 @@ import {
   CATEGORY_BADGE,
   FILTER_CATEGORIES,
   formatDate,
+  passwordStrength,
 } from '@/lib/utils'
 import { copyText } from '@/lib/toast'
 import type { VaultEntry } from '@/types'
 
+const selectedId = ref('')
+const browser = ref<HTMLElement | null>(null)
+const weakCount = computed(() => entries.value.filter(entry => passwordStrength(entry.password).score <= 1).length)
+const detailOpen = ref(false)
 const query = ref('')
 const activeCat = ref('全部')
 const showModal = ref(false)
@@ -121,6 +127,28 @@ const filtered = computed(() => {
     })
 })
 
+const selectedEntry = computed(() => filtered.value.find(item => item.id === selectedId.value) ?? filtered.value[0])
+async function selectEntry(id: string): Promise<void> {
+  selectedId.value = id
+  detailOpen.value = true
+  await nextTick()
+  if (window.matchMedia('(max-width: 1099px)').matches) browser.value?.querySelector<HTMLElement>('.vault-back')?.focus()
+}
+function hideSecrets(): void {
+  revealed.value = new Set()
+  totpRevealed.value = new Set()
+  totpCodes.value = {}
+  for (const timer of hideTimers.values()) clearTimeout(timer)
+  hideTimers.clear()
+}
+async function returnToList(): Promise<void> {
+  hideSecrets()
+  detailOpen.value = false
+  await nextTick()
+  browser.value?.querySelector<HTMLElement>('.vault-entry-item[aria-pressed="true"]')?.focus()
+}
+watch(() => selectedEntry.value?.id, hideSecrets)
+
 const hasFilters = computed(() => activeCat.value !== '全部' || Boolean(query.value.trim()))
 
 function clearFilters(): void {
@@ -186,8 +214,8 @@ function formatCode(code: string): string {
 
 <template>
   <div>
-    <PageHeader title="密码库" eyebrow="隐私">
-      <template #description>共 {{ entries.length }} 条账号记录</template>
+    <PageHeader title="密码库" eyebrow="内容">
+      <template #description>共 {{ entries.length }} 条账号记录<span v-if="weakCount" class="ml-2 text-warn">· {{ weakCount }} 个弱密码，建议更新</span></template>
       <template #actions>
         <button class="ui-primary-button gap-2" @click="openCreate">
           <Plus class="h-4 w-4" />
@@ -248,12 +276,14 @@ function formatCode(code: string): string {
       <button class="ui-secondary-button mt-4 text-xs" @click="clearFilters">清除筛选</button>
     </div>
 
-    <div v-else class="vault-card-grid mt-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+    <div v-else ref="browser" class="vault-browser mt-6" :class="{ 'is-detail-open': detailOpen }">
+      <div class="vault-entry-list" aria-label="账号列表"><button v-for="entry in filtered" :key="entry.id" class="vault-entry-item" :class="{ 'is-selected': selectedEntry?.id === entry.id }" :aria-pressed="selectedEntry?.id === entry.id" @click="selectEntry(entry.id)"><span class="vault-entry-avatar">{{ (entry.title || '?').charAt(0) }}</span><span class="min-w-0 flex-1"><span class="block truncate text-sm font-medium text-t1">{{ entry.title }}</span><span class="mt-1 block truncate text-xs text-t3">{{ entry.username || entry.category }}</span></span><Star v-if="entry.pinned" class="h-3.5 w-3.5 shrink-0 text-primary" /></button></div>
       <article
-        v-for="item in filtered"
+        v-for="item in selectedEntry ? [selectedEntry] : []"
         :key="item.id"
-        class="vault-card relative"
+        class="vault-card vault-entry-detail relative"
       >
+        <button class="vault-back ui-ghost-button mb-4 gap-2" @click="returnToList"><ArrowLeft class="h-4 w-4" />返回账号列表</button>
         <div class="flex items-start justify-between gap-3">
           <div class="flex min-w-0 items-center gap-3">
             <span
@@ -292,7 +322,7 @@ function formatCode(code: string): string {
 
         <div class="vault-secrets mt-5 text-sm">
           <div class="vault-secret-row">
-            <span class="truncate text-t2">{{ item.username }}</span>
+            <div class="min-w-0"><p class="mb-1 text-xs text-t3">用户名</p><span class="break-all text-t2">{{ item.username || '未填写' }}</span></div>
             <button
               class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-t4 transition hover:bg-surface-2 hover:text-primary"
               aria-label="复制用户名"
@@ -302,9 +332,7 @@ function formatCode(code: string): string {
             </button>
           </div>
           <div class="vault-secret-row">
-            <span class="truncate font-mono text-t2">
-              {{ revealed.has(item.id) ? item.password : '••••••••••••' }}
-            </span>
+            <div class="min-w-0"><p class="mb-1 text-xs text-t3">密码</p><span class="break-all font-mono text-t2">{{ revealed.has(item.id) ? item.password : '••••••••••••' }}</span></div>
             <div class="flex shrink-0 items-center gap-0.5">
               <button
                 class="flex h-9 w-9 items-center justify-center rounded-md text-t4 transition hover:bg-surface-2 hover:text-t2"
@@ -384,7 +412,7 @@ function formatCode(code: string): string {
           </div>
         </div>
 
-        <p v-if="item.notes" class="mt-3 line-clamp-1 text-xs text-t4" :title="item.notes">
+        <p v-if="item.notes" class="mt-4 whitespace-pre-wrap break-words text-sm leading-6 text-t3">
           {{ item.notes }}
         </p>
 

@@ -1,216 +1,112 @@
 <script setup lang="ts">
-import { confirmAction } from '@/lib/confirmAction'
 import { computed, onMounted, ref, watch } from 'vue'
-import { Eye, EyeOff, Fingerprint, LockKeyhole, ShieldCheck } from '@lucide/vue'
-import { isGated, lockHint, setupLock, unlockApp, usesSetupScreen } from '@/stores/lock'
-import { biometricAvailable, biometricClear, biometricEnabled, biometricGetSecret } from '@/lib/biometric'
+import { LockKeyhole, Fingerprint } from '@lucide/vue'
+import { isGated, usesSetupScreen, lockMode, localAccountName, hasLocalRecovery, lockHint, setupLock, unlockApp, createLocalAccount, resetLocalPassword } from '@/stores/lock'
+import { generateRecoveryCode } from '@/lib/vaultKeys'
+import { biometricAvailable, biometricEnabled, biometricGetSecret, biometricClear } from '@/lib/biometric'
+import { confirmAction } from '@/lib/confirmAction'
 import { deleteAllBlobs } from '@/lib/docdb'
 import { deleteAllImgs } from '@/lib/wallpaperdb'
 import { resetVaultRepository } from '@/lib/vaultRepository'
 import { clearNativeReminders } from '@/lib/reminders'
 import DeviceJoin from './DeviceJoin.vue'
-import { lockMode } from '@/stores/lock'
-
-const mode = computed<'setup' | 'locked'>(() => (usesSetupScreen.value ? 'setup' : 'locked'))
-
+import PasswordInput from './PasswordInput.vue'
+import RecoveryKeyCard from './RecoveryKeyCard.vue'
+const screen = ref<'login' | 'recovery' | 'key'>('login')
+const setup = usesSetupScreen
+const account = ref('')
 const password = ref('')
-const confirmPassword = ref('')
-const hint = ref('')
-const error = ref('')
-const shake = ref(false)
+const confirmation = ref('')
+const recovery = ref('')
+const generated = ref('')
 const busy = ref(false)
-const showPw = ref(false)
-const showHint = ref(false)
+const error = ref('')
+const notice = ref('')
 const canBiometric = ref(false)
-const resetting = ref(false)
-
-onMounted(async () => {
-  canBiometric.value = biometricEnabled() && (await biometricAvailable())
-})
-
-async function unlockWithBiometric(): Promise<void> {
-  if (busy.value) return
-  busy.value = true
-  const secret = await biometricGetSecret('解锁 Personal Hub')
-  if (!secret) {
-    busy.value = false
-    return
-  }
-  const ok = await unlockApp(secret)
-  busy.value = false
-  if (!ok) fail('指纹已通过，但主密码校验失败；请用密码解锁后重新设置指纹')
-}
-
-watch(isGated, () => {
-  password.value = ''
-  confirmPassword.value = ''
-  hint.value = ''
-  error.value = ''
-  showPw.value = false
-  showHint.value = false
-})
-
-function fail(message: string) {
-  error.value = message
-  shake.value = true
-  setTimeout(() => (shake.value = false), 500)
-}
-
+const title = computed(() => screen.value === 'recovery' ? '找回密码' : setup.value ? '创建本地账户' : '欢迎回来')
+onMounted(async () => { canBiometric.value = biometricEnabled() && await biometricAvailable() })
+watch(isGated, () => { password.value = ''; confirmation.value = ''; recovery.value = ''; generated.value = ''; screen.value = 'login'; error.value = '' })
+function switchScreen(next: 'login' | 'recovery') { screen.value = next; error.value = ''; notice.value = ''; password.value = ''; confirmation.value = ''; recovery.value = ''; generated.value = '' }
 async function submit() {
   if (busy.value) return
-  if (mode.value === 'setup') {
-    if (password.value.length < 4) return fail('主密码至少需要 4 位')
-    if (password.value !== confirmPassword.value) return fail('两次输入的密码不一致')
-    busy.value = true
-    try {
-      await setupLock(password.value, hint.value)
-    } finally {
-      busy.value = false
-    }
-  } else {
-    busy.value = true
-    const ok = await unlockApp(password.value)
-    busy.value = false
-    if (!ok) return fail('密码错误，请重试')
+  error.value = ''; notice.value = ''
+  if (setup.value || screen.value === 'recovery') {
+    if (password.value.length < 8 || password.value.length > 256) { error.value = '密码需要 8–256 个字符'; return }
+    if (password.value !== confirmation.value) { error.value = '两次输入的密码不一致'; return }
   }
-}
-
-async function resetAll(): Promise<void> {
-  if (resetting.value) return
-  const confirmed = await confirmAction(
-    '重置将清除本机保存的全部数据（个人资料 + 所有账号密码），且无法恢复。云端备份不会被删除。确定继续吗？',
-  )
-  if (!confirmed) return
-  const doubleCheck = await confirmAction('再次确认：真的要清除所有本地数据吗？')
-  if (!doubleCheck) return
-  resetting.value = true
+  if (setup.value && lockMode.value === 'fresh') {
+    if (!account.value.trim() || account.value.trim().length > 40) { error.value = '账户名称需要 1–40 个字符'; return }
+    generated.value = generateRecoveryCode(); screen.value = 'key'; return
+  }
+  busy.value = true
   try {
-    await clearNativeReminders()
-    await resetVaultRepository()
-    await Promise.allSettled([deleteAllBlobs(), deleteAllImgs(), biometricClear()])
-    localStorage.clear()
-    sessionStorage.clear()
-    location.reload()
-  } catch (e) {
-    fail(e instanceof Error ? e.message : '重置失败，请重试')
-    resetting.value = false
-  }
+    if (screen.value === 'recovery') {
+      await resetLocalPassword(recovery.value, password.value)
+      switchScreen('login'); canBiometric.value = false; notice.value = '密码已重设，数据已保留。请使用新密码登录。'
+    } else if (setup.value) {
+      await setupLock(password.value, '')
+    } else if (!await unlockApp(password.value)) { error.value = '密码不正确或本机数据无法读取，请重试' }
+  } catch (e) { error.value = e instanceof Error ? e.message : '操作失败，请重试' }
+  finally { busy.value = false }
 }
-
-const inputCls =
-  'w-full rounded-lg border border-line bg-surface px-3.5 py-3 text-sm text-t1 placeholder:text-t4 outline-none transition focus:border-primary/60 focus:bg-surface-2 focus:ring-2 focus:ring-primary/25'
+async function create() {
+  busy.value = true; error.value = ''
+  try { await createLocalAccount(account.value, password.value, generated.value) }
+  catch (e) { error.value = e instanceof Error ? e.message : '创建失败，请重试' }
+  finally { busy.value = false }
+}
+async function biometric() {
+  busy.value = true; error.value = ''
+  try { const secret = await biometricGetSecret('解锁 Personal Hub'); if (secret && !await unlockApp(secret)) error.value = '请使用密码登录后重新设置指纹' }
+  catch { error.value = '指纹解锁失败，请使用密码' }
+  finally { busy.value = false }
+}
+async function resetAll() {
+  if (busy.value) return
+  if (!await confirmAction('这会删除本机的任务、密码、资料、附件及恢复信息，无法撤销。云端数据不会删除。继续吗？')) return
+  if (!await confirmAction('再次确认：清除本机全部数据并重新开始？')) return
+  busy.value = true
+  try { await clearNativeReminders(); await resetVaultRepository(); await Promise.allSettled([deleteAllBlobs(), deleteAllImgs(), biometricClear()]); localStorage.clear(); sessionStorage.clear(); location.reload() }
+  catch (e) { error.value = e instanceof Error ? e.message : '清除失败'; busy.value = false }
+}
 </script>
-
 <template>
-  <div class="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-body p-4">
-    <div
-      class="relative max-h-[calc(100dvh-2rem)] w-full max-w-sm overflow-y-auto rounded-xl border border-line bg-surface p-8 shadow-2xl shadow-black/50"
-      :class="{ shake }"
-    >
-      <div class="flex flex-col items-center text-center">
-        <div
-          class="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-ink"
-        >
-          <ShieldCheck v-if="mode === 'setup'" class="h-7 w-7" />
-          <LockKeyhole v-else class="h-7 w-7" />
-        </div>
-        <h1 class="mt-4 text-lg font-semibold">
-          {{ mode === 'setup' ? '创建主密码' : '已锁定' }}
-        </h1>
-        <p class="mt-1.5 text-xs leading-relaxed text-t4">
-          {{
-            mode === 'setup'
-              ? '主密码将用于加密你的全部数据，每次进入需要解锁'
-              : '输入主密码解锁，解密你的个人信息台'
-          }}
-        </p>
-      </div>
-
-      <form class="mt-6 space-y-3.5" @submit.prevent="submit">
-        <div class="relative">
-          <input
-            v-model="password"
-            :type="showPw ? 'text' : 'password'"
-            :class="inputCls"
-            class="pr-11"
-            :placeholder="mode === 'setup' ? '创建主密码' : '主密码'"
-            autofocus
-          />
-          <button
-            type="button"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-t4 transition hover:text-t2"
-            :aria-label="showPw ? '隐藏主密码' : '显示主密码'"
-            :aria-pressed="showPw"
-            @click="showPw = !showPw"
-          >
-            <EyeOff v-if="showPw" class="h-4 w-4" />
-            <Eye v-else class="h-4 w-4" />
-          </button>
-        </div>
-
-        <input
-          v-if="mode === 'setup'"
-          v-model="confirmPassword"
-          type="password"
-          :class="inputCls"
-          placeholder="再次输入主密码"
-        />
-
-        <input
-          v-if="mode === 'setup'"
-          v-model="hint"
-          :class="inputCls"
-          placeholder="密码提示（选填，别人看不到含义）"
-        />
-
-        <p v-if="error" class="rounded-lg border border-danger/25 bg-danger/10 px-3 py-2 text-xs text-danger">
-          {{ error }}
-        </p>
-
-        <button
-          v-if="mode === 'locked' && lockHint && !showHint"
-          type="button"
-          class="cursor-pointer text-center text-xs text-t4 transition hover:text-t3"
-          @click="showHint = true"
-        >
-          查看密码提示
-        </button>
-        <p v-if="mode === 'locked' && lockHint && showHint" class="text-center text-xs text-warn/80">
-          提示：{{ lockHint }}
-        </p>
-
-        <button
-          type="submit"
-          :disabled="busy"
-          class="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-primary-strong disabled:opacity-50"
-        >
-          {{ busy ? mode === 'setup' ? '正在加密初始化…' : '正在解密…' : mode === 'setup' ? '创建并进入' : '解锁' }}
-        </button>
-        <button
-          v-if="mode === 'locked' && canBiometric"
-          type="button"
-          :disabled="busy"
-          class="flex w-full items-center justify-center gap-2 rounded-lg border border-line bg-surface py-3 text-sm font-medium text-t2 transition hover:border-primary/50 hover:text-t1 disabled:opacity-50"
-          @click="unlockWithBiometric"
-        >
-          <Fingerprint class="h-5 w-5 text-primary" />
-          指纹解锁
-        </button>
-      </form>
-      <DeviceJoin v-if="lockMode === 'fresh'" :disabled="busy" @busy="busy = $event" />
-
-      <p v-if="mode === 'setup'" class="mt-5 text-center text-[11px] leading-relaxed text-t4">
-        主密码忘记后数据将永久无法解密找回，请务必牢记。<br />
-        数据使用 Argon2id + AES-256-GCM 加密后保存在本机。
-      </p>
-      <button
-        v-else
-        :disabled="resetting"
-        class="mx-auto mt-5 block text-center text-xs text-t4 transition hover:text-danger"
-        @click="resetAll"
-      >
-        {{ resetting ? '正在清除本机数据…' : '忘记密码？重置并清除本机全部数据' }}
-      </button>
-    </div>
-  </div>
+  <main class="account-screen">
+    <section class="account-card" aria-label="本地账户">
+      <div class="account-brand"><LockKeyhole class="h-5 w-5" /><span>Personal Hub</span><span class="ml-auto text-xs text-t3">本地账户</span></div>
+      <RecoveryKeyCard v-if="screen === 'key'" :code="generated" :busy="busy" @confirm="create" @cancel="switchScreen('login')" />
+      <template v-else>
+        <h1 class="text-2xl font-semibold text-t1">{{ title }}</h1>
+        <p class="mt-2 text-sm leading-relaxed text-t3">{{ screen === 'recovery' ? '验证恢复密钥后，设置新的登录密码。' : setup ? '为这台设备创建账户，数据加密保存在本机。' : '登录你的个人信息台，继续今天的安排。' }}</p>
+        <form v-if="screen !== 'recovery' || hasLocalRecovery" class="mt-6 space-y-4" @submit.prevent="submit">
+          <label v-if="setup && lockMode === 'fresh'" class="account-label">账户名称<input v-model="account" class="control-input mt-2 px-3" maxlength="40" autocomplete="username" placeholder="例如：我的工作台" required /><span class="mt-1 block text-xs font-normal text-t3">名称会显示在登录页，请勿填写敏感信息。</span></label>
+          <div v-else class="rounded-lg border border-line bg-inset px-4 py-3"><p class="text-xs text-t3">当前账户</p><p class="mt-1 break-words text-sm text-t1">{{ localAccountName || '本机账户' }}</p></div>
+          <label v-if="screen === 'recovery'" class="account-label">恢复密钥<textarea v-model="recovery" rows="3" class="control-input mt-2 p-3 font-mono" autocomplete="off" placeholder="输入完整的 8 组恢复密钥" required /></label>
+          <label class="account-label">{{ screen === 'recovery' ? '新密码' : '密码' }}<PasswordInput v-model="password" class="mt-2" :placeholder="screen === 'recovery' ? '新密码（至少 8 位）' : setup ? '创建主密码' : '主密码'" :autocomplete="setup || screen === 'recovery' ? 'new-password' : 'current-password'" required /></label>
+          <label v-if="setup || screen === 'recovery'" class="account-label">确认密码<PasswordInput v-model="confirmation" class="mt-2" placeholder="再次输入主密码" autocomplete="new-password" required /></label>
+          <div v-if="!setup && screen === 'login'" class="flex justify-end"><button type="button" class="ui-ghost-button text-sm text-primary" :disabled="busy" @click="switchScreen('recovery')">忘记密码？</button></div>
+          <button type="submit" class="ui-primary-button w-full" :disabled="busy">{{ busy ? '正在处理…' : screen === 'recovery' ? '重设密码' : setup ? '下一步：保存恢复密钥' : '登录' }}</button>
+          <button v-if="canBiometric && !setup && screen === 'login'" type="button" class="ui-secondary-button w-full gap-2" :disabled="busy" @click="biometric"><Fingerprint class="h-4 w-4" />指纹解锁</button>
+        </form>
+        <template v-if="screen === 'recovery'">
+          <p v-if="!hasLocalRecovery" class="mt-6 rounded-lg border border-warn/25 bg-surface p-4 text-sm leading-relaxed text-t2">此设备尚未设置恢复密钥，无法直接重设密码。若记得原密码，请登录后在「设置 → 安全 → 本地账户与恢复」中启用。</p>
+          <details v-if="lockHint" class="mt-4 text-sm text-t3"><summary class="cursor-pointer py-2">查看密码提示</summary><p class="py-2">{{ lockHint }}</p></details>
+          <p class="mt-4 text-xs leading-relaxed text-t3">没有可用密钥时，可在仍能解锁的其他设备上导出数据。恢复密钥不能恢复已丢失的数据文件，也不适用于其他设备。</p>
+          <button type="button" class="ui-ghost-button mt-4 w-full" :disabled="busy" @click="switchScreen('login')">返回登录</button>
+          <details class="mt-5 border-t border-line pt-3 text-xs text-t3"><summary class="cursor-pointer py-2">无法恢复？其他选项</summary><p class="py-2 leading-relaxed">清除操作不是密码恢复。请先确认已有可用的数据副本。</p><button type="button" class="ui-ghost-button text-danger" :disabled="busy" @click="resetAll">清除本机数据并重新开始</button></details>
+        </template>
+        <DeviceJoin v-if="lockMode === 'fresh' && screen === 'login'" :disabled="busy" @busy="busy = $event" />
+      </template>
+      <p v-if="error" role="alert" class="mt-4 rounded-lg border border-danger/25 bg-danger/10 p-3 text-sm text-danger">{{ error }}</p>
+      <p v-if="notice" role="status" class="mt-4 text-sm text-ok">{{ notice }}</p>
+      <p class="mt-6 border-t border-line pt-4 text-xs leading-relaxed text-t3">本地账户可离线使用。账户名称不是云端账号；跨设备使用需另行加入保险库。</p>
+    </section>
+  </main>
 </template>
+<style scoped>
+.account-screen { position: fixed; inset: 0; z-index: 90; overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: max(24px, 6vh) 16px 24px; background: var(--tk-body); }
+.account-card { width: 100%; max-width: 440px; padding: 32px; border: 1px solid var(--tk-line); border-radius: var(--ui-card-radius, 12px); background: var(--tk-surface); }
+.account-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 32px; color: var(--tk-primary); font-size: 14px; font-weight: 600; }
+.account-label { display: block; font-size: 14px; font-weight: 500; color: var(--tk-t2); }
+@media(max-width: 479px) { .account-card { padding: 24px 20px; } .account-brand { margin-bottom: 24px; } }
+</style>

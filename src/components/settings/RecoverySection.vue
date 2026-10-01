@@ -33,8 +33,8 @@ async function clear() {
 <template>
   <section class="mt-5 space-y-3 border-t border-line pt-5">
     <h4 class="text-sm font-semibold text-t1">回收站与历史版本</h4>
-    <p class="text-xs leading-relaxed text-t3">记录本机已保存条目的删除和修改，随保险库加密保存；保留最近 30 天、最多 200 条且总计 2 MiB，以先达到的限制为准。本机记录不参与逐条同步，备份与设备加入文件会包含记录。恢复副本会正常同步。</p>
-    <p class="text-xs leading-relaxed text-t3">资料删除后保留附件以便恢复，暂不自动清理文件缓存。任务恢复后不重复排期；周计划恢复不自动还原其子任务，可分别恢复。未保存过的瞬时修改不形成历史。</p>
+    <p class="text-xs leading-relaxed text-t3">记录本机已保存条目的删除和修改，随保险库加密保存；保留最近 30 天；删除记录限 200 条、2 MiB；修改历史另限 100 条、1 MiB，互不挤占。每项最多保留 20 个修改版本。本机记录不参与逐条同步，备份与设备加入文件会包含记录。恢复副本会正常同步。</p>
+    <p class="text-xs leading-relaxed text-t3">资料删除后保留附件以便恢复，暂不自动清理文件缓存。任务恢复后不重复排期；周计划恢复不自动还原其子任务，可分别恢复。未保存过的瞬时修改不形成历史；继续线索的 5 分钟内连续编辑合并为一个版本，灵感草稿不制造修改历史。</p>
     <div class="flex flex-wrap gap-2"><button class="filter-chip min-h-11" :class="{ 'is-active': filter === 'deleted' }" @click="filter = 'deleted'">已删除</button><button class="filter-chip min-h-11" :class="{ 'is-active': filter === 'changed' }" @click="filter = 'changed'">修改历史</button><button class="filter-chip min-h-11" :class="{ 'is-active': filter === 'all' }" @click="filter = 'all'">全部</button></div>
     <p v-if="!items.length" class="py-3 text-xs text-t4">暂无恢复记录。此功能启用前的历史不会补录。</p>
     <article v-for="item in items" :key="item.id" class="space-y-2 rounded-lg border border-line p-3">

@@ -85,6 +85,7 @@ try {
   assert.equal(await page.locator('.timeline-event').count(), 1)
   await page.getByLabel('搜索日历任务', { exact: true }).fill('')
   await agenda.getByRole('button', { name: '完成任务', exact: true }).first().click()
+  await dialog.getByRole('button', { name: '确认完成', exact: true }).click()
   await page.getByLabel('显示已完成', { exact: true }).uncheck()
   assert.equal(await page.locator('.timeline-event').count(), 1)
   await page.getByLabel('显示已完成', { exact: true }).check()

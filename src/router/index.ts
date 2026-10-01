@@ -3,6 +3,13 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
+    { path: '/collect', name: 'collect', component: () => import('@/views/FocusView.vue') },
+    { path: '/review', name: 'review', component: () => import('@/views/FocusView.vue') },
+    { path: '/focus', name: 'focus', component: () => import('@/views/FocusView.vue'), beforeEnter: to => {
+      if (to.query.task) return
+      if (to.query.tab === 'pocket') return { path: '/collect' }
+      if (['trail', 'story', 'closing'].includes(String(to.query.tab))) return { path: '/review', query: to.query }
+    } },
     {
       path: '/calendar',
       name: 'calendar',

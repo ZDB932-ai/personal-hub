@@ -1,11 +1,12 @@
 import { chromium } from 'playwright'
 import { spawn } from 'node:child_process'
 import { createServer } from 'node:net'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import assert from 'node:assert/strict'
 
 const executable = resolve(process.env.PHUB_QA_INSTALLED_EXE ?? 'src-tauri/target/release/personal-hub-desktop.exe')
+const version = JSON.parse(readFileSync(resolve('package.json'), 'utf8')).version
 const dir = resolve('.visual-qa', `windows-preview-${Date.now()}`)
 mkdirSync(dir, { recursive: true })
 const socket = createServer()
@@ -37,7 +38,7 @@ try {
   await page.getByRole('button', { name: '创建并进入', exact: true }).click()
   await page.getByRole('button', { name: '设置', exact: true }).first().click()
   await page.getByRole('button', { name: '关于', exact: true }).click()
-  await page.getByText('Personal Hub v1.1.1', { exact: true }).waitFor()
+  await page.getByText(`Personal Hub v${version}`, { exact: true }).waitFor()
   await page.getByRole('button', { name: '玩偶', exact: true }).click()
   await page.waitForFunction(() => document.querySelector('.dragon-render')?.getAttribute('data-ready') === 'true')
   assert.equal(await page.locator('.dragon-fallback').count(), 0)

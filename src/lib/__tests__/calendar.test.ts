@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 vi.hoisted(() => { Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: { getItem: () => null, setItem: () => {}, removeItem: () => {} } }) })
-import { dayBlocks, freeSlots, lunarLabel, memoDraft, monthDates, shiftMonth } from '../calendar'
+import { dayBlocks, freeSlots, lunarLabel, memoDraft, monthDates, shiftMonth, timelineBlocks, TIMELINE_MIN_EVENT_HEIGHT } from '../calendar'
 import type { Task } from '@/types'
 
 function task(id: string, time: string, duration = 60, date = '2026-09-25'): Task {
@@ -8,6 +8,32 @@ function task(id: string, time: string, duration = 60, date = '2026-09-25'): Tas
 }
 
 describe('calendar dates and layout', () => {
+  it('keeps short event cards readable without changing their real time or availability', () => {
+    const tasks = [task('a', '09:15', 15), task('b', '09:30', 15)]
+    const blocks = timelineBlocks(tasks, '2026-09-25')
+    expect(blocks.map(block => block.height)).toEqual([44, 44])
+    expect(blocks.map(block => [block.start, block.end])).toEqual([[555, 570], [570, 585]])
+    expect(blocks.map(block => block.lane)).toEqual([0, 1])
+    expect(dayBlocks(tasks, '2026-09-25').every(block => block.lanes === 1)).toBe(true)
+    expect(freeSlots(tasks, '2026-09-25')).toEqual([{ start: 585, end: 1080 }])
+  })
+  it('never overlaps readable cards in the same display lane, including dense mixed durations', () => {
+    const blocks = timelineBlocks([task('a', '09:00', 90), task('b', '09:15', 1), task('c', '09:30', 15), task('d', '09:45', 15), task('e', '11:00', 30)], '2026-09-25')
+    for (const a of blocks) for (const b of blocks) {
+      if (a === b || a.lane !== b.lane) continue
+      expect(a.top + a.height <= b.top || b.top + b.height <= a.top).toBe(true)
+    }
+    expect(blocks.at(-1)?.lanes).toBe(1)
+  })
+  it('keeps midnight fragments readable and preserves the next-day continuation', () => {
+    const tasks = [task('late', '23:59', 5)]
+    const late = timelineBlocks(tasks, '2026-09-25')[0]!
+    const next = timelineBlocks(tasks, '2026-09-26')[0]!
+    expect(late.height).toBe(TIMELINE_MIN_EVENT_HEIGHT)
+    expect(late.continues).toBe(true)
+    expect(next.height).toBe(TIMELINE_MIN_EVENT_HEIGHT)
+    expect([next.start, next.end, next.continued]).toEqual([0, 4, true])
+  })
   it('formats real lunar dates including Mid-Autumn and lunar month starts', () => {
     expect(lunarLabel('2026-09-25')).toBe('十五')
     expect(lunarLabel('2026-09-25', true)).toBe('八月')
