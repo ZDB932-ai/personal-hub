@@ -5,6 +5,11 @@ use tauri::{
   tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
   Emitter, Manager, WindowEvent,
 };
+use tauri_plugin_window_state::{AppHandleExt, StateFlags};
+
+fn window_state_flags() -> StateFlags {
+  StateFlags::SIZE | StateFlags::POSITION | StateFlags::MAXIMIZED
+}
 
 fn show_main_window(app: &tauri::AppHandle) {
   if let Some(window) = app.get_webview_window("main") {
@@ -17,6 +22,11 @@ fn show_main_window(app: &tauri::AppHandle) {
 
 pub fn run() {
   tauri::Builder::default()
+    .plugin(tauri_plugin_single_instance::init(|app, _, _| show_main_window(app)))
+    .plugin(tauri_plugin_window_state::Builder::default()
+      .with_state_flags(window_state_flags())
+      .with_filter(|label| label == "main")
+      .build())
     .manage(pet::PetState::default())
     .invoke_handler(tauri::generate_handler![pet::pet_preferences, pet::pet_configure, pet::pet_home, pet::pet_reset_position])
     .plugin(tauri_plugin_notification::init())
@@ -71,6 +81,9 @@ pub fn run() {
       }
       if let WindowEvent::CloseRequested { api, .. } = event {
         api.prevent_close();
+        if let Err(error) = window.app_handle().save_window_state(window_state_flags()) {
+          log::warn!("无法保存主窗口布局: {error}");
+        }
         let _ = window.hide();
         pet::refresh(window.app_handle());
       }

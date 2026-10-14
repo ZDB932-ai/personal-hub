@@ -138,25 +138,27 @@ const inputCls =
 </script>
 
 <template>
-  <ModalShell :open="open" @close="emit('close')">
+  <ModalShell :open="open" mobile-sheet @close="emit('close')">
+    <template #header>
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold">{{ entry ? '编辑任务' : '新建任务' }}</h3>
       <button
         aria-label="关闭"
-        class="rounded-lg p-1.5 text-t4 transition hover:bg-surface hover:text-t2"
+        class="ui-icon-button min-h-11 min-w-11 text-t4"
         @click="emit('close')"
       >
         <X class="h-5 w-5" />
       </button>
     </div>
+    </template>
 
     <TaskResume v-if="entry" :task="entry" />
-    <div class="mt-5 space-y-4">
+    <div class="space-y-5">
       <label class="block">
         <span class="mb-1.5 block text-xs font-medium text-t3">任务内容 *</span>
         <input v-model="form.title" :class="inputCls" placeholder="要做什么？" />
       </label>
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label class="block">
           <span class="mb-1.5 flex items-center justify-between gap-2 text-xs font-medium text-t3">
             日期（可稍后安排）
@@ -200,28 +202,30 @@ const inputCls =
           <li v-for="s in form.subtasks" :key="s.id" class="flex items-center gap-2.5">
             <button
               type="button"
-              class="flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 transition-colors duration-150"
-              :class="s.done ? 'border-primary bg-primary' : 'border-t4'"
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-colors duration-150"
+              :class="s.done ? 'bg-primary/10 text-primary' : 'text-t4'"
+              :aria-label="`${s.done ? '标为未完成' : '完成子任务'}：${s.title}`"
+              :aria-pressed="s.done"
               @click="s.done = !s.done"
             >
-              <Check v-if="s.done" class="h-2.5 w-2.5 text-ink" />
+              <span class="flex h-5 w-5 items-center justify-center rounded border border-current"><Check v-if="s.done" class="h-3.5 w-3.5" /></span>
             </button>
-            <span class="min-w-0 flex-1 truncate text-xs" :class="s.done ? 'text-t4 line-through' : 'text-t2'">
+            <span class="min-w-0 flex-1 break-words text-sm" :class="s.done ? 'text-t4 line-through' : 'text-t2'">
               {{ s.title }}
             </span>
-            <button type="button" class="rounded p-0.5 text-t4 hover:text-danger" @click="form.subtasks = form.subtasks.filter((x) => x.id !== s.id)">
+            <button type="button" class="ui-icon-button min-h-11 min-w-11 text-t4 hover:text-danger" :aria-label="`删除子任务：${s.title}`" @click="form.subtasks = form.subtasks.filter((x) => x.id !== s.id)">
               <X class="h-3 w-3" />
             </button>
           </li>
         </ul>
         <div class="mt-2 flex items-center gap-2">
-          <Plus class="h-3.5 w-3.5 shrink-0 text-t4" />
           <input
             v-model="subInput"
-            class="w-full border-0 border-b border-dashed border-line bg-transparent py-1 text-xs text-t1 placeholder:text-t4 outline-none transition focus:border-primary"
+            class="min-h-11 min-w-0 flex-1 border-0 border-b border-dashed border-line bg-transparent py-2 text-sm text-t1 placeholder:text-t4 outline-none transition focus:border-primary"
             placeholder="添加子任务，回车确认"
-            @keydown.enter.prevent="addSub"
+            @keydown.enter.prevent="!$event.isComposing && addSub()"
           />
+          <button type="button" class="ui-icon-button min-h-11 min-w-11" aria-label="添加子任务" :disabled="!subInput.trim()" @click="addSub"><Plus class="h-5 w-5" /></button>
         </div>
       </div>
       <label class="block">
@@ -233,25 +237,25 @@ const inputCls =
         <textarea v-model="form.notes" rows="2" :class="inputCls" placeholder="选填"></textarea>
       </label>
 
-      <p v-if="error" class="rounded-lg border border-danger/25 bg-danger/10 px-3 py-2 text-xs text-danger">
-        {{ error }}
-      </p>
       <TaskLinks v-model="form.links" @open="openLink" />
     </div>
 
-    <div class="mt-6 flex justify-end gap-3">
+    <template #footer>
+    <p v-if="error" role="alert" class="mb-3 rounded-lg border border-danger/25 bg-danger/10 px-3 py-2 text-xs text-danger">{{ error }}</p>
+    <div class="flex justify-end gap-3">
       <button
-        class="rounded-lg px-4 py-2.5 text-sm font-medium text-t3 transition hover:bg-surface hover:text-t2"
+        class="ui-secondary-button min-h-11 flex-1 sm:flex-none"
         @click="emit('close')"
       >
         取消
       </button>
       <button
-        class="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-primary-strong"
+        class="ui-primary-button min-h-11 flex-[2] sm:flex-none"
         @click="save"
       >
         {{ entry ? '保存修改' : '添加任务' }}
       </button>
     </div>
+    </template>
   </ModalShell>
 </template>

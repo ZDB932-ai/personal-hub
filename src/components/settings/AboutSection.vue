@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { isTauriDesktop } from '@/lib/desktop'
 const version = __APP_VERSION__
+const desktop = isTauriDesktop()
 </script>
 
 <template>
@@ -24,9 +26,18 @@ const version = __APP_VERSION__
     <div class="rounded-xl border border-line bg-surface p-4 text-xs leading-relaxed text-t3">
       <p class="mb-2 text-sm font-medium text-t2">快捷键</p>
       <ul class="space-y-1.5">
+        <li>· <kbd class="rounded bg-surface-2 px-1.5 py-0.5 font-mono">Ctrl / ⌘ + K</kbd> 搜索所有内容；↑ ↓ 选择，Enter 打开</li>
         <li>· <kbd class="rounded bg-surface-2 px-1.5 py-0.5 font-mono">/</kbd> 密码库页快速聚焦搜索</li>
         <li>· <kbd class="rounded bg-surface-2 px-1.5 py-0.5 font-mono">Enter</kbd> 每日计划页快速创建任务</li>
         <li>· <kbd class="rounded bg-surface-2 px-1.5 py-0.5 font-mono">Esc</kbd> 关闭弹窗</li>
+      </ul>
+    </div>
+    <div v-if="desktop" class="rounded-xl border border-line bg-surface p-4 text-xs leading-relaxed text-t3">
+      <p class="mb-2 text-sm font-medium text-t2">桌面窗口</p>
+      <ul class="space-y-1.5">
+        <li>· 关闭窗口后应用继续驻留托盘；点击托盘图标或再次启动应用即可返回。</li>
+        <li>· 下次启动会恢复主窗口大小、位置和最大化状态，并显示窗口。</li>
+        <li>· 完全退出请右键托盘图标，选择「退出」；退出后停止提醒和桌面玩偶。</li>
       </ul>
     </div>
   </div>

@@ -1,6 +1,6 @@
 [package]
 name = "personal-hub-desktop"
-version = "1.1.3"
+version = "1.1.4"
 description = "Personal Hub desktop application"
 authors = ["ZDB"]
 license = "MIT"
@@ -27,3 +27,5 @@ tauri-plugin-notification = "2"
 tauri-plugin-opener = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-fs = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-window-state = "2"

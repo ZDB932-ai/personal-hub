@@ -11,6 +11,7 @@ import { AlertCircle, CheckCircle2 } from '@lucide/vue'
       <div
         v-for="t in toasts"
         :key="t.id"
+        :role="t.type === 'error' ? 'alert' : 'status'"
         class="flex items-center gap-2 rounded-full border bg-elevated px-4 py-2 text-sm"
         :class="
           t.type === 'success'

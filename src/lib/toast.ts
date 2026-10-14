@@ -16,7 +16,7 @@ export function toast(message: string, type: ToastItem['type'] = 'success'): voi
   setTimeout(() => {
     const i = toasts.findIndex((t) => t.id === id)
     if (i >= 0) toasts.splice(i, 1)
-  }, 2000)
+  }, type === 'error' ? 5000 : 2000)
 }
 
 export async function copyText(text: string, label: string): Promise<void> {

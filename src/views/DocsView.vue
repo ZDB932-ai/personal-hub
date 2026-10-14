@@ -221,7 +221,7 @@ async function batchDelete(): Promise<void> {
 </script>
 
 <template>
-  <div>
+  <div class="docs-workspace">
     <PageHeader title="资料库" eyebrow="内容">
       <template #description>
         {{ docMetas.length }} 个文件 · 加密保存，随时查找
@@ -244,7 +244,7 @@ async function batchDelete(): Promise<void> {
     <details class="resource-guidance"><summary>存储与正文搜索</summary><p>文件加密保存在本机。<span v-if="storage && storage.quota > 0">浏览器存储已用 {{ formatSize(storage.usage) }} / {{ formatSize(storage.quota) }}。</span>在文件的「更多操作」中提取文本或 PDF 正文后即可搜索（≤10 MiB，最多 200 页 / 10 万字符）。正文索引仅在本次解锁期间保留。</p></details>
     <div v-if="textProgress" class="mt-2 flex items-center gap-3 text-xs text-primary"><span>{{ textProgress }}</span><button class="min-h-11 underline" @click="cancelTextExtraction">取消提取</button></div>
 
-    <div class="control-bar mt-4">
+    <div class="control-bar docs-toolbar mt-4">
       <label class="control-search w-full sm:w-56">
         <FileText class="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-t4" />
         <input
@@ -254,9 +254,9 @@ async function batchDelete(): Promise<void> {
           class="control-input py-2 pl-9 pr-3 text-xs"
         />
       </label>
-      <div class="relative w-28 shrink-0">
+      <div class="docs-sort relative w-28 shrink-0">
         <ArrowUpDown class="pointer-events-none absolute left-3 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-t4" />
-        <AppSelect v-model="sortBy" :options="sortOptions" size="sm" trigger-class="pl-9" />
+        <AppSelect v-model="sortBy" :options="sortOptions" size="sm" trigger-class="pl-9" aria-label="资料排序" />
       </div>
       <div class="filter-rail min-w-0 flex-1">
         <button
@@ -264,6 +264,7 @@ async function batchDelete(): Promise<void> {
           :key="cat"
           class="filter-chip"
           :class="{ 'is-active': activeCat === cat }"
+          :aria-pressed="activeCat === cat"
           @click="activeCat = cat"
         >
           {{ cat }}
@@ -271,7 +272,7 @@ async function batchDelete(): Promise<void> {
         </button>
       </div>
       <button v-if="hasFilters" class="filter-reset" @click="clearFilters">清除筛选</button>
-      <span class="w-full shrink-0 text-right text-xs tabular-nums text-t4 sm:ml-auto sm:w-auto">显示 {{ filtered.length }} / {{ docMetas.length }} 项</span>
+      <span class="docs-result-count w-full shrink-0 text-right text-xs tabular-nums text-t4 sm:ml-auto sm:w-auto" role="status">显示 {{ filtered.length }} / {{ docMetas.length }} 项</span>
     </div>
 
     <div v-if="docMetas.length === 0" class="empty-state mt-8">
@@ -306,7 +307,8 @@ async function batchDelete(): Promise<void> {
       >
         <button
           v-if="manageMode"
-          class="absolute right-4 top-4 z-10"
+          class="docs-select absolute right-4 top-4 z-10"
+          :aria-label="`${selectedIds.has(d.id) ? '取消选择' : '选择'}：${d.name}`"
           :title="selectedIds.has(d.id) ? '取消选择' : '选择'"
           @click.stop="toggleSelect(d.id)"
         >
@@ -329,8 +331,8 @@ async function batchDelete(): Promise<void> {
             <component :is="mimeIcon(d)" class="h-5 w-5" />
           </span>
           <div class="min-w-0 flex-1">
-            <p v-if="manageMode" class="truncate pr-7 font-medium" :title="d.name">{{ d.name }}</p>
-            <button v-else class="block min-h-11 max-w-full truncate text-left font-medium text-t1 hover:text-primary" :title="d.name" @click.stop="openPreview(d)">{{ d.name }}</button>
+            <p v-if="manageMode" class="docs-file-name pr-11 font-medium" :title="d.name">{{ d.name }}</p>
+            <button v-else class="docs-file-name block min-h-11 max-w-full text-left font-medium text-t1 hover:text-primary" :title="d.name" @click.stop="openPreview(d)">{{ d.name }}</button>
             <p class="mt-0.5 text-xs text-t4">{{ formatSize(d.size) }} · {{ new Date(d.createdAt).toLocaleDateString('zh-CN') }}</p>
             <div v-if="d.tags.length > 0" class="mt-1.5 flex flex-wrap gap-1">
               <span v-for="tag in d.tags.slice(0, 3)" :key="tag" class="rounded-md bg-surface-2 px-1.5 py-0.5 text-[10px] text-t3">
@@ -340,7 +342,7 @@ async function batchDelete(): Promise<void> {
           </div>
           <button
             v-if="!manageMode"
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-t4 transition-colors duration-150 hover:bg-surface-2 hover:text-t2"
+            class="docs-pin flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-t4 transition-colors duration-150 hover:bg-surface-2 hover:text-t2"
             :aria-label="d.pinned ? '取消收藏' : '收藏置顶'"
             :aria-pressed="d.pinned"
             @click.stop="updatePin(d)"
@@ -377,7 +379,7 @@ async function batchDelete(): Promise<void> {
           <Copy class="h-3 w-3 shrink-0" />
         </button>
 
-        <div v-if="!manageMode" class="mt-3 flex items-center gap-1">
+        <div v-if="!manageMode" class="docs-file-actions mt-3 flex items-center gap-1">
           <button class="flex min-h-9 items-center gap-1 rounded-lg px-2 text-xs text-t3 transition hover:bg-surface-2 hover:text-primary" @click.stop="openPreview(d)">
             <FileText class="h-3.5 w-3.5" />
             预览

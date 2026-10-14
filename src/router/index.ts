@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { waitForRouteTransition } from '@/lib/routeScroll'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -55,8 +56,15 @@ const router = createRouter({
       name: 'vault',
       component: () => import('@/views/VaultView.vue'),
     },
+    { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
-  scrollBehavior: () => ({ top: 0 }),
+  async scrollBehavior(to, from, savedPosition) {
+    await waitForRouteTransition()
+    if (router.currentRoute.value !== to || !document.getElementById('main-content')) return false
+    if (savedPosition) return { ...savedPosition, behavior: 'instant' }
+    if (to.path === from.path) return false
+    return { left: 0, top: 0, behavior: 'instant' }
+  },
 })
 
 export default router

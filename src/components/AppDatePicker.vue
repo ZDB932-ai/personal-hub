@@ -80,7 +80,10 @@ function handlePointerDown(event: MouseEvent): void {
 }
 
 function handleKeydown(event: KeyboardEvent): void {
-  if (event.key === 'Escape') open.value = false
+  if (event.key === 'Escape' && open.value && !event.isComposing) {
+    event.preventDefault()
+    open.value = false
+  }
 }
 
 watch(

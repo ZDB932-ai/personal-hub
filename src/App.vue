@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { Capacitor } from '@capacitor/core'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import AppNavigation from './components/AppNavigation.vue'
 import ProfileModal from './components/ProfileModal.vue'
 import './hub-workspace.css'
@@ -18,8 +18,12 @@ import { bindNativeScheduleWatcher, reminderError, retryReminders, startReminder
 import { wallpaperConfig, wallpaperUrl, wallpaperPanelStyle } from './lib/wallpaper'
 import { toast } from './lib/toast'
 import { isTauriDesktop, openExternalUrl } from './lib/desktop'
+import { beginRouteTransition, finishRouteTransition } from './lib/routeScroll'
+import { bindAndroidNavigation } from './lib/androidNavigation'
 
 const route = useRoute()
+const router = useRouter()
+const mainContent = ref<HTMLElement | null>(null)
 const focusActive = computed(() => route.path === '/focus' && typeof route.query.task === 'string')
 const showSettings = ref(false)
 const settingsTab = ref<'appearance' | 'security' | 'sync'>('appearance')
@@ -41,14 +45,16 @@ function handleExternalLink(event: MouseEvent): void {
   const anchor = source.closest<HTMLAnchorElement>('a[target="_blank"][href]')
   if (!anchor || !/^https?:\/\//i.test(anchor.href)) return
   event.preventDefault()
-  void openExternalUrl(anchor.href)
+  void openExternalUrl(anchor.href).catch(() => toast('无法打开浏览器，请复制链接后手动打开', 'error'))
 }
 
 let unbindAutoPush: (() => void) | null = null
 let unbindNativeSchedule: (() => void) | null = null
 let unlistenDesktopLock: (() => void) | null = null
+let unbindAndroidNavigation: (() => void) | null = null
 
 onMounted(() => {
+  unbindAndroidNavigation = bindAndroidNavigation(router, () => isGated.value)
   document.addEventListener('click', handleExternalLink)
   unbindAutoPush = bindAutoPush()
   unbindNativeSchedule = bindNativeScheduleWatcher(() => !isGated.value)
@@ -70,6 +76,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  unbindAndroidNavigation?.()
+  finishRouteTransition()
   document.removeEventListener('click', handleExternalLink)
   stopReminders()
   unbindAutoPush?.()
@@ -88,6 +96,9 @@ watch(
       }
       return
     }
+    showSettings.value = false
+    showProfile.value = false
+    finishRouteTransition()
     stopReminders()
     void import('./lib/aiopencode').then(({ clearAiSecretsFromMemory }) => clearAiSecretsFromMemory())
   },
@@ -103,14 +114,15 @@ watch(
   </div>
 
   <div v-if="!isGated" class="hub-shell relative min-h-screen" :style="wallpaperPanelStyle" :class="{ 'nav-collapsed': navigationCollapsed, 'focus-active': focusActive, 'calendar-app-shell': route.path === '/calendar', 'has-wallpaper': wallpaperUrl, 'wallpaper-reading': wallpaperUrl && wallpaperConfig.readingSurface && !wallpaperConfig.transparentPanels, 'transparent-panels': wallpaperUrl && wallpaperConfig.transparentPanels }">
+    <a href="#main-content" class="skip-to-content" @click.prevent="mainContent?.focus()">跳到主要内容</a>
     <WallpaperLayer />
 
     <AppNavigation v-if="!focusActive" v-model:collapsed="navigationCollapsed" @search="hubSearchOpen = true" @settings="openSettings" @profile="showProfile = true" @lock="handleLock" />
 
-    <main class="desktop-main relative z-10 min-w-0 pb-24 md:pb-10 md:pl-64">
+    <main id="main-content" ref="mainContent" tabindex="-1" class="desktop-main relative z-10 min-w-0 pb-24 md:pb-10 md:pl-64">
       <div class="mx-auto w-full max-w-7xl px-4 py-6 md:px-10 md:py-9" :class="{ 'calendar-page-frame': route.path === '/calendar' }">
         <RouterView v-slot="{ Component }">
-          <Transition name="route" mode="out-in">
+          <Transition name="route" mode="out-in" @before-leave="beginRouteTransition" @after-enter="finishRouteTransition" @enter-cancelled="finishRouteTransition" @leave-cancelled="finishRouteTransition">
             <component :is="Component" />
           </Transition>
         </RouterView>

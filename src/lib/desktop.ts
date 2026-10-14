@@ -62,6 +62,6 @@ export async function openExternalUrl(url: string): Promise<void> {
     const { openUrl } = await import('@tauri-apps/plugin-opener')
     await openUrl(url)
   } catch {
-    return
+    throw new Error('无法打开浏览器，请复制链接后手动打开')
   }
 }

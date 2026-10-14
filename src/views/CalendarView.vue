@@ -90,7 +90,7 @@ function onKey(event: KeyboardEvent): void {
   if (event.key !== 'Escape' || document.querySelector('[role="dialog"]')) return
   if (panel.value) { void setPanel(null); event.preventDefault() }
   else if (searchOpen.value) { void toggleSearch(); event.preventDefault() }
-  else if (showSidebar.value && window.innerWidth < 1100) { showSidebar.value = false; sidebarButton.value?.focus() }
+  else if (showSidebar.value && window.innerWidth < 1100) { showSidebar.value = false; sidebarButton.value?.focus(); event.preventDefault() }
 }
 onMounted(() => {
   void locateTask()
@@ -115,8 +115,8 @@ onUnmounted(() => { clearInterval(timer); window.removeEventListener('keydown', 
         <button ref="searchButton" class="calendar-icon" :class="{ 'is-active': searchOpen }" aria-label="搜索日历" title="搜索日历" :aria-expanded="searchOpen" @click="toggleSearch"><Search class="h-5 w-5" /></button>
         <div class="calendar-view-switch" role="group" aria-label="日历视图"><button v-for="mode in views" :key="mode.id" :class="{ 'is-active': view === mode.id }" :aria-pressed="view === mode.id" @click="view = mode.id">{{ mode.label }}</button></div>
         <button class="calendar-icon" :class="{ 'is-active': panel === 'agenda' }" aria-label="当日安排" title="当日安排与留白窗口" :aria-expanded="panel === 'agenda'" @click="setPanel(panel === 'agenda' ? null : 'agenda')"><CalendarCheck class="h-5 w-5" /></button>
-        <button class="calendar-icon" :class="{ 'is-active': panel === 'memos' }" aria-label="便签" title="便签与收集箱" :aria-expanded="panel === 'memos'" @click="setPanel(panel === 'memos' ? null : 'memos')"><StickyNote class="h-5 w-5" /></button>
-        <button class="calendar-icon" :class="{ 'is-active': panel === 'directions' }" aria-label="方向与足迹" title="方向与足迹" :aria-expanded="panel === 'directions'" @click="setPanel(panel === 'directions' ? null : 'directions')"><Flag class="h-5 w-5" /></button>
+        <button class="calendar-icon calendar-secondary-tool" :class="{ 'is-active': panel === 'memos' }" aria-label="便签" title="便签与收集箱" :aria-expanded="panel === 'memos'" @click="setPanel(panel === 'memos' ? null : 'memos')"><StickyNote class="h-5 w-5" /></button>
+        <button class="calendar-icon calendar-secondary-tool" :class="{ 'is-active': panel === 'directions' }" aria-label="方向与足迹" title="方向与足迹" :aria-expanded="panel === 'directions'" @click="setPanel(panel === 'directions' ? null : 'directions')"><Flag class="h-5 w-5" /></button>
         <button class="calendar-create-compact" aria-label="安排任务" title="安排任务" @click="create()"><Plus class="h-5 w-5" /></button>
       </div>
     </header>

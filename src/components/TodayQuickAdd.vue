@@ -36,6 +36,6 @@ async function submit(): Promise<void> {
       <button class="ui-ghost-button shrink-0 text-xs" :disabled="saving || (!pendingId && !title.trim())">{{ saving ? '保存中…' : pendingId ? '重试保存' : '添加' }}</button>
     </div>
     <p v-if="error" role="alert" class="mt-2 text-xs leading-6 text-danger">尚未保存，请重试。重试不会重复创建任务。</p>
-    <p v-else class="today-quick-status" role="status">{{ status || '回车添加 · 日期、提醒等可在新建任务中设置' }}</p>
+    <p v-else class="today-quick-status" :class="{ 'is-hint': !status }" role="status">{{ status || '回车添加 · 日期、提醒等可在新建任务中设置' }}</p>
   </form>
 </template>

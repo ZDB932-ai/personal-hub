@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { Cloud, DatabaseBackup, Info, Palette, Settings, ShieldCheck, X } from '@lucide/vue'
 import ModalShell from '@/components/ModalShell.vue'
-import AppearanceSection from '@/components/settings/AppearanceSection.vue'
-import SecuritySection from '@/components/settings/SecuritySection.vue'
-import BackupSection from '@/components/settings/BackupSection.vue'
-import RecoverySection from '@/components/settings/RecoverySection.vue'
-import SyncSection from '@/components/settings/SyncSection.vue'
-import AboutSection from '@/components/settings/AboutSection.vue'
-import PetSection from '@/components/settings/PetSection.vue'
+import AsyncPanel from '@/components/AsyncPanel.vue'
 import { databaseBusy } from '@/stores/database'
 
 const props = defineProps<{
@@ -27,6 +21,23 @@ function close(): void {
 type TabKey = 'appearance' | 'pet' | 'security' | 'backup' | 'sync' | 'about'
 
 const tab = ref<TabKey>('appearance')
+const content = ref<HTMLElement | null>(null)
+const visited = ref(new Set<TabKey>())
+const loaders = {
+  appearance: () => import('@/components/settings/AppearanceSection.vue'),
+  pet: () => import('@/components/settings/PetSection.vue'),
+  security: () => import('@/components/settings/SecuritySection.vue'),
+  backup: () => import('@/components/settings/BackupPanel.vue'),
+  sync: () => import('@/components/settings/SyncSection.vue'),
+  about: () => import('@/components/settings/AboutSection.vue'),
+}
+watch(tab, async value => {
+  if (!props.open) return
+  visited.value.add(value)
+  await nextTick()
+  const scroller = content.value?.closest('.modal-region-body')
+  if (scroller) scroller.scrollTop = 0
+})
 
 const tabs = computed(() => [
   { key: 'appearance' as TabKey, label: '外观', icon: Palette },
@@ -40,13 +51,18 @@ const tabs = computed(() => [
 watch(
   () => props.open,
   (open) => {
-    if (open) tab.value = props.initialTab ?? 'appearance'
+    if (open) {
+      tab.value = props.initialTab ?? 'appearance'
+      visited.value = new Set([tab.value])
+    } else visited.value.clear()
   },
+  { immediate: true },
 )
 </script>
 
 <template>
-  <ModalShell :open="open" max-width="max-w-2xl" @close="close">
+  <ModalShell :open="open" max-width="max-w-2xl" mobile-sheet panel-class="settings-panel" @close="close">
+    <template #header>
     <div class="flex items-center justify-between">
       <h3 class="flex items-center gap-2 text-lg font-semibold">
         <Settings class="h-5 w-5" />
@@ -62,7 +78,7 @@ watch(
       </button>
     </div>
 
-    <div class="mt-4 grid grid-cols-3 gap-1 rounded-xl border border-line bg-inset p-1 sm:grid-cols-6" role="group" aria-label="设置分区">
+    <div class="settings-sections mt-4 grid grid-cols-6 gap-1 rounded-xl border border-line bg-inset p-1" role="group" aria-label="设置分区">
       <button
         v-for="t in tabs"
         :key="t.key"
@@ -80,15 +96,18 @@ watch(
         {{ t.label }}
       </button>
     </div>
+    </template>
 
-    <div class="mt-5 max-h-[62vh] overflow-y-auto pr-1">
-      <AppearanceSection v-show="tab === 'appearance'" :open="open" />
-      <PetSection v-if="open && tab === 'pet'" />
-      <SecuritySection v-show="tab === 'security'" :open="open" />
-      <BackupSection v-show="tab === 'backup'" :open="open" />
-      <RecoverySection v-if="open && tab === 'backup'" :open="open" />
-      <SyncSection v-show="tab === 'sync'" :open="open" />
-      <AboutSection v-show="tab === 'about'" />
+    <div ref="content" class="settings-content">
+      <template v-for="section in tabs" :key="section.key">
+        <AsyncPanel
+          v-if="open && visited.has(section.key) && (section.key !== 'pet' || tab === 'pet')"
+          v-show="tab === section.key"
+          :loader="loaders[section.key]"
+          :label="section.label"
+          :open="open"
+        />
+      </template>
     </div>
   </ModalShell>
 </template>
