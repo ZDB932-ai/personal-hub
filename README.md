@@ -1,107 +1,177 @@
-# Personal Hub · 个人工作台
+<div align="center">
 
-**把随手记录的想法、今天要做的事和需要的资料，放在一个本地优先的工作台里。**
+# Personal Hub
 
-Personal Hub 面向个人使用，支持 **Windows、Android 和 Web**。从随手收集、安排任务，到关联资料、完成复盘，让记录能够接上行动。核心功能在设备本地运行，无需注册云端账号或部署服务器。
+**本地优先的个人工作台 · 让记录接上行动**
 
-[下载安装](https://github.com/ZDB932-ai/personal-hub/releases/tag/v1.1.4) · [快速开始](#快速开始) · [功能](#功能) · [开发与构建](#开发与构建) · [更新记录](CHANGELOG.md)
+任务计划 · 备忘录 · 加密资料 · 密码管理
 
-> 当前版本：**1.1.4 预览版**。源码与安装包已公开，无需登录即可查看和下载。
+[![CI](https://github.com/ZDB932-ai/personal-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/ZDB932-ai/personal-hub/actions/workflows/ci.yml)
 
-![Personal Hub 桌面端：今天](docs/screenshots/today-1.1.4.png)
+[下载 v1.1.4](https://github.com/ZDB932-ai/personal-hub/releases/tag/v1.1.4) · [快速开始](#快速开始) · [功能与平台](#功能与平台) · [常见问题](#常见问题) · [开发指南](docs/DEVELOPMENT.md)
 
-## 用它做什么
+</div>
 
-- **先记下来**：想法、待办和临时信息放进收集箱，不必立即整理。
-- **安排今天**：将记录转成任务，设置时间、预计用时和子任务，用日历查看安排。
-- **带着资料开始**：把备忘录、文档或项目收藏关联到任务，减少来回寻找。
-- **逐步推进目标**：用周计划、长期计划和每日精力设置，把目标拆成可执行的下一步。
+Personal Hub 将随手收集、日程安排、个人资料和账号密码放在同一个工作台里，支持 **Windows、Android 与 Web**。你可以先记下想法，再整理为任务，关联需要的资料，最后开始专注与复盘。
 
-此外，它还提供加密密码库、文件预览和可选的桌面宠物。适合希望把日常安排与个人资料集中管理的人；团队协作、公开分享和企业权限管理不在当前定位内。
+**核心功能无需云端账号，数据保存在自己的设备上；跨设备同步可按需部署。**
+
+> 当前为 **1.1.4 预览版**，源码和安装包均已公开。更新前请导出加密备份；本版变化与验证范围见 [发布记录](docs/RELEASE-1.1.4.md)。
+
+![桌面端「今天」：左侧模块导航、中间任务列表、右侧今日时间安排](docs/screenshots/today-1.1.4.png)
+
+## 为什么做这个工作台
+
+个人安排和相关资料经常散落在不同地方：想法记下了，迟迟没有安排；任务开始了，又要重新寻找文件。Personal Hub 围绕这条日常流程组织功能：
+
+| 从哪里开始 | 在这里做什么 |
+| --- | --- |
+| 有一个想法 | 放进收集箱，暂时不必决定分类和日期 |
+| 决定要去做 | 转为任务，补充子任务、时间与预计用时 |
+| 准备开始 | 关联备忘录、文档或项目收藏，从任务进入专注 |
+| 持续推进 | 用周计划、长期目标和每日精力安排下一步 |
+
+适合希望集中管理个人待办、学习材料和常用信息的人。当前以个人使用为主，尚不提供团队协作、公开内容分享或企业权限管理。
 
 ## 下载安装
 
-在 [v1.1.4 发布页](https://github.com/ZDB932-ai/personal-hub/releases/tag/v1.1.4) 的 **Assets** 中下载：
+**第一次使用建议选择 Windows 安装程序或 Android 正式包。** 想与现有 Android 正式版分开试用，可选择独立测试包。
 
-| 平台 | 文件 | 说明 |
+| 平台 | 下载 | 使用说明 |
 | --- | --- | --- |
-| Windows x64 | [Personal-Hub_1.1.4_windows-x64-setup.exe](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/Personal-Hub_1.1.4_windows-x64-setup.exe) | NSIS 安装程序，需要 WebView2 运行时 |
-| Android | [Personal-Hub_1.1.4_android.apk](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/Personal-Hub_1.1.4_android.apk) | 正式签名包，应用标识为 `com.zdb.personalhub` |
-| Android 测试版 | [Personal-Hub_1.1.4_android-test.apk](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/Personal-Hub_1.1.4_android-test.apk) | 独立应用标识 `com.zdb.personalhub.debug`，可与正式版并存 |
-| Web | [Personal-Hub_1.1.4_web.zip](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/Personal-Hub_1.1.4_web.zip) | 已构建的静态文件，解压后通过 Web 服务器访问 |
-| 校验文件 | [SHA256SUMS.txt](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/SHA256SUMS.txt) | 下载文件的 SHA-256 校验值 |
+| Windows x64 | [下载安装程序](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/Personal-Hub_1.1.4_windows-x64-setup.exe) | 需要 WebView2 运行时；包含托盘与桌面宠物 |
+| Android | [下载正式 APK](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/Personal-Hub_1.1.4_android.apk) | 正式签名，适合日常使用；本版本仍为预览版 |
+| Android 测试版 | [下载测试 APK](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/Personal-Hub_1.1.4_android-test.apk) | 可与正式版并存，数据独立 |
+| Web | [下载静态文件 ZIP](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/Personal-Hub_1.1.4_web.zip) | 自行托管到 HTTPS 站点根目录或 localhost |
 
-Android 最低版本配置为 Android 7.0；实际设备验证范围见[发布记录](docs/RELEASE-1.1.4.md)。Windows 安装程序尚无代码签名，系统可能显示未知发布者提示。
+[全部发布文件](https://github.com/ZDB932-ai/personal-hub/releases/tag/v1.1.4) · [SHA-256 校验文件](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/SHA256SUMS.txt) · [更新记录](CHANGELOG.md)
 
-**更新前请先在「设置 → 备份」导出 `.phub` 备份。** Android 请使用同一应用标识、同一签名的包覆盖安装，不要先卸载；正式版与测试版的数据各自独立。Web 的域名、协议或端口改变，也会切换到另一份本地存储。
+Android 最低版本配置为 7.0，当前真机验证集中在 Android 16。Windows 安装程序尚无代码签名，系统可能显示未知发布者提示。macOS、Linux 和 iOS 暂无原生安装包。
 
-Web 包可部署到 HTTPS 站点根目录，或在解压目录运行 `npx serve .` 后通过 `localhost` 访问。不要直接双击 `index.html`；加密能力需要 HTTPS 或 localhost 安全上下文。目前不提供公共在线演示站。
+<details>
+<summary>更新已有安装、部署 Web 与校验下载文件</summary>
+
+**更新安装**：先在「设置 → 备份」导出 `.phub`。Android 使用同包名、同签名的包覆盖安装，避免先卸载。正式包名为 `com.zdb.personalhub`，测试包名为 `com.zdb.personalhub.debug`；两者不会自动共享数据。
+
+**部署 Web**：解压 ZIP，在解压目录运行以下命令（需要 Node.js），再打开终端显示的 localhost 地址：
+
+```bash
+npx serve .
+```
+
+不要直接双击 `index.html`。加密功能需要 HTTPS 或 localhost 安全上下文，当前构建按站点根目录部署。域名、协议或端口改变会使用另一份本地存储。目前没有公共在线演示站，也不应将 Web 包视为已验证的离线 PWA。
+
+**校验下载**：在 PowerShell 中计算下载文件的 SHA-256，与发布页 `SHA256SUMS.txt` 对应条目比较：
+
+```powershell
+Get-FileHash .\Personal-Hub_1.1.4_windows-x64-setup.exe -Algorithm SHA256
+```
+
+</details>
 
 ## 快速开始
 
-1. 首次打开时创建本地账户、设置主密码，并把**完整恢复密钥**保存在应用之外。
-2. 在「今天」添加一项任务；暂时不想安排的内容放进「收集」。
-3. 用「日历」查看时间安排，在「资料库」或「备忘录」保存相关内容。
-4. 在「设置 → 备份」导出加密备份，并定期更新备份文件。
-5. 需要跨设备使用时，再配置可选的自托管同步服务。
+1. **创建本地账户**：设置主密码，将完整恢复密钥保存在应用之外，完成确认后进入工作台。
+2. **安排第一件事**：在「今天」新建任务；例如“整理课程笔记”，再添加“阅读章节”“记录疑问”两个子任务。
+3. **整理随手记录**：不确定何时处理的想法先放进「收集箱」，准备执行时再转成任务。
+4. **带上所需资料**：在备忘录或资料库保存内容，再关联到任务；需要安排具体时间时打开「日历」。
+5. **留一份备份**：在「设置 → 备份」导出加密文件。需要多设备使用时，按下方说明配置设备加入与同步。
 
-桌面和网页端可用 `Ctrl / Cmd + K` 打开全局搜索与收集。手机端通过底部导航进入常用页面，其他功能集中在「更多」。
+桌面与网页端使用 `Ctrl / Cmd + K` 打开全局搜索与收集。手机端通过底部导航进入常用页面，设置和其他模块位于「更多」。
 
-## 功能
+## 功能与平台
 
-| 模块 | 可以做什么 |
+| 能力 | 主要功能 |
 | --- | --- |
-| 今天与计划 | 快捷输入、优先级、标签、子任务、重复任务、周计划、长期目标、每日精力与容量排期 |
-| 日历与专注 | 查看任务时间、调整安排、开始专注、记录推进过程 |
-| 收集与备忘录 | 随手收集、便签、清单、置顶、筛选，以及转为任务 |
-| 资料库 | 加密保存附件；预览图片、PDF、Word、表格、文本、音视频；分类、搜索和批量管理 |
-| 密码库 | 账号密码、随机密码生成、强度提示、TOTP 动态码；Android 可选生物识别解锁 |
-| 查找与恢复 | 全局搜索、本机回收站、修改历史、加密备份和设备加入文件 |
-| 可选同步 | 自托管服务、客户端加密、逐条同步、冲突对比、附件按需下载 |
-| 项目与 Agent | GitHub 项目收藏、Agent 资源台账；AI 工作台需另行配置对应服务或 bridge |
-| 外观与桌面 | 深浅主题、多种色调与壁纸；Windows 托盘、单实例、窗口位置记忆和桌面宠物 |
+| 任务与计划 | 快捷输入、标签、优先级、子任务、重复任务、周计划、长期目标、精力与容量排期 |
+| 日历与专注 | 查看时间安排、调整任务、进入专注、记录推进过程 |
+| 收集与备忘录 | 随手记录、便签与清单、置顶筛选、转成任务 |
+| 加密资料库 | 图片、PDF、Word、表格、文本、音视频预览；分类、搜索、批量管理；单文件上限 50 MiB |
+| 密码与查找 | 密码生成、强度提示、TOTP 动态码；全局搜索、本机回收站与修改历史 |
+| 备份与扩展 | 加密备份、设备加入、可选自托管同步；GitHub 项目收藏、Agent 资源库与 AI 工作台 |
 
-### 手机端
+三端共享核心业务界面，系统能力有所不同：
 
-手机布局围绕单手操作优化：任务编辑保留可见的保存按钮，设置分区固定在顶部，资料库将搜索、排序和分类分层展示。
+| 能力 | Windows | Android | Web |
+| --- | --- | --- | --- |
+| 任务、资料、密码库、加密备份 | 支持 | 支持 | 支持 |
+| 可选自托管同步 | 支持 | 支持 | 支持 |
+| 提醒 | 应用运行且解锁时扫描 | 系统调度，受权限和省电策略影响 | 页面运行且解锁时扫描，需通知权限 |
+| 生物识别解锁 | 暂不支持 | 支持，需设备与系统能力 | 暂不支持 |
+| 系统悬浮桌宠 | 支持 | 仅应用内预览 | 仅页面内预览 |
+| 托盘、单实例与窗口恢复 | 支持 | 不适用 | 不适用 |
 
-<p>
-  <img src="docs/screenshots/mobile-task-1.1.4.png" width="280" alt="手机端任务编辑：固定底部操作区">
-  <img src="docs/screenshots/mobile-settings-1.1.4.png" width="280" alt="手机端设置：固定分区导航">
+GitHub 与 AI 功能需要另外配置网络、服务和凭据；日常记录、计划与资料管理不依赖 AI。
+
+### 手机界面
+
+任务编辑采用底部面板，保存按钮固定在底部；设置分区保持可见，内容单独滚动。常用操作围绕窄屏与触控使用调整。
+
+<p align="center">
+  <img src="docs/screenshots/mobile-task-1.1.4.png" width="280" alt="手机任务编辑：日期、预计用时、子任务和固定底部保存按钮">
+  <img src="docs/screenshots/mobile-settings-1.1.4.png" width="280" alt="手机设置：固定分区导航与主题选择">
 </p>
 
-以上截图使用演示账户与虚构内容，不包含真实个人数据。
+截图来自 1.1.4 构建，使用演示账户和虚构内容。
 
-### 桌面宠物
+Windows 桌宠可在「设置 → 玩偶」开启，默认关闭，支持动画、互动与走动，双击可打开主窗口。完整退出应用请使用托盘菜单。模型来源及授权边界见 [第三方声明](THIRD_PARTY_NOTICES.md)。
 
-Windows 版内置透明悬浮宠物，支持动画、互动与走动；双击可打开主窗口。在设置中开启，默认关闭。退出整个应用请使用托盘的退出操作。Web 和 Android 提供预览，不提供系统级悬浮桌宠。
+## 数据由你保管
 
-模型来源、授权边界与维护说明见 [第三方声明](THIRD_PARTY_NOTICES.md) 和 [桌宠交接文档](docs/PET-HANDOFF.md)。
+业务数据和附件在本地加密保存，采用 Argon2id 与 AES-256-GCM。新账户直接使用 v3 随机数据密钥与密码封装，解锁后的密钥保留在内存，锁定后清除。项目尚未经过独立安全审计，具体边界见 [安全说明](SECURITY.md)。
 
-## 数据、恢复与同步
+有三种不同用途的恢复与迁移方式：
 
-- **本地优先**：业务数据保存在设备本地；附件也保存在本机，需要同步时才连接自托管服务。
-- **加密存储**：使用 Argon2id 和 AES-256-GCM。新账户采用 v3 随机数据密钥与密码封装，解锁后的密钥仅保留在内存。
-- **密码恢复**：已预设恢复密钥的设备可以重设主密码。旧账户可在安全设置中主动升级；未设置恢复方式且遗失密码时，无法解密数据。
-- **恢复密钥不等于备份**：恢复信息是设备本地配置，不随普通 `.phub` 备份、设备加入或云同步转移。它不能找回已删除的数据库或附件；导入历史备份仍需保留对应密码。
-- **同步可选**：当前逐条同步服务需自行部署。服务端存储密文，客户端解锁后可按已保存配置重连。旧版 PocketBase 整库同步仅保留兼容路径。
+| 方式 | 解决什么问题 | 需要记住 |
+| --- | --- | --- |
+| 恢复密钥 | 在已配置恢复的设备上重设遗失的主密码 | 属于本机配置，不随普通备份、设备加入或同步转移；不能找回已删除的数据 |
+| `.phub` 加密备份 | 保留可导入的数据副本 | 定期导出并另存；需要文件的对应密码，导出时确认包含需要的附件 |
+| `.phub-device` 设备加入 | 将空设备加入已有保险库 | 使用文件与转移码，在新设备设置本机密码；持续同步还需另行配置 |
 
-清除浏览器站点数据或卸载应用可能丢失本地内容，请先备份。项目尚未经过独立安全审计；密码库的安全设计和测试范围可查阅下列技术文档。
+跨设备同步需要自行部署服务，并让设备加入**同一个保险库**。独立创建两个账户不会自动合并。服务端保存密文与同步所需元数据，不接收主密码或数据密钥。详见 [设备加入](docs/DEVICE-KEYS.md)、[同步部署](docs/SYNC-SERVER.md) 与 [同步体验](docs/SYNC-EXPERIENCE.md)。
 
-[本地账户与恢复](docs/LOCAL-ACCOUNT.md) · [设备密钥](docs/DEVICE-KEYS.md) · [备份与本地存储](docs/LOCAL-STORAGE.md) · [同步部署](docs/SYNC-SERVER.md) · [同步体验](docs/SYNC-EXPERIENCE.md)
+## 常见问题
 
-## 当前边界
+<details>
+<summary>需要注册账号、购买服务器或连接 AI 才能用吗？</summary>
 
-- 这是持续迭代中的预览版。真机验证集中在当前 Windows 环境和一台 Android 16 设备，尚未覆盖全部系统版本、字体缩放、后台策略及正式包升级场景。
-- Android 使用系统提醒，并安排最近 60 条；是否准时触发仍受系统权限与省电策略影响。Windows/Web 依赖应用运行且解锁时的扫描，尚未实现通知点击跳转。
-- 文本与 PDF 正文搜索限当前会话；不包含 OCR 或 Office 全文索引。附件同步暂不自动回收服务端历史分块。
-- AI 工作台和 GitHub 集成需要各自的服务、网络与凭据。新增远程 AI 能力暂缓，日常记录和计划功能不依赖 AI。
+不需要。首次创建的是设备本地账户，不是云端账号。Windows 和 Android 的核心本地功能可离线使用；Web 需要先加载站点资源，离线重载未作为 PWA 能力交付。自托管同步、GitHub 和 AI 连接均为可选功能。
 
-本版改动、安装包与验证范围见 [1.1.4 发布记录](docs/RELEASE-1.1.4.md)。
+</details>
 
-## 开发与构建
+<details>
+<summary>忘记主密码怎么办？</summary>
 
-使用 **Node.js 24.x**。技术栈为 Vue 3、TypeScript、Vite、Tailwind CSS，原生壳分别为 Tauri 2 和 Capacitor 8。
+如果当前设备已启用恢复密钥，可在锁屏选择「忘记密码？」后重设。旧账户可提前在安全设置中配置恢复。未设置恢复方式且遗失密码时，无法解密数据；恢复密钥也不能替代数据备份。详见 [本地账户与恢复](docs/LOCAL-ACCOUNT.md)。
+
+</details>
+
+<details>
+<summary>为什么换浏览器、换网址或安装测试版后，看不到原来的数据？</summary>
+
+不同浏览器、不同站点来源，以及 Android 正式版和测试版，使用各自的本地存储。需要通过备份、设备加入或同步迁移数据。卸载应用或清除站点数据前，请先导出备份。
+
+</details>
+
+<details>
+<summary>关掉程序后，还会提醒吗？</summary>
+
+Android 使用系统提醒，安排最近 60 条，实际送达受系统权限与省电策略影响。Windows/Web 依赖应用运行且解锁时的扫描，退出后不扫描；通知点击跳转尚未实现。
+
+</details>
+
+<details>
+<summary>当前还有哪些限制？</summary>
+
+当前是预览版。尚未完成本版正式安装包覆盖升级、跨 DPI、多 Android 机型、横屏与大字体等完整验收。文本/PDF 正文搜索限当前会话，不包含 OCR 或 Office 全文索引；附件同步暂不自动清理服务端历史分块。新增远程 AI 能力暂缓。
+
+本版已验证项目和未覆盖场景见 [1.1.4 发布记录](docs/RELEASE-1.1.4.md)，不将自动化测试通过视为所有设备都已验证。
+
+</details>
+
+## 本地开发
+
+需要 **Node.js 24.x**。前端使用 Vue 3、TypeScript、Vite 与 Tailwind CSS；Windows 和 Android 分别使用 Tauri 2、Capacitor 8。
 
 ```bash
 git clone https://github.com/ZDB932-ai/personal-hub.git
@@ -110,49 +180,22 @@ npm ci
 npm run dev
 ```
 
-开发服务默认地址为 `http://localhost:5173`。可直接克隆公开仓库，无需配置 GitHub 访问凭据。
+打开终端显示的地址，默认是 `http://localhost:5173`。运行网页开发环境不需要安装 Rust 或 Android SDK。
 
-```bash
-npm run test           # 单元测试
-npm run sync:typecheck # 同步服务类型检查
-npm run build          # 版本检查、前端类型检查与生产构建
-npm run preview -- --host 127.0.0.1 --port 4183
-```
+测试命令、原生工具链、安装包构建、版本管理与目录说明见 [开发与构建指南](docs/DEVELOPMENT.md)。
 
-保持预览服务运行，在另一个终端执行 `npm run test:ui`。UI 验收默认使用 Edge；其他环境安装对应 Playwright 浏览器，并通过 `PHUB_BROWSER_CHANNEL` 指定，例如 `chromium`。
+## 文档与参与
 
-原生构建需要另行安装工具链：Windows 需要 Rust、MSVC C++ 构建工具和 WebView2；Android 需要 SDK 36 与 JDK 21 工具链。通过 `ANDROID_HOME` / `ANDROID_SDK_ROOT` 指定 SDK，通过 `PHUB_JDK21_HOME` 或 `JAVA_HOME` 提供 JDK 21。
+| 想了解什么 | 从这里开始 |
+| --- | --- |
+| 版本变化和当前验证范围 | [更新记录](CHANGELOG.md) · [发布记录](docs/RELEASE-1.1.4.md) |
+| 账户、密码恢复和设备迁移 | [本地账户](docs/LOCAL-ACCOUNT.md) · [设备加入](docs/DEVICE-KEYS.md) |
+| 部署同步与传输附件 | [同步服务](docs/SYNC-SERVER.md) · [同步体验](docs/SYNC-EXPERIENCE.md) · [附件同步](docs/ATTACHMENT-SYNC.md) |
+| 开发、设计与贡献 | [开发指南](docs/DEVELOPMENT.md) · [设计系统](design-system/MASTER.md) · [贡献说明](CONTRIBUTING.md) |
+| 平台体验的实现与验证 | [桌面/Web](docs/DESKTOP-WEB-REVIEW.md) · [Android](docs/ANDROID-POLISH.md) |
 
-```bash
-npm run desktop:build
-npm run build
-npx cap sync android
-```
-
-然后在 `android` 目录运行 `gradlew.bat assembleDebug`。正式 Android 包需自行配置 `android/keystore.properties` 与签名文件，再执行 `assembleRelease`；签名文件和密码不得提交到仓库。建议使用纯英文项目路径；当前 Windows 开发环境通过目录联接处理中文路径的构建兼容问题。
-
-版本以 `package.json` 的 `version` 与 `androidVersionCode` 为源，修改后运行 `npm run version:sync` 同步原生配置。
-
-```text
-src/           Vue 页面、组件、本地数据与加密逻辑
-src-tauri/     Windows 桌面壳与桌宠窗口
-android/       Android 原生工程
-server/        可选的逐条同步服务
-bridge/        AI 工作台桥接服务
-scripts/       构建检查与 UI 验收脚本
-docs/          设计、部署与验证说明
-design-system/ 视觉规范与语义设计 Token
-```
-
-## 文档与反馈
-
-- [更新记录](CHANGELOG.md) / [本版发布记录](docs/RELEASE-1.1.4.md)
-- [桌面与网页优化](docs/DESKTOP-WEB-REVIEW.md) / [Android 优化](docs/ANDROID-POLISH.md)
-- [同步服务部署](docs/SYNC-SERVER.md) / [附件同步](docs/ATTACHMENT-SYNC.md)
-- [设计系统](design-system/MASTER.md)
-
-欢迎通过 [Issues](https://github.com/ZDB932-ai/personal-hub/issues) 反馈。请提供平台、版本、复现步骤和脱敏截图；不要上传主密码、恢复密钥、访问令牌或私人资料。
+欢迎通过 [Issues](https://github.com/ZDB932-ai/personal-hub/issues) 报告问题或提出建议，也欢迎按 [贡献约定](CONTRIBUTING.md) 提交改进。反馈请附平台、版本、复现步骤和脱敏截图。涉及安全问题先阅读 [安全说明](SECURITY.md)，不要在公开反馈中上传主密码、恢复密钥、访问令牌或私人资料。
 
 ## 许可证
 
-项目自有代码使用 [MIT License](LICENSE)。第三方依赖、模型与其他素材适用各自许可，详见 [第三方声明](THIRD_PARTY_NOTICES.md)。
+项目自有代码与文档采用 [MIT License](LICENSE)。第三方依赖、模型与角色素材的权利不由该许可授予，具体来源、许可边界和待确认事项见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
