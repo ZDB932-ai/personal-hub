@@ -6,7 +6,7 @@ Personal Hub 面向个人使用，支持 **Windows、Android 和 Web**。从随�
 
 [下载安装](https://github.com/ZDB932-ai/personal-hub/releases/tag/v1.1.4) · [快速开始](#快速开始) · [功能](#功能) · [开发与构建](#开发与构建) · [更新记录](CHANGELOG.md)
 
-> 当前版本：**1.1.4 预览版**。仓库目前为私有仓库，查看源码与下载安装包需要对应的 GitHub 访问权限。
+> 当前版本：**1.1.4 预览版**。源码与安装包已公开，无需登录即可查看和下载。
 
 ![Personal Hub 桌面端：今天](docs/screenshots/today-1.1.4.png)
 
@@ -25,11 +25,11 @@ Personal Hub 面向个人使用，支持 **Windows、Android 和 Web**。从随�
 
 | 平台 | 文件 | 说明 |
 | --- | --- | --- |
-| Windows x64 | `Personal-Hub_1.1.4_windows-x64-setup.exe` | NSIS 安装程序，需要 WebView2 运行时 |
-| Android | `Personal-Hub_1.1.4_android.apk` | 正式签名包，应用标识为 `com.zdb.personalhub` |
-| Android 测试版 | `Personal-Hub_1.1.4_android-test.apk` | 独立应用标识 `com.zdb.personalhub.debug`，可与正式版并存 |
-| Web | `Personal-Hub_1.1.4_web.zip` | 已构建的静态文件，解压后通过 Web 服务器访问 |
-| 校验文件 | `SHA256SUMS.txt` | 下载文件的 SHA-256 校验值 |
+| Windows x64 | [Personal-Hub_1.1.4_windows-x64-setup.exe](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/Personal-Hub_1.1.4_windows-x64-setup.exe) | NSIS 安装程序，需要 WebView2 运行时 |
+| Android | [Personal-Hub_1.1.4_android.apk](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/Personal-Hub_1.1.4_android.apk) | 正式签名包，应用标识为 `com.zdb.personalhub` |
+| Android 测试版 | [Personal-Hub_1.1.4_android-test.apk](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/Personal-Hub_1.1.4_android-test.apk) | 独立应用标识 `com.zdb.personalhub.debug`，可与正式版并存 |
+| Web | [Personal-Hub_1.1.4_web.zip](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/Personal-Hub_1.1.4_web.zip) | 已构建的静态文件，解压后通过 Web 服务器访问 |
+| 校验文件 | [SHA256SUMS.txt](https://github.com/ZDB932-ai/personal-hub/releases/download/v1.1.4/SHA256SUMS.txt) | 下载文件的 SHA-256 校验值 |
 
 Android 最低版本配置为 Android 7.0；实际设备验证范围见[发布记录](docs/RELEASE-1.1.4.md)。Windows 安装程序尚无代码签名，系统可能显示未知发布者提示。
 
@@ -110,7 +110,7 @@ npm ci
 npm run dev
 ```
 
-开发服务默认地址为 `http://localhost:5173`。私有仓库克隆需要先配置 GitHub 访问凭据。
+开发服务默认地址为 `http://localhost:5173`。可直接克隆公开仓库，无需配置 GitHub 访问凭据。
 
 ```bash
 npm run test           # 单元测试
@@ -151,7 +151,7 @@ design-system/ 视觉规范与语义设计 Token
 - [同步服务部署](docs/SYNC-SERVER.md) / [附件同步](docs/ATTACHMENT-SYNC.md)
 - [设计系统](design-system/MASTER.md)
 
-有仓库访问权限的用户可通过 [Issues](https://github.com/ZDB932-ai/personal-hub/issues) 反馈。请提供平台、版本、复现步骤和脱敏截图；不要上传主密码、恢复密钥、访问令牌或私人资料。
+欢迎通过 [Issues](https://github.com/ZDB932-ai/personal-hub/issues) 反馈。请提供平台、版本、复现步骤和脱敏截图；不要上传主密码、恢复密钥、访问令牌或私人资料。
 
 ## 许可证
 

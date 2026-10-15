@@ -13,7 +13,9 @@
 
 ## 下载与更新
 
-[GitHub Release v1.1.4](https://github.com/ZDB932-ai/personal-hub/releases/tag/v1.1.4)。仓库为私有仓库，需要访问权限。
+2026-10-15：仓库公开后更新下载说明；应用版本、安装包与 v1.1.4 标签保持不变。
+
+[GitHub Release v1.1.4](https://github.com/ZDB932-ai/personal-hub/releases/tag/v1.1.4)。源码与安装包已公开，无需登录即可访问。
 
 | 文件 | 用途 |
 | --- | --- |
