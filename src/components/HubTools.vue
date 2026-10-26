@@ -25,6 +25,12 @@ const kind = ref('all')
 const input = ref<HTMLInputElement | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const uploading = ref(false)
+const createActions: { kind: HubKind; label: string }[] = [
+  { kind: 'tasks', label: '新建任务' },
+  { kind: 'memos', label: '新建便签' },
+  { kind: 'repos', label: '收藏项目' },
+  { kind: 'entries', label: '添加账号' },
+]
 const activeResult = ref(0)
 const resultList = ref<HTMLElement | null>(null)
 const data = computed(() => ({ tasks: tasks.value, memos: memos.value, docMetas: docMetas.value.map(meta => ({ ...meta, note: `${meta.note}\n${indexedText(meta)}` })), repos: repos.value, entries: entries.value }))
@@ -70,11 +76,11 @@ async function upload(event: Event) {
 <template>
   <ModalShell :open="hubSearchOpen" max-width="max-w-2xl" @close="hubSearchOpen = false">
     <div class="flex items-center justify-between gap-3"><h3 class="text-lg font-semibold text-t1">全局搜索与收集</h3><button aria-label="关闭搜索" class="ui-icon-button" @click="hubSearchOpen = false"><X class="h-5 w-5" /></button></div>
-    <label class="control-search mt-4 block"><Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-t4" /><input ref="input" v-model="query" data-modal-autofocus aria-controls="hub-search-results" aria-describedby="hub-search-status" class="control-input py-2 pl-9 pr-3" aria-label="搜索所有内容" placeholder="搜索任务、便签、资料、仓库、账号" @keydown="navigateResults" /></label>
+    <label class="control-search mt-4 block"><Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-t4" /><input ref="input" v-model="query" data-modal-autofocus aria-controls="hub-search-results" aria-describedby="hub-search-status" class="control-input py-2 pl-9 pr-3" aria-label="搜索所有内容" placeholder="搜索任务、便签、资料、项目、账号" @keydown="navigateResults" /></label>
     <div class="mt-3 flex flex-wrap gap-2"><button class="filter-chip min-h-11" :class="{ 'is-active': kind === 'all' }" @click="kind = 'all'">全部</button><button v-for="(label, key) in hubLabels" :key="key" class="filter-chip min-h-11" :class="{ 'is-active': kind === key }" @click="kind = key">{{ label }}</button></div>
     <div v-if="!query.trim()" class="mt-5 grid grid-cols-2 gap-3">
-      <button v-for="target in (['tasks', 'memos', 'repos', 'entries'] as HubKind[])" :key="target" class="ui-secondary-button min-h-11" @click="openHubItem(target)">新建{{ hubLabels[target] }}</button>
-      <button class="ui-secondary-button min-h-11" :disabled="uploading" @click="fileInput?.click()">{{ uploading ? '正在加密导入…' : '收集文件' }}</button>
+      <button v-for="action in createActions" :key="action.kind" class="ui-secondary-button min-h-11" @click="openHubItem(action.kind)">{{ action.label }}</button>
+      <button class="ui-secondary-button min-h-11" :disabled="uploading" @click="fileInput?.click()">{{ uploading ? '正在加密保存…' : '添加文件' }}</button>
     </div>
     <ul v-else id="hub-search-results" ref="resultList" class="mt-4 max-h-80 space-y-2 overflow-y-auto overscroll-contain">
       <li v-for="(item, index) in results" :key="`${item.kind}:${item.id}`" class="flex items-center gap-2"><button class="min-w-0 flex-1 rounded-lg border border-line p-3 text-left hover:bg-surface-2" :class="{ 'bg-primary/12 border-primary/50': activeResult === index }" @focus="activeResult = index" @click="openHubItem(item.kind, item.id)"><span class="text-xs text-primary">{{ hubLabels[item.kind] }}</span><p class="truncate text-sm text-t1">{{ item.title }}</p><p class="truncate text-xs text-t3">{{ item.detail }}</p></button><RouterLink v-if="item.kind === 'tasks'" :to="{ path: '/focus', query: { task: item.id } }" class="ui-icon-button shrink-0" :aria-label="`打开专注 ${item.title}`" @click="hubSearchOpen = false"><Play class="h-5 w-5" /></RouterLink><button v-if="item.kind === 'tasks' && tasks.some(task => task.id === item.id && task.date)" class="ui-icon-button shrink-0" :aria-label="`在日历定位 ${item.title}`" title="在日历定位" @click="locateTask(item.id)"><CalendarDays class="h-5 w-5" /></button></li>

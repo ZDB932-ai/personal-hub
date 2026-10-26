@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "pet-commands",
+  "description": "Existing desktop pet commands",
+  "windows": ["pet"],
+  "permissions": ["allow-pet-preferences", "allow-pet-configure", "allow-pet-home", "allow-pet-reset-position"]
+}

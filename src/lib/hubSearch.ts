@@ -2,7 +2,7 @@ import type { VaultPayload } from '@/types'
 import type { HubKind } from '@/stores/hub'
 
 export interface SearchItem { kind: HubKind; id: string; title: string; detail: string; text: string }
-export const hubLabels: Record<HubKind, string> = { tasks: '任务', memos: '备忘录', docMetas: '资料', repos: '仓库', entries: '账号' }
+export const hubLabels: Record<HubKind, string> = { tasks: '任务', memos: '备忘录', docMetas: '资料', repos: '项目', entries: '账号' }
 
 export function searchHub(data: Pick<VaultPayload, 'tasks' | 'memos' | 'docMetas' | 'repos' | 'entries'>, query: string, kind: string = 'all'): SearchItem[] {
   const words = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean)

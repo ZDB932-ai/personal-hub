@@ -22,6 +22,7 @@ export interface ChangePage { cursor: number; hasMore: boolean; records: Encrypt
 
 export interface RecordSyncTransport {
   serverId: string
+  prepare?(wire: ScopedOperation): Promise<ScopedOperation>
   attachments?: {
     missing(hashes: string[]): Promise<string[]>
     put(hash: string, data: string): Promise<void>

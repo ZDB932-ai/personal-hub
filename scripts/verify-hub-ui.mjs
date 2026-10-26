@@ -14,12 +14,13 @@ const errors = [], results = []
 const pass = message => { results.push(message); console.log(`PASS: ${message}`) }
 const button = name => page.getByRole('button', { name, exact: true })
 const search = async () => { await page.waitForFunction(() => !document.querySelector('[role="dialog"]')); await page.keyboard.press('Control+k'); await page.getByRole('heading', { name: '全局搜索与收集' }).waitFor() }
-const settings = async () => { await button('设置').first().click(); await button('备份').click() }
+const settings = async () => { await button('设置').first().click(); await page.getByRole('navigation', { name: '设置分类' }).getByRole('button').filter({ has: page.getByText('备份与迁移', { exact: true }) }).click() }
 page.setDefaultTimeout(20000)
 page.on('pageerror', error => errors.push(error.message))
 page.on('dialog', dialog => dialog.accept())
 try {
   await page.goto(process.env.PHUB_VERIFY_URL ?? 'http://127.0.0.1:4183')
+  await button('仅在本机使用 / 旧版设备加入').click()
   await page.getByPlaceholder('创建主密码', { exact: true }).fill('QA-Hub-Password')
   await page.getByPlaceholder('再次输入主密码', { exact: true }).fill('QA-Hub-Password')
   await page.getByPlaceholder('例如：我的工作台').fill('自动验收账户')
@@ -30,7 +31,7 @@ try {
   await page.getByRole('button', { name: '确认保存并启用', exact: true }).click()
   await button('锁定').first().waitFor()
   await search()
-  await button('新建备忘录').click()
+  await button('新建便签').click()
   await page.getByPlaceholder('一句话主题（选填）').fill('项目资料源')
   await page.getByPlaceholder('随手记点什么…').fill('需要整理实验记录 #研究')
   await button('创建便签').click()

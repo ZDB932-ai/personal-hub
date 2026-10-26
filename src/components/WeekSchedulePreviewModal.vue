@@ -63,10 +63,10 @@ const hasEntries = computed(() => groups.value.some((group) => group.entries.len
     <div v-if="draft" class="mt-5 rounded-lg border border-line bg-inset p-3.5 text-xs leading-relaxed text-t3">
       <div class="flex items-center gap-2 text-t2">
         <CalendarDays class="h-4 w-4 text-primary" />
-        <span>会新增 {{ draft.entries.length }} 个行动块；会参考当天节奏并尽量均衡分散。</span>
+        <span>将创建 {{ draft.entries.length }} 项任务，并根据每日安排分配时间。</span>
       </div>
       <p v-if="draft.skippedRestDays" class="mt-1">已尊重 {{ draft.skippedRestDays }} 个留白日，不会往这些日期安排。</p>
-      <p v-if="draft.unscheduled" class="mt-1 text-warn">时间、容量不足，或关联方向已暂停、暂缓；另外 {{ draft.unscheduled }} 项尚未安排。可以调整时长、日期或方向状态。</p>
+      <p v-if="draft.unscheduled" class="mt-1 text-warn">可用时间不足，或关联目标未处于进行中；还有 {{ draft.unscheduled }} 项尚未安排。可以调整任务时长、日期或目标状态。</p>
     </div>
 
     <div v-if="hasEntries" class="week-schedule-preview-grid mt-5">
@@ -75,7 +75,7 @@ const hasEntries = computed(() => groups.value.some((group) => group.entries.len
         <div v-if="group.entries.length" class="mt-2 space-y-1.5">
           <p v-for="(entry, index) in group.entries" :key="`${entry.title}-${index}`" class="rounded-md border border-line bg-surface px-2.5 py-2 text-xs text-t2">
             {{ entry.title }}
-            <span v-if="entry.isNew" class="mt-1 block text-[10px] text-primary">准备新增</span>
+            <span v-if="entry.isNew" class="mt-1 block text-[10px] text-primary">待创建</span>
           </p>
         </div>
         <p v-else class="mt-2 text-xs text-t4">留一点空白</p>

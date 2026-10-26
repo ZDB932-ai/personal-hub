@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-todo-cancel-quit"
+description = "Enables the todo_cancel_quit command without any pre-configured scope."
+commands.allow = ["todo_cancel_quit"]
+
+[[permission]]
+identifier = "deny-todo-cancel-quit"
+description = "Denies the todo_cancel_quit command without any pre-configured scope."
+commands.deny = ["todo_cancel_quit"]

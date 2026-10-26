@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "path": "back.png",
+      "sha256": "4f69214a449e2a0e93ad9779e8ac64d20485e344dca60ad4d0430250d503d03f",
+      "view": "back"
+    },
+    {
+      "path": "front.png",
+      "sha256": "0b702fbfe35cb43df26d19f4efe646cab323fe5d64b56b2b5fa9cf7d40ed065d",
+      "view": "front"
+    },
+    {
+      "path": "left.png",
+      "sha256": "f94ec327c7a36001b67292cf791f5da11444d87e5560cf7ab91706590f315f84",
+      "view": "left"
+    },
+    {
+      "path": "right.png",
+      "sha256": "4711663d45ed916c564e181737b5c3672e826a1943384d39d1a0dca53b4e5efc",
+      "view": "right"
+    }
+  ],
+  "decision": {
+    "status": "approved",
+    "evidence": "2026-10-16 用户针对已展示的 v002 正、左、右、背四张独立参考回复：确认。"
+  }
+}

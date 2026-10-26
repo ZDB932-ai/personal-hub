@@ -28,7 +28,7 @@ const isCancel = computed(() => props.mode === 'cancel')
           </span>
           <div class="min-w-0">
             <h3 class="text-lg font-semibold text-t1">{{ isCancel ? '取消任务' : '删除任务' }}</h3>
-            <p class="mt-0.5 text-xs text-t3">{{ isCancel ? '取消后会从计划中移除，无法恢复。' : '删除后无法恢复，请确认任务不再需要。' }}</p>
+            <p class="mt-0.5 text-xs text-t3">{{ isCancel ? '取消后会从计划中移除。' : '删除后会从任务列表中移除。' }}可在「设置 → 备份与迁移」中查看可用恢复记录。</p>
           </div>
         </div>
         <button aria-label="关闭" class="ui-icon-button h-9 w-9 shrink-0" @click="emit('close')">

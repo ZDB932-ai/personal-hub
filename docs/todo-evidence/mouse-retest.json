@@ -1,0 +1,427 @@
+{
+  "date": "2026-10-22T12:03:12.034Z",
+  "before": {
+    "position": {
+      "type": "Physical",
+      "x": 1287,
+      "y": 56
+    },
+    "size": {
+      "type": "Physical",
+      "width": 354,
+      "height": 474
+    },
+    "pinned": true,
+    "visible": true,
+    "scale": 1
+  },
+  "checks": [
+    {
+      "name": "physical fast title-bar drag",
+      "passed": true
+    },
+    {
+      "name": "repeat drag has exact displacement and no delayed jump",
+      "passed": false
+    },
+    {
+      "name": "physical bottom-right resize",
+      "passed": true
+    },
+    {
+      "name": "physical unpin button without moving the window",
+      "passed": true
+    },
+    {
+      "name": "physical pin button sets native always-on-top",
+      "passed": true
+    },
+    {
+      "name": "physical collapse to 56 DIP",
+      "passed": true
+    },
+    {
+      "name": "physical expand restores resized height",
+      "passed": true
+    },
+    {
+      "name": "native main-window close keeps Todo visible",
+      "passed": true
+    },
+    {
+      "name": "physical add from widget persists with main hidden",
+      "passed": true
+    },
+    {
+      "name": "physical completion persists to shared task store",
+      "passed": true
+    },
+    {
+      "name": "physical task drag-reorder in manual list",
+      "passed": false
+    },
+    {
+      "name": "physical fast task reorder after pointer-capture correction",
+      "passed": true
+    },
+    {
+      "name": "dropping outside task rows leaves manual order unchanged",
+      "passed": true
+    },
+    {
+      "name": "lock after physical edits retains only the authorized read-only task",
+      "passed": true
+    },
+    {
+      "name": "locked read-only window remains draggable and follows actual pointer displacement",
+      "passed": true
+    },
+    {
+      "name": "physical close hides only Todo and retains its authorized snapshot",
+      "passed": true
+    },
+    {
+      "name": "freshly observed repeated drag matches recorded pointer delta",
+      "passed": true
+    }
+  ],
+  "afterDrag": {
+    "position": {
+      "type": "Physical",
+      "x": 1387,
+      "y": 128
+    },
+    "size": {
+      "type": "Physical",
+      "width": 354,
+      "height": 474
+    },
+    "pinned": true,
+    "visible": true,
+    "scale": 1
+  },
+  "afterRepeatDrag": {
+    "position": {
+      "type": "Physical",
+      "x": 1547,
+      "y": 248
+    },
+    "size": {
+      "type": "Physical",
+      "width": 354,
+      "height": 474
+    },
+    "pinned": true,
+    "visible": true,
+    "scale": 1
+  },
+  "beforeEventTrace": {
+    "position": {
+      "type": "Physical",
+      "x": 1607,
+      "y": 288
+    },
+    "size": {
+      "type": "Physical",
+      "width": 354,
+      "height": 474
+    },
+    "pinned": true,
+    "visible": true,
+    "scale": 1
+  },
+  "dragTrace": {
+    "before": {
+      "position": {
+        "type": "Physical",
+        "x": 1607,
+        "y": 288
+      },
+      "size": {
+        "type": "Physical",
+        "width": 354,
+        "height": 474
+      },
+      "pinned": true,
+      "visible": true,
+      "scale": 1
+    },
+    "after": {
+      "position": {
+        "type": "Physical",
+        "x": 1687,
+        "y": 348
+      },
+      "size": {
+        "type": "Physical",
+        "width": 354,
+        "height": 474
+      },
+      "pinned": true,
+      "visible": true,
+      "scale": 1
+    },
+    "events": [
+      {
+        "type": "pointerdown",
+        "screenX": 1659,
+        "screenY": 316,
+        "clientX": 44,
+        "clientY": 27,
+        "windowX": 1615,
+        "windowY": 289,
+        "time": 148157.69999999553
+      },
+      {
+        "type": "pointermove",
+        "screenX": 1659,
+        "screenY": 316,
+        "clientX": 44,
+        "clientY": 27,
+        "windowX": 1615,
+        "windowY": 289,
+        "time": 148161.79999999702
+      },
+      {
+        "type": "pointermove",
+        "screenX": 1739,
+        "screenY": 376,
+        "clientX": 124,
+        "clientY": 87,
+        "windowX": 1615,
+        "windowY": 289,
+        "time": 148176.79999999702
+      },
+      {
+        "type": "pointerup",
+        "screenX": 1739,
+        "screenY": 376,
+        "clientX": 124,
+        "clientY": 87,
+        "windowX": 1615,
+        "windowY": 289,
+        "time": 148187.79999999702
+      }
+    ]
+  },
+  "beforeResize": {
+    "position": {
+      "type": "Physical",
+      "x": 1687,
+      "y": 348
+    },
+    "size": {
+      "type": "Physical",
+      "width": 354,
+      "height": 474
+    },
+    "pinned": true,
+    "visible": true,
+    "scale": 1
+  },
+  "afterResize": {
+    "position": {
+      "type": "Physical",
+      "x": 1687,
+      "y": 348
+    },
+    "size": {
+      "type": "Physical",
+      "width": 314,
+      "height": 434
+    },
+    "pinned": true,
+    "visible": true,
+    "scale": 1
+  },
+  "unpinned": {
+    "position": {
+      "type": "Physical",
+      "x": 1687,
+      "y": 348
+    },
+    "size": {
+      "type": "Physical",
+      "width": 314,
+      "height": 434
+    },
+    "pinned": false,
+    "visible": true,
+    "scale": 1
+  },
+  "pinned": {
+    "position": {
+      "type": "Physical",
+      "x": 1687,
+      "y": 348
+    },
+    "size": {
+      "type": "Physical",
+      "width": 314,
+      "height": 434
+    },
+    "pinned": true,
+    "visible": true,
+    "scale": 1
+  },
+  "collapsed": {
+    "position": {
+      "type": "Physical",
+      "x": 1687,
+      "y": 348
+    },
+    "size": {
+      "type": "Physical",
+      "width": 314,
+      "height": 56
+    },
+    "pinned": true,
+    "visible": true,
+    "scale": 1
+  },
+  "expanded": {
+    "position": {
+      "type": "Physical",
+      "x": 1687,
+      "y": 348
+    },
+    "size": {
+      "type": "Physical",
+      "width": 314,
+      "height": 434
+    },
+    "pinned": true,
+    "visible": true,
+    "scale": 1
+  },
+  "mainClosed": {
+    "mainVisible": false,
+    "todo": {
+      "position": {
+        "type": "Physical",
+        "x": 1687,
+        "y": 348
+      },
+      "size": {
+        "type": "Physical",
+        "width": 314,
+        "height": 434
+      },
+      "pinned": true,
+      "visible": true,
+      "scale": 1
+    }
+  },
+  "beforeReorder": [
+    "主窗关闭后新增",
+    "鼠标实测新增任务"
+  ],
+  "afterReorder": [
+    "主窗关闭后新增",
+    "鼠标实测新增任务"
+  ],
+  "afterReorderFix": [
+    "鼠标实测新增任务",
+    "主窗关闭后新增"
+  ],
+  "beforeOutsideDrop": [
+    "5f9725c1-0487-4a1f-86df-9ded74c25f6d",
+    "72222215-a28b-4426-9fb8-19a94151ca83"
+  ],
+  "locked": {
+    "gated": true,
+    "keyPresent": false,
+    "taskCount": 0,
+    "items": [
+      {
+        "id": "e14242f9-2d5e-464b-b4ac-b0471fc40b25",
+        "title": "主窗修改即时到小窗",
+        "date": "2026-10-22",
+        "time": "20:00",
+        "done": true
+      }
+    ],
+    "mainVisible": false
+  },
+  "beforeLockedDrag": {
+    "position": {
+      "type": "Physical",
+      "x": 1687,
+      "y": 348
+    },
+    "size": {
+      "type": "Physical",
+      "width": 314,
+      "height": 434
+    },
+    "pinned": true,
+    "visible": true,
+    "scale": 1
+  },
+  "afterLockedDrag": {
+    "position": {
+      "type": "Physical",
+      "x": 1747,
+      "y": 378
+    },
+    "size": {
+      "type": "Physical",
+      "width": 314,
+      "height": 434
+    },
+    "pinned": true,
+    "visible": true,
+    "scale": 1
+  },
+  "lockedDragEvents": [
+    {
+      "type": "pointerdown",
+      "screenX": 1729,
+      "screenY": 376
+    },
+    {
+      "type": "pointermove",
+      "screenX": 1789,
+      "screenY": 406
+    },
+    {
+      "type": "pointerup",
+      "screenX": 1789,
+      "screenY": 406
+    }
+  ],
+  "closed": {
+    "enabled": false,
+    "geometry": {
+      "position": {
+        "type": "Physical",
+        "x": 1747,
+        "y": 378
+      },
+      "size": {
+        "type": "Physical",
+        "width": 314,
+        "height": 434
+      },
+      "pinned": true,
+      "visible": false,
+      "scale": 1
+    },
+    "items": 1
+  },
+  "finalGeometry": {
+    "position": {
+      "type": "Physical",
+      "x": 1747,
+      "y": 378
+    },
+    "size": {
+      "type": "Physical",
+      "width": 314,
+      "height": 434
+    },
+    "pinned": true,
+    "visible": true,
+    "scale": 1
+  }
+}

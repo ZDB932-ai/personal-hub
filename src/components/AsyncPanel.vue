@@ -6,6 +6,7 @@ const props = defineProps<{
   loader: () => Promise<{ default: Component }>
   label: string
   open: boolean
+  initialCategory?: string
 }>()
 const content = shallowRef<Component>()
 const failed = ref(false)
@@ -43,7 +44,7 @@ onUnmounted(() => { disposed = true; clearTimeout(timer) })
 </script>
 
 <template>
-  <component :is="content" v-if="content" :open="open" />
+  <component :is="content" v-if="content" :open="open" v-bind="initialCategory ? { initialCategory } : {}" />
   <div v-else-if="failed" role="alert" class="rounded-xl border border-line bg-inset p-5">
     <p class="text-sm text-t1">{{ label }}暂时无法加载</p>
     <p class="mt-2 text-xs text-t3">请检查网络连接，保存其他编辑内容后重新加载应用。</p>

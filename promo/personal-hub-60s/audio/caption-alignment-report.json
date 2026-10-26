@@ -1,0 +1,190 @@
+{
+  "method": "Microsoft Edge WordBoundary timings at final narration rates; map regenerated source speech interval onto original source; subtract original silence trim; caption lead 80ms and tail 160ms; cap at next caption.",
+  "clips": [
+    {
+      "index": 1,
+      "original_source_duration": 4.56,
+      "boundary_source_duration": 4.56,
+      "source_samples_identical": true,
+      "source_correlation": 1.0,
+      "source_max_absolute_difference": 0.0,
+      "time_scale": 1.0,
+      "original_trim_start_seconds": 0.058104166666666665,
+      "boundary_records": 9
+    },
+    {
+      "index": 2,
+      "original_source_duration": 4.416,
+      "boundary_source_duration": 4.416,
+      "source_samples_identical": false,
+      "source_correlation": 0.9997211138038778,
+      "source_max_absolute_difference": 0.04662767052650452,
+      "time_scale": 1.0,
+      "original_trim_start_seconds": 0.0760625,
+      "boundary_records": 10
+    },
+    {
+      "index": 3,
+      "original_source_duration": 6.6,
+      "boundary_source_duration": 6.6,
+      "source_samples_identical": true,
+      "source_correlation": 1.0,
+      "source_max_absolute_difference": 0.0,
+      "time_scale": 1.0,
+      "original_trim_start_seconds": 0.0641875,
+      "boundary_records": 18
+    },
+    {
+      "index": 4,
+      "original_source_duration": 5.976,
+      "boundary_source_duration": 5.976,
+      "source_samples_identical": false,
+      "source_correlation": 0.9996864527419825,
+      "source_max_absolute_difference": 0.06238730996847153,
+      "time_scale": 1.0,
+      "original_trim_start_seconds": 0.05875,
+      "boundary_records": 13
+    },
+    {
+      "index": 5,
+      "original_source_duration": 7.104,
+      "boundary_source_duration": 7.104,
+      "source_samples_identical": false,
+      "source_correlation": 0.9985135455059023,
+      "source_max_absolute_difference": 0.12719635106623173,
+      "time_scale": 1.0,
+      "original_trim_start_seconds": 0.060208333333333336,
+      "boundary_records": 16
+    },
+    {
+      "index": 6,
+      "original_source_duration": 6.96,
+      "boundary_source_duration": 6.96,
+      "source_samples_identical": true,
+      "source_correlation": 1.0,
+      "source_max_absolute_difference": 0.0,
+      "time_scale": 1.0,
+      "original_trim_start_seconds": 0.0864375,
+      "boundary_records": 16
+    },
+    {
+      "index": 7,
+      "original_source_duration": 7.536,
+      "boundary_source_duration": 7.536,
+      "source_samples_identical": false,
+      "source_correlation": 0.999678485801079,
+      "source_max_absolute_difference": 0.05118338763713837,
+      "time_scale": 1.0,
+      "original_trim_start_seconds": 0.06775,
+      "boundary_records": 20
+    },
+    {
+      "index": 8,
+      "original_source_duration": 6.096,
+      "boundary_source_duration": 6.096,
+      "source_samples_identical": true,
+      "source_correlation": 1.0,
+      "source_max_absolute_difference": 0.0,
+      "time_scale": 1.0,
+      "original_trim_start_seconds": 0.08647916666666666,
+      "boundary_records": 12
+    }
+  ],
+  "captions": [
+    [
+      0.6,
+      2.645,
+      "想法、任务、资料"
+    ],
+    [
+      2.69,
+      4.704,
+      "总在不同地方来回切换？"
+    ],
+    [
+      5.5,
+      6.834,
+      "让 Personal Hub"
+    ],
+    [
+      6.844,
+      9.421,
+      "把它们放进同一个个人工作台"
+    ],
+    [
+      11.5,
+      13.483,
+      "从今天要做的事开始"
+    ],
+    [
+      13.818,
+      16.106,
+      "拆分子任务，安排时间"
+    ],
+    [
+      16.106,
+      17.621,
+      "让每一步都清楚"
+    ],
+    [
+      20.5,
+      23.164,
+      "随手记下灵感，整理备忘录"
+    ],
+    [
+      23.274,
+      26.001,
+      "再把想法变成可以推进的任务"
+    ],
+    [
+      28.5,
+      30.726,
+      "文档、图片和常用资料"
+    ],
+    [
+      30.736,
+      32.704,
+      "集中归档，随时预览"
+    ],
+    [
+      32.958,
+      35.187,
+      "需要的时候，一搜就能找到"
+    ],
+    [
+      36.5,
+      40.058,
+      "账号密码与个人资料，在本地加密保存"
+    ],
+    [
+      40.375,
+      42.957,
+      "让信息有序，也让自己安心"
+    ],
+    [
+      44.5,
+      47.68,
+      "从电脑到手机，用熟悉的方式继续"
+    ],
+    [
+      48.015,
+      51.555,
+      "再选一套喜欢的外观，让工作台更像你"
+    ],
+    [
+      53.5,
+      54.574,
+      "Personal Hub"
+    ],
+    [
+      54.909,
+      56.574,
+      "让记录接上行动"
+    ],
+    [
+      56.584,
+      59.086,
+      "把生活与工作，慢慢理顺"
+    ]
+  ]
+}

@@ -1,6 +1,7 @@
 import { DatabaseSync } from 'node:sqlite'
 import { createHash, randomUUID } from 'node:crypto'
 import { createServer } from 'node:http'
+import { cloudAccounts } from './cloud-accounts.ts'
 import type { ScopedOperation, SyncSpace } from '../src/lib/recordSyncWire.ts'
 
 const digest = (value: string) => createHash('sha256').update(value).digest('hex')
@@ -27,8 +28,11 @@ function wireOf(value: unknown): ScopedOperation {
     baseRevision: w.baseRevision, deleted: w.deleted, sealed: { ivB64: w.sealed.ivB64, ctB64: w.sealed.ctB64 } }
 }
 
-export function createSyncServer(path: string, options: { origins?: string[]; pageSize?: number } = {}) {
+export function createSyncServer(path: string, options: { origins?: string[]; pageSize?: number; requestsPerSecond?: number; requestBurst?: number; maxConcurrentRequests?: number; maxDatabaseBytes?: number } = {}) {
   const db = new DatabaseSync(path)
+  const pageBytes = Number(db.prepare('PRAGMA page_size').get()!.page_size)
+  const maxPages = Math.max(32, Math.floor((options.maxDatabaseBytes ?? 2 * 1024 ** 3) / pageBytes))
+  db.exec(`PRAGMA max_page_count=${maxPages}`)
   db.exec(`PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;
     CREATE TABLE IF NOT EXISTS meta (id TEXT PRIMARY KEY, value TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS accounts (id TEXT PRIMARY KEY, token TEXT UNIQUE NOT NULL);
@@ -38,9 +42,14 @@ export function createSyncServer(path: string, options: { origins?: string[]; pa
     CREATE TABLE IF NOT EXISTS changes (vault TEXT, cursor INTEGER, record TEXT NOT NULL, PRIMARY KEY(vault, cursor));
     CREATE TABLE IF NOT EXISTS receipts (vault TEXT, device TEXT, operation TEXT, request TEXT NOT NULL, receipt TEXT NOT NULL, PRIMARY KEY(vault, device, operation));`)
   db.prepare('INSERT OR IGNORE INTO meta VALUES (?, ?)').run('serverId', randomUUID())
+  const cloud = cloudAccounts(db)
   const serverId = (db.prepare('SELECT value FROM meta WHERE id = ?').get('serverId') as { value: string }).value
   const origins = new Set(options.origins ?? ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost', 'https://localhost', 'http://tauri.localhost', 'tauri://localhost'])
   const pageSize = Math.max(1, Math.min(100, options.pageSize ?? 20))
+  const rate = Math.max(1, options.requestsPerSecond ?? 60)
+  const burst = Math.max(1, options.requestBurst ?? 120)
+  const concurrency = Math.max(1, options.maxConcurrentRequests ?? 16)
+  let available = burst, lastRequest = performance.now(), active = 0
   function transaction<T>(fn: () => T): T {
     db.exec('BEGIN IMMEDIATE')
     try { const result = fn(); db.exec('COMMIT'); return result } catch (error) { db.exec('ROLLBACK'); throw error }
@@ -51,6 +60,18 @@ export function createSyncServer(path: string, options: { origins?: string[]; pa
   }
   const server = createServer(async (req, res) => {
     const send = (status: number, value: unknown) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(value)) }
+    const now = performance.now()
+    available = Math.min(burst, available + (now - lastRequest) * rate / 1000)
+    lastRequest = now
+    if (available < 1 || active >= concurrency) {
+      res.setHeader('Retry-After', '1')
+      res.setHeader('Connection', 'close')
+      res.once('finish', () => req.destroy())
+      send(429, { error: '同步请求繁忙，请稍后重试' })
+      return
+    }
+    available -= 1
+    active += 1
     try {
       if (req.headers.origin) {
         if (!origins.has(req.headers.origin)) fail(403, '来源未获允许')
@@ -62,10 +83,11 @@ export function createSyncServer(path: string, options: { origins?: string[]; pa
         res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type')
         res.writeHead(204); res.end(); return
       }
-      if (req.method !== 'POST' || !['/v1/connect', '/v1/push', '/v1/pull', '/v1/blobs/missing', '/v1/blobs/put', '/v1/blobs/get'].includes(req.url ?? '')) fail(404, '接口不存在')
+      const accountRoute = ['/v1/account/register', '/v1/account/login', '/v1/account/change', '/v1/account/reset', '/v1/account/recovery/get', '/v1/account/recovery/set'].includes(req.url ?? '')
+      if (req.method !== 'POST' || (!accountRoute && !['/v1/connect', '/v1/push', '/v1/pull', '/v1/blobs/missing', '/v1/blobs/put', '/v1/blobs/get'].includes(req.url ?? ''))) fail(404, '接口不存在')
       const token = req.headers.authorization?.match(/^Bearer ([A-Za-z0-9_-]{32,256})$/)?.[1]
-      const account = token ? db.prepare('SELECT id FROM accounts WHERE token = ?').get(digest(token)) : undefined
-      if (!account) fail(401, '访问令牌无效')
+      const account = token ? db.prepare('SELECT id FROM accounts WHERE token = ?').get(digest(token)) ?? cloud.owner(token) : undefined
+      if (!accountRoute && !account) fail(401, '访问令牌无效')
       if (req.headers['content-type']?.split(';')[0] !== 'application/json') fail(415, '需要 JSON 请求')
       let size = 0
       const chunks: Buffer[] = []
@@ -73,11 +95,13 @@ export function createSyncServer(path: string, options: { origins?: string[]; pa
       let body: Record<string, unknown> = {}
       try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')) } catch { fail(400, 'JSON 无效') }
       if (!body || typeof body !== 'object' || Array.isArray(body)) fail(400, 'JSON 对象无效')
+      if (accountRoute) { send(200, cloud.handle(req.url!, body)); return }
+      if (!token || !(db.prepare('SELECT id FROM accounts WHERE token=?').get(digest(token)) ?? cloud.owner(token))) fail(401, '访问令牌已失效')
       const space = spaceOf(body.space)
       const owner = String(account!.id)
       if (req.url === '/v1/connect') {
         transaction(() => {
-          db.prepare('INSERT OR IGNORE INTO vaults VALUES (?, ?, ?)').run(space.vaultId, owner, space.keyId)
+          if (!db.prepare('SELECT 1 FROM cloud_accounts WHERE owner=?').get(owner)) db.prepare('INSERT OR IGNORE INTO vaults VALUES (?, ?, ?)').run(space.vaultId, owner, space.keyId)
           authorize(owner, space)
         })
         send(200, { protocolVersion: 2, attachments: true, serverId: `${serverId}:${owner}`, ...space }); return
@@ -142,8 +166,11 @@ export function createSyncServer(path: string, options: { origins?: string[]; pa
     } catch (error) {
       const status = (error as { status?: number }).status ?? 500
       send(status, { error: status === 500 ? '服务器存储失败' : (error as Error).message })
+    } finally {
+      active -= 1
     }
   })
+  server.maxConnections = 128
   server.requestTimeout = 15000
   server.headersTimeout = 10000
   server.maxRequestsPerSocket = 100

@@ -1,0 +1,17 @@
+{
+  "intake_sha256": "3fcfe4794b2d128e37928b2ef21547a0c8e17e684cdd188ac27d5c04bd731d21",
+  "animation_use": "animated",
+  "reference": "front-concept.png",
+  "prompt": "Use the approved front image as identity reference. Render the exact same robot from the specified orthographic view, full body, same relaxed symmetric pose and scale on neutral gray. Preserve ivory head and soft limbs, teal ears/chest/foot accents, charcoal smooth flexible joints and neck, mittens with separate thumbs and flat dark soles. No mechanical hinge discs, armor seams, pistons, backpack, logos or text. Same soft studio lighting. Rotate camera only, not the pose. One image, not a sheet.",
+  "views": {
+    "left": "View from the character's anatomical left; face and toes point toward image left. True side profile, no three-quarter view.",
+    "right": "View from the character's anatomical right; face and toes point toward image right. True side profile, no three-quarter view. Independently render, do not mirror an existing image.",
+    "back": "Straight rear view, no face visible. Plain ivory rounded rear head; teal torso wraps around as a smooth simple back panel, no backpack, ports or new decoration. Both arms and legs visible."
+  },
+  "preserve": ["approved head proportions and identity", "ivory/teal/charcoal colors", "smooth flexible joints", "same pose and limb lengths", "mitten hands and separate thumbs"],
+  "pose_and_separation": "Preserve the front stance with arms slightly away from body, legs separated and flat feet; side views may naturally occlude the far limbs, do not move limbs to invent a new pose.",
+  "view_consistency": "All three new views derive from the same approved front image; front remains unchanged. Inspect proportions and joint construction across images before proposing a final reference set.",
+  "inferred_details": ["rear head depth and plain surface", "smooth teal back torso panel", "side profiles and heel depth"],
+  "route": "built-in image_gen; Studio R03 assessed as alternative, default built-in retained; extraction, pose change and variants not needed",
+  "decision": "pending_review_of_completed_four_views"
+}

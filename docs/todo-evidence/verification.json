@@ -1,0 +1,91 @@
+{
+  "date": "2026-10-22",
+  "frontendTests": 310,
+  "frontendTestFiles": 52,
+  "todoTargetedTests": 18,
+  "rustTests": 8,
+  "build": "passed",
+  "binary": {
+    "path": "src-tauri/target/release/personal-hub-desktop.exe",
+    "bytes": 31178240,
+    "sha256": "c9e03224eb4bd7befd6941ec4b9e31d4209c4200826614da0c070711beb9cdf2"
+  },
+  "nativeChecks": [
+    "isolated native fixture and real task store projection",
+    "background refresh preserves unsent input",
+    "main-to-widget task update",
+    "native always-on-top",
+    "collapse and expanded size restoration",
+    "main close hides only main; widget writes persist while main hidden",
+    "widget completion persists and generates exactly one repeated instance",
+    "lock clears key and full task store; whitelist-only immutable snapshot",
+    "layout commands are Todo-only; widget cannot move arbitrary windows",
+    "native ACL denies widget publication; locked native IPC denies edits",
+    "unlock restores writable projection; open main reveals same owner"
+  ],
+  "nativeErrors": [],
+  "mouse": {
+    "drag": true,
+    "resize": true,
+    "pin": true,
+    "collapse": true,
+    "mainClose": true,
+    "addAndCompleteWhileMainHidden": true,
+    "manualReorder": true,
+    "readonlyWhileLocked": true,
+    "close": true,
+    "geometry": {
+      "position": {
+        "type": "Physical",
+        "x": 1747,
+        "y": 378
+      },
+      "size": {
+        "type": "Physical",
+        "width": 314,
+        "height": 434
+      },
+      "pinned": true,
+      "visible": true,
+      "scale": 1
+    },
+    "attempts": "mouse-retest.json"
+  },
+  "restart": {
+    "passed": true,
+    "checks": [
+      "restart shows no saved plaintext snapshot or editable task data",
+      "native position, expanded size, enabled and pinned preferences survive restart",
+      "physical mouse additions and completion survive a full process restart",
+      "unlock restores saved changes and encrypted lock-display authorization"
+    ],
+    "geometry": {
+      "position": {
+        "type": "Physical",
+        "x": 1747,
+        "y": 378
+      },
+      "size": {
+        "type": "Physical",
+        "width": 314,
+        "height": 434
+      },
+      "pinned": true,
+      "visible": true,
+      "scale": 1
+    }
+  },
+  "fixes": [
+    "Fast window dragging and resizing now capture pointers, serialize native bounds updates and keep final release coordinates.",
+    "Fast manual task sorting now resolves the row at pointer release and cancels outside the list."
+  ],
+  "lastExtraMouseRetest": "Completed after renewed explicit user authorization",
+  "observations": [
+    "One intermediate repeat-drag result differed from requested tool displacement without an accompanying pointer trace; it was not accepted as passing evidence. Fresh observations with recorded pointer traces subsequently matched actual window displacement."
+  ],
+  "unverified": [
+    "Physical mixed-DPI multi-monitor changes",
+    "Additional public cross-device sync acceptance",
+    "Real tray exit with injected persistence failure"
+  ]
+}

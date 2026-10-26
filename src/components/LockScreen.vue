@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { stopAndroidBackground } from '@/lib/androidBackgroundSync'
 import { computed, onMounted, ref, watch } from 'vue'
 import { LockKeyhole, Fingerprint } from '@lucide/vue'
-import { isGated, usesSetupScreen, lockMode, localAccountName, hasLocalRecovery, lockHint, setupLock, unlockApp, createLocalAccount, resetLocalPassword } from '@/stores/lock'
+import { isGated, usesSetupScreen, lockMode, localAccountName, localCloudAccount, hasLocalRecovery, lockHint, setupLock, unlockApp, createLocalAccount, resetLocalPassword } from '@/stores/lock'
 import { generateRecoveryCode } from '@/lib/vaultKeys'
 import { biometricAvailable, biometricEnabled, biometricGetSecret, biometricClear } from '@/lib/biometric'
 import { confirmAction } from '@/lib/confirmAction'
@@ -12,6 +13,11 @@ import { clearNativeReminders } from '@/lib/reminders'
 import DeviceJoin from './DeviceJoin.vue'
 import PasswordInput from './PasswordInput.vue'
 import RecoveryKeyCard from './RecoveryKeyCard.vue'
+import CloudLogin from './CloudLogin.vue'
+import CloudRecovery from './CloudRecovery.vue'
+import { authenticateCloud, CloudNetworkError } from '@/lib/cloudAccount'
+import { adoptCloudSession } from '@/lib/cloudAccountSession'
+const localOnly = ref(false)
 const screen = ref<'login' | 'recovery' | 'key'>('login')
 const setup = usesSetupScreen
 const account = ref('')
@@ -45,6 +51,12 @@ async function submit() {
       switchScreen('login'); canBiometric.value = false; notice.value = '密码已重设，数据已保留。请使用新密码登录。'
     } else if (setup.value) {
       await setupLock(password.value, '')
+    } else if (localCloudAccount.value) {
+      try { await adoptCloudSession(await authenticateCloud(localCloudAccount.value, password.value, false)) }
+      catch (e) {
+        if (!(e instanceof CloudNetworkError)) throw e
+        if (!await unlockApp(password.value)) throw new Error('当前离线，请使用此设备最近一次成功登录的密码；或联网后使用新的云密码登录')
+      }
     } else if (!await unlockApp(password.value)) { error.value = '密码不正确或本机数据无法读取，请重试' }
   } catch (e) { error.value = e instanceof Error ? e.message : '操作失败，请重试' }
   finally { busy.value = false }
@@ -66,15 +78,17 @@ async function resetAll() {
   if (!await confirmAction('这会删除本机的任务、密码、资料、附件及恢复信息，无法撤销。云端数据不会删除。继续吗？')) return
   if (!await confirmAction('再次确认：清除本机全部数据并重新开始？')) return
   busy.value = true
-  try { await clearNativeReminders(); await resetVaultRepository(); await Promise.allSettled([deleteAllBlobs(), deleteAllImgs(), biometricClear()]); localStorage.clear(); sessionStorage.clear(); location.reload() }
+  try { await stopAndroidBackground(); await clearNativeReminders(); await resetVaultRepository(); await Promise.allSettled([deleteAllBlobs(), deleteAllImgs(), biometricClear()]); localStorage.clear(); sessionStorage.clear(); location.reload() }
   catch (e) { error.value = e instanceof Error ? e.message : '清除失败'; busy.value = false }
 }
 </script>
 <template>
   <main class="account-screen">
     <section class="account-card" aria-label="本地账户">
-      <div class="account-brand"><LockKeyhole class="h-5 w-5" /><span>Personal Hub</span><span class="ml-auto text-xs text-t3">本地账户</span></div>
-      <RecoveryKeyCard v-if="screen === 'key'" :code="generated" :busy="busy" @confirm="create" @cancel="switchScreen('login')" />
+      <div class="account-brand"><LockKeyhole class="h-5 w-5" /><span>Personal Hub</span><span class="ml-auto text-xs text-t3">{{ localCloudAccount || (lockMode === 'fresh' && !localOnly) ? '云账号' : '本地账户' }}</span></div>
+      <CloudLogin v-if="lockMode === 'fresh' && !localOnly" @local="localOnly = true" />
+      <CloudRecovery v-else-if="screen === 'recovery' && localCloudAccount" :name="localCloudAccount" @cancel="switchScreen('login')" />
+      <RecoveryKeyCard v-else-if="screen === 'key'" :code="generated" :busy="busy" @confirm="create" @cancel="switchScreen('login')" />
       <template v-else>
         <h1 class="text-2xl font-semibold text-t1">{{ title }}</h1>
         <p class="mt-2 text-sm leading-relaxed text-t3">{{ screen === 'recovery' ? '验证恢复密钥后，设置新的登录密码。' : setup ? '为这台设备创建账户，数据加密保存在本机。' : '登录你的个人信息台，继续今天的安排。' }}</p>
@@ -89,7 +103,7 @@ async function resetAll() {
           <button v-if="canBiometric && !setup && screen === 'login'" type="button" class="ui-secondary-button w-full gap-2" :disabled="busy" @click="biometric"><Fingerprint class="h-4 w-4" />指纹解锁</button>
         </form>
         <template v-if="screen === 'recovery'">
-          <p v-if="!hasLocalRecovery" class="mt-6 rounded-lg border border-warn/25 bg-surface p-4 text-sm leading-relaxed text-t2">此设备尚未设置恢复密钥，无法直接重设密码。若记得原密码，请登录后在「设置 → 安全 → 本地账户与恢复」中启用。</p>
+          <p v-if="!hasLocalRecovery" class="mt-6 rounded-lg border border-warn/25 bg-surface p-4 text-sm leading-relaxed text-t2">此设备尚未设置恢复密钥，无法直接重设密码。若记得原密码，请登录后在「设置 → 账户与恢复 → 密码恢复」中启用。</p>
           <details v-if="lockHint" class="mt-4 text-sm text-t3"><summary class="cursor-pointer py-2">查看密码提示</summary><p class="py-2">{{ lockHint }}</p></details>
           <p class="mt-4 text-xs leading-relaxed text-t3">没有可用密钥时，可在仍能解锁的其他设备上导出数据。恢复密钥不能恢复已丢失的数据文件，也不适用于其他设备。</p>
           <button type="button" class="ui-ghost-button mt-4 w-full" :disabled="busy" @click="switchScreen('login')">返回登录</button>
@@ -99,7 +113,8 @@ async function resetAll() {
       </template>
       <p v-if="error" role="alert" class="mt-4 rounded-lg border border-danger/25 bg-danger/10 p-3 text-sm text-danger">{{ error }}</p>
       <p v-if="notice" role="status" class="mt-4 text-sm text-ok">{{ notice }}</p>
-      <p class="mt-6 border-t border-line pt-4 text-xs leading-relaxed text-t3">本地账户可离线使用。账户名称不是云端账号；跨设备使用需另行加入保险库。</p>
+      <button v-if="lockMode === 'fresh' && localOnly" class="ui-ghost-button mt-4 w-full" :disabled="busy" @click="localOnly = false">返回云账号登录</button>
+      <p v-if="lockMode !== 'fresh' || localOnly" class="mt-6 border-t border-line pt-4 text-xs leading-relaxed text-t3">本机数据加密保存，可离线解锁。已连接云账号的设备会在解锁后自动同步。</p>
     </section>
   </main>
 </template>

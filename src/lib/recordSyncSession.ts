@@ -1,5 +1,7 @@
 import { computed, ref, watch } from 'vue'
-import { dataEnvelope, getActiveKey, databaseBusy } from '@/stores/database'
+import { App as NativeApp } from '@capacitor/app'
+import { dataEnvelope, getActiveKey, databaseBusy, flushPendingSave, snapshotPayload } from '@/stores/database'
+import { androidBackgroundAvailable, androidBackgroundEnabled, wrapAndroidBackground, stageAndroidBackground, stopAndroidBackground, refreshAndroidBackground } from './androidBackgroundSync'
 import { attachRecordSync, runRecordSync } from './recordSync'
 import { connectRecordHttp, syncServerUrl } from './recordSyncHttp'
 import type { RecordSyncTransport } from './recordSyncWire'
@@ -16,10 +18,11 @@ export const recordSyncing = ref(false)
 export const recordLastSuccess = ref(0)
 export const recordPaused = ref(false)
 export const recordPausing = ref(false)
+export const recordPauseError = ref('')
 export const recordStatus = computed(() => {
   if (!getActiveKey()) return '已锁定'
   if (recordPausing.value) return '正在暂停同步'
-  if (recordPaused.value) return '同步已暂停'
+  if (recordPaused.value) return recordPauseError.value ? '暂停未完成' : '同步已暂停'
   if (recordConnecting.value) return '正在连接'
   if (recordSyncing.value) return '同步中'
   if (recordSessionError.value || offlineSyncError.value) return '同步失败'
@@ -39,6 +42,10 @@ let job: Promise<unknown> = Promise.resolve()
 function stopSession() {
   bindAttachmentDownload()
   generation++
+  if (recordPausing.value) {
+    recordPausing.value = false
+    if (recordPaused.value) recordPauseError.value = '暂停操作已中断，请重试以确认后台同步已停止'
+  }
   if (retry) clearTimeout(retry)
   retry = undefined
   detach?.(); detach = undefined; transport = undefined
@@ -56,6 +63,11 @@ async function perform(next: RecordSyncTransport, epoch: number, force = false) 
   if (epoch !== generation) throw new Error('同步会话已变化')
   recordSyncing.value = true
   try {
+    if (androidBackgroundEnabled.value) {
+      await flushPendingSave()
+      const key = getActiveKey()
+      if (key) await stageAndroidBackground(next, snapshotPayload(), key, () => epoch === generation && getActiveKey() === key)
+    }
     const result = await runRecordSync(next, force, () => epoch === generation)
     if (result.status !== 'retry') {
       try {
@@ -70,6 +82,7 @@ async function perform(next: RecordSyncTransport, epoch: number, force = false) 
     if (epoch === generation) {
       recordSessionError.value = ''
       if (result.status === 'complete') recordLastSuccess.value = Date.now()
+      void refreshAndroidBackground()
     }
     return result
   } catch (error) {
@@ -84,9 +97,11 @@ async function establish(url: string, token: string, epoch: number, saved?: Reco
   const valid = () => epoch === generation && getActiveKey() === key && !databaseBusy.value && dataEnvelope.value?.v === 3 && dataEnvelope.value.vaultId === env.vaultId && dataEnvelope.value.keyId === env.keyId
   recordConnecting.value = true
   try {
-    const next = await connectRecordHttp(url, token, { vaultId: env.vaultId, keyId: env.keyId })
+    let next = await connectRecordHttp(url, token, { vaultId: env.vaultId, keyId: env.keyId })
     if (!valid()) throw new Error('保险库状态已变化')
     if (saved && next.serverId !== saved.serverId) throw new Error('服务器身份已变化，请检查服务器备份或重新配置')
+    next = await wrapAndroidBackground(next, { url: syncServerUrl(url), token, vaultId: env.vaultId, keyId: env.keyId, serverId: next.serverId })
+    if (!valid()) throw new Error('同步会话已变化')
     await perform(next, epoch, true)
     if (!valid()) throw new Error('同步已暂停')
     if (!saved) await saveRecordCredentials(key, { version: 1, url: syncServerUrl(url), token, vaultId: env.vaultId, keyId: env.keyId, serverId: next.serverId }, valid)
@@ -101,6 +116,8 @@ async function establish(url: string, token: string, epoch: number, saved?: Reco
 
 export function connectRecordSession(url: string, token: string): Promise<void> {
   recordPaused.value = false
+  recordPausing.value = false
+  recordPauseError.value = ''
   paused = false; stopSession()
   const epoch = generation
   return enqueue(() => establish(url, token, epoch))
@@ -108,7 +125,10 @@ export function connectRecordSession(url: string, token: string): Promise<void> 
 
 export async function disconnectRecordSession(): Promise<void> {
   recordPaused.value = false
+  recordPausing.value = false
+  recordPauseError.value = ''
   paused = true; stopSession()
+  await stopAndroidBackground()
   const epoch = generation, key = getActiveKey()
   try {
     await enqueue(() => forgetRecordCredentials(() => epoch === generation && Boolean(key) && getActiveKey() === key && !databaseBusy.value))
@@ -120,6 +140,8 @@ export async function disconnectRecordSession(): Promise<void> {
 
 export function resumeRecordSession(): Promise<void> {
   recordPaused.value = false
+  recordPausing.value = false
+  recordPauseError.value = ''
   paused = false; stopSession()
   const epoch = generation
   return enqueue(async () => {
@@ -153,13 +175,23 @@ export async function pauseRecordSession(): Promise<void> {
   if (recordPausing.value) return
   paused = true
   recordPaused.value = true
-  recordPausing.value = true
   stopSession()
-  try { await job } finally { recordPausing.value = false }
+  const epoch = generation
+  recordPauseError.value = ''
+  recordPausing.value = true
+  try {
+    await stopAndroidBackground()
+    await job
+  } catch (error) {
+    if (epoch === generation) recordPauseError.value = `后台同步未确认停止：${error instanceof Error ? error.message : '请重试'}`
+  } finally {
+    if (epoch === generation) recordPausing.value = false
+  }
 }
 
 watch([getActiveKey, databaseBusy], () => {
   stopSession(); recordSaved.value = false
+  if (databaseBusy.value) void stopAndroidBackground().catch(() => {})
   if (getActiveKey() && !databaseBusy.value && !paused) void resumeRecordSession()
 }, { immediate: true, flush: 'sync' })
 
@@ -167,4 +199,10 @@ if (typeof window !== 'undefined') {
   const wake = () => { if (!paused && getActiveKey() && !databaseBusy.value && !recordConnecting.value && !recordConnection.value) void resumeRecordSession() }
   window.addEventListener('online', wake)
   window.addEventListener('focus', wake)
+}
+
+if (androidBackgroundAvailable) {
+  void NativeApp.addListener('appStateChange', ({ isActive }) => {
+    if (isActive && androidBackgroundEnabled.value && !paused && getActiveKey() && !databaseBusy.value) void resumeRecordSession()
+  })
 }

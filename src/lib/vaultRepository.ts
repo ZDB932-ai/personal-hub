@@ -1,6 +1,6 @@
 import { recoverStorageTransaction } from './storageTransaction'
 
-export const repositoryKeys = ['xk.data.v2', 'xk.sync.secure', 'xk.github.secure', 'xk.ai.secrets.v1', 'xk.record-sync.secure', 'xk.lock.v2'] as const
+export const repositoryKeys = ['xk.data.v2', 'xk.sync.secure', 'xk.github.secure', 'xk.ai.secrets.v1', 'xk.record-sync.secure', 'xk.desktop-todo.secure', 'xk.lock.v2'] as const
 export type RepositoryKey = typeof repositoryKeys[number]
 
 export interface RepositorySnapshot {

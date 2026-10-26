@@ -663,7 +663,7 @@ watch(
 
 <template>
   <div>
-    <PageHeader title="AI 工作台" eyebrow="开发协作" description="连接开发机上的 Agent，查看进度、派发任务、审批权限">
+    <PageHeader title="AI 工作台" eyebrow="AI 与扩展" description="连接自己的 Agent，处理任务、查看进度与管理权限请求。">
       <template #actions>
         <div class="flex w-full flex-wrap items-center gap-2 sm:w-auto">
           <div class="min-w-32 flex-1 sm:w-36">
@@ -706,7 +706,7 @@ watch(
             <Folder class="h-4 w-4 text-primary" />
             Pi 项目
           </p>
-          <p class="mt-0.5 text-[11px] text-t4">原生 TUI 与 Hub 共用同一个 pi 进程，远程操作会实时显示在电脑终端。</p>
+          <p class="mt-0.5 text-[11px] text-t4">这里与电脑终端使用同一场 pi 会话，两边操作会实时同步。</p>
         </div>
         <div class="flex w-full flex-wrap items-center gap-2 sm:w-auto">
           <div class="min-w-0 flex-1 sm:w-64">
@@ -755,7 +755,7 @@ watch(
       <div v-if="isPiProfile && !hasSelectedPiProject" class="empty-state mt-6">
         <Folder class="mx-auto h-10 w-10 text-t4" />
         <p class="mt-4 text-sm font-medium text-t2">尚未选择 pi 项目</p>
-        <p class="mt-1 text-xs text-t4">添加项目后，bridge 会在对应目录中启动独立的 pi 会话。</p>
+        <p class="mt-1 text-xs text-t4">选择一个项目目录，即可在该目录中开始独立的 pi 会话。</p>
         <button
           type="button"
           class="ui-primary-button mt-4"

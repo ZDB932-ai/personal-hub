@@ -7,6 +7,7 @@ import { RecordSyncScheduler } from './recordSyncScheduler'
 import { offlineSyncError } from '@/stores/offline'
 import type { SyncRunResult } from './recordSyncEngine'
 import { startForegroundSync } from './foregroundSync'
+import { desktopTodoVisible } from './desktopTodo'
 
 const storage: SyncStorage = {
   async read() { await flushPendingSave(); return snapshotPayload() },
@@ -39,11 +40,15 @@ export function attachRecordSync(transport: RecordSyncTransport, run?: () => Pro
   window.addEventListener('focus', request)
   const visible = () => { if (document.visibilityState === 'visible') request() }
   document.addEventListener('visibilitychange', visible)
-  const stopPolling = startForegroundSync(request, () => attached && Boolean(getActiveKey()) && !databaseBusy.value && navigator.onLine !== false && document.visibilityState === 'visible')
+  const visibleForSync = () => document.visibilityState === 'visible' || desktopTodoVisible()
+  const desktopWake = () => { if (visibleForSync()) request() }
+  window.addEventListener('desktop-todo-wake', desktopWake)
+  const stopPolling = startForegroundSync(request, () => attached && Boolean(getActiveKey()) && !databaseBusy.value && navigator.onLine !== false && visibleForSync())
   return () => {
     attached = false
     stopPolling()
     document.removeEventListener('visibilitychange', visible)
+    window.removeEventListener('desktop-todo-wake', desktopWake)
     scheduler.stop()
     unsubscribe(); unwatch()
     window.removeEventListener('online', request)

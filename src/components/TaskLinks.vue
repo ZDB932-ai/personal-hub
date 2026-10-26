@@ -20,7 +20,7 @@ function title(link: EntityLink): string { return candidates.value.find(x => x.k
 
 <template>
   <section class="space-y-2 rounded-xl border border-line p-3">
-    <label class="block text-xs font-medium text-t3">关联备忘录、资料或仓库
+    <label class="block text-xs font-medium text-t3">关联备忘录、资料或项目
       <input v-model="query" class="control-input mt-2 w-full px-3" placeholder="输入名称查找关联条目" />
     </label>
     <div v-if="matches.length" class="space-y-1">

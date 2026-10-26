@@ -37,8 +37,8 @@ async function deleteTask(task: Task): Promise<void> {
 </script>
 
 <template>
-  <aside ref="host" class="calendar-inspector" :aria-label="mode === 'agenda' ? '日期详情' : mode === 'memos' ? '便签面板' : '方向与足迹'" tabindex="-1">
-    <header class="inspector-header"><div><h2 class="text-base font-semibold text-t1">{{ mode === 'agenda' ? '当日安排' : mode === 'memos' ? '灵感待安排' : '方向与足迹' }}</h2><p class="mt-1 text-xs text-t3">{{ selected }} · {{ new Date(`${selected}T12:00:00`).toLocaleDateString('zh-CN', { weekday: 'long' }) }}</p></div><button class="calendar-icon" aria-label="关闭侧面板" @click="emit('close')"><X class="h-5 w-5" /></button></header>
+  <aside ref="host" class="calendar-inspector" :aria-label="mode === 'agenda' ? '日期详情' : mode === 'memos' ? '便签面板' : '目标与回顾'" tabindex="-1">
+    <header class="inspector-header"><div><h2 class="text-base font-semibold text-t1">{{ mode === 'agenda' ? '当日安排' : mode === 'memos' ? '灵感待安排' : '目标与回顾' }}</h2><p class="mt-1 text-xs text-t3">{{ selected }} · {{ new Date(`${selected}T12:00:00`).toLocaleDateString('zh-CN', { weekday: 'long' }) }}</p></div><button class="calendar-icon ui-icon-button" aria-label="关闭侧面板" @click="emit('close')"><X class="h-5 w-5" /></button></header>
     <div class="inspector-content">
       <template v-if="mode === 'agenda'">
         <CalendarDayRhythm :date="selected" :now="now" @create="(date, time) => emit('create', date, time)" @suggest="(task, date, time) => emit('suggest', task, date, time)" /><section aria-label="当日安排" class="mt-6">
@@ -55,7 +55,7 @@ async function deleteTask(task: Task): Promise<void> {
       </template>
       <CalendarDirections v-else-if="mode === 'directions'" :date="selected" :now="now" @step="(draft, time) => emit('step', draft, time)" @edit="emit('edit', $event)" @locate="emit('locate', $event)" />
       <template v-else>
-        <div class="flex items-center justify-between"><p class="text-xs text-t3">把想法放进选中的这一天</p><button class="calendar-icon" aria-label="写便签" title="写便签" @click="emit('memo', null)"><Plus class="h-4 w-4" /></button></div>
+        <div class="flex items-center justify-between"><p class="text-xs text-t3">把想法放进选中的这一天</p><button class="calendar-icon ui-icon-button" aria-label="写便签" title="写便签" @click="emit('memo', null)"><Plus class="h-4 w-4" /></button></div>
         <div class="inspector-tabs" role="group" aria-label="待安排来源"><button :class="{ 'is-active': tray === 'memos' }" :aria-pressed="tray === 'memos'" @click="tray = 'memos'">便签 {{ memos.length }}</button><button :class="{ 'is-active': tray === 'tasks' }" :aria-pressed="tray === 'tasks'" @click="tray = 'tasks'">收集箱 {{ pending.length }}</button></div>
         <template v-if="tray === 'memos'">
           <input v-model="query" class="control-input my-4 w-full px-3" aria-label="查找便签" placeholder="查找便签" />

@@ -1,0 +1,29 @@
+{
+  "asset_sha256": "659e4f826b491c5128ccfdf959e7db679930383770b5cfb853271945e28fa616",
+  "engine": "Three.js r186 / headless Edge WebGL",
+  "report": ".visual-qa/repairer-runtime-1792168602181/result.json",
+  "supersedes": [
+    {
+      "report": ".visual-qa/repairer-runtime-1792168523048/result.json",
+      "reason": "Harness returned a resource 404 without recording request URL; rerun records failed response URLs and supplies favicon."
+    },
+    {
+      "report": ".visual-qa/repairer-runtime-1792168562493/result.json",
+      "reason": "Endpoint measurements invalid: LoopOnce paused at end before subsequent sampling. Corrected by resetting action for each endpoint sample. Do not use its zero endpoint deltas."
+    }
+  ],
+  "verified": [
+    "Original GLB identity preserved; no model export, edits or catalog publication.",
+    "17 clips loaded and sampled at 17 evenly spaced times each with real WebGL rendering; no console/page errors or failed HTTP responses in corrected run.",
+    "Viewed Idle, Walk, run and jump midpoint captures: textured orange suit, blue left shoulder, helmet and backpack present.",
+    "Observed 71430 rendered triangles and four draw calls. Six unique texture objects decoded, including one 4096 square base color; no sustained power or GPU-memory claim."
+  ],
+  "findings": [
+    "All five inspected primary/locomotion clips start at 1/24 second; interval from zero to first key holds nearly unchanged bone positions. Actual keyed span differs from AnimationClip.duration by one frame.",
+    "Run endpoint maximum world bone-head displacement is 0.1616199 model units for a roughly one-unit-tall source; it is not ready for a seamless desktop loop.",
+    "Idle and Walk endpoint bone-head differences are approximately 0.00030014 and 0.00054922. These narrow measurements do not establish velocity continuity, mesh deformation or foot contact.",
+    "Jump is nonlooping; its 0.05435856 endpoint difference is not classified as a loop defect."
+  ],
+  "next": "Preserve the colored asset and existing native source clips. Resolve formal motion-edit prerequisites, then repair intended loop endpoints and exported timing in Blender and repeat actual renderer tests. Do not silently retime the source or mark the unreviewed extra presets available.",
+  "acceptance": "Not a formal engine or final quality pass; no Windows transparency, full-clip deformation, contact, sustained performance or final user acceptance."
+}

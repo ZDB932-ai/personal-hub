@@ -75,7 +75,7 @@ try {
       assert.ok(box.width >= 44 && box.height >= 44)
     }
     await shot(`more-${width}`)
-    await page.getByRole('dialog').getByRole('link', { name: '计划', exact: true }).click()
+    await page.getByRole('dialog').getByRole('link', { name: '任务与计划', exact: true }).click()
     await page.getByRole('dialog').waitFor({ state: 'hidden' })
     await shot(`plan-${width}`)
     await go('/calendar')

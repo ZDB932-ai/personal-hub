@@ -1,0 +1,9 @@
+[Unit]
+Description=Personal Hub consistent offline backup
+
+[Service]
+Type=oneshot
+ExecStart=/opt/personal-hub/current/deploy/backup.sh
+Nice=10
+MemoryMax=256M
+UMask=0077

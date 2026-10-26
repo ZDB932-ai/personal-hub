@@ -1,0 +1,4 @@
+audio/.deps/
+__pycache__/
+scripts/__pycache__/
+*.log

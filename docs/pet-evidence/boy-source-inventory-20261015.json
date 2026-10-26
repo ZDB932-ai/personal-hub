@@ -1,0 +1,61 @@
+{
+  "source": {
+    "path": "E:\\Tripo pipline\\assets\\curly-haired-boy\\work\\blender\\manual-smart-01.blend",
+    "sha256": "f4721851f27c82eed71aa6c9f88f8ce665d373c44bd3ec7562d3a981ba889cd2"
+  },
+  "selected_mesh": null,
+  "selection_status": "ambiguous_requires_selection",
+  "meshes": [
+    {
+      "name": "stylized+boy+3d+model",
+      "vertices": 36972,
+      "triangles": 55396,
+      "armatures": [],
+      "uv_layers": [],
+      "materials": [
+        "c8629d12_2906_4fdd_a688_9d40f481ec3f"
+      ],
+      "matrix_world": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          7.549790126404332e-08,
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          7.549790126404332e-08,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    }
+  ],
+  "rigs": [],
+  "actions": [],
+  "images": [],
+  "fps": 24.0,
+  "units": "METRIC",
+  "not_verified": [
+    "source rig provenance",
+    "correct active action/slot",
+    "axis and scale correctness",
+    "texture node wiring",
+    "rest/pose alignment",
+    "root motion",
+    "deformation",
+    "animation visual quality"
+  ]
+}

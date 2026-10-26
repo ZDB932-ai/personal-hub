@@ -1,0 +1,38 @@
+{
+    default_sni 111.91.19.235
+    servers {
+        protocols h1 h2
+    }
+}
+
+https://111.91.19.235 {
+    tls {
+        issuer acme {
+            dir https://acme-v02.api.letsencrypt.org/directory
+            profile shortlived
+        }
+    }
+    encode zstd gzip
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer
+        X-Frame-Options DENY
+        -Server
+    }
+    handle_path /downloads/* {
+        root * /opt/personal-hub/client-downloads
+        header Content-Disposition attachment
+        file_server
+    }
+    handle /v1/* {
+        request_body {
+            max_size 1600000
+        }
+        reverse_proxy 127.0.0.1:8787
+    }
+    handle {
+        root * /opt/personal-hub/current/dist
+        header Cache-Control "no-cache"
+        file_server
+    }
+}

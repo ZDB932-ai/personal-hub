@@ -115,7 +115,7 @@ function saveCustomTaxonomy(): void {
   if (group === 'agent') activeAgent.value = label
   customGroup.value = null
   customLabel.value = ''
-  toast(`已新增${taxonomyCopy[group]}“${label}”`)
+  toast(`已添加${taxonomyCopy[group]}“${label}”`)
 }
 
 function requestRemoveCustomTaxonomy(group: AgentResourceTaxonomyGroup, label: string): void {
@@ -171,7 +171,7 @@ function formatGithubUpdatedAt(value: string): string {
 
 <template>
   <div>
-    <PageHeader title="Agent 资源库" eyebrow="AI 协作" description="把常用的 SKILL、MCP 与插件收在一起，需要时再带入当前 Agent。">
+    <PageHeader title="Agent 资源库" eyebrow="AI 与扩展" description="整理常用技能、MCP 服务与插件，保存来源和使用说明。">
       <template #actions>
         <button class="ui-primary-button gap-2" @click="openCreate">
           <Plus class="h-4 w-4" />
@@ -180,7 +180,7 @@ function formatGithubUpdatedAt(value: string): string {
       </template>
     </PageHeader>
 
-    <details class="resource-guidance"><summary>资源库如何使用</summary><p>记录来源、作用与调用说明。“带到工作台”只会预填消息，安装、启动 MCP 或外部操作仍需确认。</p></details>
+    <details class="resource-guidance"><summary>使用资源库</summary><p>技能（Skill）用于保存工作方法，MCP 服务用于连接外部工具，插件用于扩展 Agent。选择「带到工作台」可将使用说明填入消息，确认后再发送；资源不会自动安装或运行。</p></details>
 
     <section class="control-bar mt-5" aria-label="筛选 Agent 资源">
       <label class="control-search min-w-0 flex-1 sm:max-w-80">
@@ -192,7 +192,7 @@ function formatGithubUpdatedAt(value: string): string {
       <span class="ml-auto text-xs tabular-nums text-t4">显示 {{ filteredResources.length }} 项</span>
     </section>
 
-    <section v-show="filtersOpen" id="resource-filters" class="agent-library-filters mt-3" aria-label="资源分类器">
+    <section v-show="filtersOpen" id="resource-filters" class="agent-library-filters mt-3" aria-label="资源筛选条件">
       <div class="agent-library-filter-row">
         <p>类型</p>
         <div class="min-w-0">
@@ -208,8 +208,8 @@ function formatGithubUpdatedAt(value: string): string {
             <button type="button" class="agent-taxonomy-add" @click="openCustomTaxonomy('kind')"><Plus class="h-3 w-3" />自定义</button>
           </div>
           <form v-if="customGroup === 'kind'" class="agent-taxonomy-composer" @submit.prevent="saveCustomTaxonomy">
-            <span>新增类型</span>
-            <input v-model="customLabel" maxlength="24" class="control-input" placeholder="例如：模板" aria-label="新增资源类型" />
+            <span>添加类型</span>
+            <input v-model="customLabel" maxlength="24" class="control-input" placeholder="例如：模板" aria-label="添加资源类型" />
             <button class="ui-primary-button text-xs" type="submit">添加</button>
             <button class="ui-ghost-button text-xs" type="button" @click="openCustomTaxonomy('kind')">取消</button>
           </form>
@@ -230,8 +230,8 @@ function formatGithubUpdatedAt(value: string): string {
             <button type="button" class="agent-taxonomy-add" @click="openCustomTaxonomy('category')"><Plus class="h-3 w-3" />自定义</button>
           </div>
           <form v-if="customGroup === 'category'" class="agent-taxonomy-composer" @submit.prevent="saveCustomTaxonomy">
-            <span>新增功能</span>
-            <input v-model="customLabel" maxlength="24" class="control-input" placeholder="例如：测试" aria-label="新增功能分类" />
+            <span>添加功能</span>
+            <input v-model="customLabel" maxlength="24" class="control-input" placeholder="例如：测试" aria-label="添加功能分类" />
             <button class="ui-primary-button text-xs" type="submit">添加</button>
             <button class="ui-ghost-button text-xs" type="button" @click="openCustomTaxonomy('category')">取消</button>
           </form>
@@ -252,8 +252,8 @@ function formatGithubUpdatedAt(value: string): string {
             <button type="button" class="agent-taxonomy-add" @click="openCustomTaxonomy('agent')"><Plus class="h-3 w-3" />自定义</button>
           </div>
           <form v-if="customGroup === 'agent'" class="agent-taxonomy-composer" @submit.prevent="saveCustomTaxonomy">
-            <span>新增 Agent</span>
-            <input v-model="customLabel" maxlength="24" class="control-input" placeholder="例如：Windsurf" aria-label="新增 Agent 分类" />
+            <span>添加 Agent</span>
+            <input v-model="customLabel" maxlength="24" class="control-input" placeholder="例如：Windsurf" aria-label="添加 Agent 分类" />
             <button class="ui-primary-button text-xs" type="submit">添加</button>
             <button class="ui-ghost-button text-xs" type="button" @click="openCustomTaxonomy('agent')">取消</button>
           </form>
@@ -265,7 +265,7 @@ function formatGithubUpdatedAt(value: string): string {
     <div v-if="filteredResources.length === 0" class="empty-state mt-6">
       <BookOpen class="mx-auto h-10 w-10 text-t4" />
       <p class="mt-4 text-sm font-medium text-t2">{{ hasFilters ? '没有匹配的资源' : '还没有收录任何 Agent 资源' }}</p>
-      <p class="mt-1 text-xs text-t4">{{ hasFilters ? '试试调整分类器，或清除筛选。' : '从常用的 SKILL、MCP、插件或 GitHub 仓库开始即可。' }}</p>
+      <p class="mt-1 text-xs text-t4">{{ hasFilters ? '调整类型、功能或 Agent，或清除筛选条件。' : '添加一项常用技能、MCP 服务或插件，保存链接和使用说明。' }}</p>
       <button v-if="hasFilters" class="ui-secondary-button mt-4 text-xs" @click="clearFilters">清除筛选</button>
       <button v-else class="ui-primary-button mt-4 gap-2" @click="openCreate"><Plus class="h-4 w-4" />收录第一项资源</button>
     </div>

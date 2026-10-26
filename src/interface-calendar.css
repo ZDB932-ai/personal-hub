@@ -1,0 +1,191 @@
+html[data-interface] {
+  --cal-panel-radius: 12px;
+  --cal-event-radius: 8px;
+  --cal-panel-border: 1px solid var(--tk-line);
+  --cal-panel-shadow: none;
+  --cal-heading-font: inherit;
+  --cal-grid-line: solid;
+}
+
+.calendar-create-button.ui-primary-button { background: var(--tk-primary); color: var(--tk-ink); }
+html[data-interface] .calendar-workspace .calendar-toolbar { flex-wrap: wrap; }
+html[data-interface] .calendar-workspace .calendar-brand { flex-basis: auto; margin-right: auto; }
+html[data-interface] .calendar-workspace .calendar-toolbar-actions { margin-left: 0; gap: 6px; }
+html[data-interface] .calendar-workspace .calendar-period-nav { gap: 6px; }
+html[data-interface] .calendar-workspace .calendar-today-button { margin-right: 0; min-width: 44px; }
+html[data-interface] .calendar-workspace .calendar-icon { padding: 0; }
+html[data-interface] .calendar-workspace .calendar-create-compact.ui-primary-button { min-width: 44px; width: 44px; padding: 0; }
+html[data-interface] .calendar-workspace .calendar-create-compact::after { content: none; }
+html[data-interface] .calendar-workspace .calendar-view-switch { padding: 0; gap: 2px; border: 0; border-radius: var(--ic-action-radius, 8px); }
+html[data-interface] .calendar-workspace .calendar-view-switch button { min-height: 44px; border: var(--ic-action-border, 1px solid var(--tk-line)); border-radius: var(--ic-action-radius, 8px); box-shadow: var(--ic-action-shadow, none); background: var(--tk-surface); color: var(--tk-t2); font-family: var(--cal-heading-font); }
+html[data-interface] .calendar-workspace .calendar-view-switch button.is-active { background: var(--tk-primary-strong); color: var(--tk-ink); border-color: var(--tk-primary-strong); font-weight: 700; }
+html[data-interface] .calendar-workspace :is(.calendar-icon.is-active, .calendar-day-summary:hover) { color: var(--tk-primary); outline: 2px solid var(--tk-primary); outline-offset: -2px; }
+html[data-interface] .calendar-workspace :is(.calendar-canvas, .calendar-panel-host) { border: var(--cal-panel-border); border-radius: var(--cal-panel-radius); box-shadow: var(--cal-panel-shadow); }
+html[data-interface] .calendar-workspace .calendar-navigation { gap: 20px; }
+html[data-interface] .calendar-workspace .calendar-timeline { flex: 1; min-height: 0; height: auto; }
+html[data-interface] .calendar-workspace :is(.calendar-day-summary, .calendar-search-bar, .inspector-task) { border-radius: var(--cal-event-radius); }
+html[data-interface] .calendar-workspace :is(.calendar-period-title h2, .calendar-style-label, .calendar-style-index, .timeline-day-number, .calendar-month-date, .inspector-header h2) { font-family: var(--cal-heading-font); }
+html[data-interface] .calendar-workspace :is(.timeline-event, .timeline-floating-event, .calendar-month-task) { border-radius: var(--cal-event-radius); }
+html[data-interface] .calendar-workspace :is(.timeline-slot.hour-start, .calendar-month-cell) { border-top-style: var(--cal-grid-line); }
+html[data-interface] .calendar-workspace :is(.timeline-day-column, .calendar-month-cell) { border-right-style: var(--cal-grid-line); }
+html[data-interface] .calendar-workspace :is(.timeline-day-number, .mini-date) { border-radius: var(--ic-action-radius, 50%); }
+html[data-interface] .calendar-workspace .calendar-month-date > span:first-child { border-radius: var(--ic-action-radius, 50%); }
+html[data-interface] .calendar-workspace .calendar-month-task { min-height: 32px; }
+html[data-interface] .calendar-workspace .calendar-month-date { min-height: 44px; }
+html[data-interface] .calendar-workspace :is(button, input, summary, a):focus-visible { outline: 2px solid var(--tk-primary); outline-offset: -2px; }
+html[data-interface] .calendar-workspace .calendar-sources label { min-height: 44px; }
+.calendar-style-strip { display: flex; flex: 0 0 auto; justify-content: space-between; align-items: center; gap: 12px; min-height: 62px; padding: 8px 20px; border-bottom: 1px solid var(--tk-line); background: var(--tk-surface-2); }
+.calendar-style-heading { display: flex; min-width: 0; align-items: center; gap: 12px; }
+.calendar-style-index { display: grid; place-items: center; flex-shrink: 0; min-width: 36px; height: 36px; color: var(--tk-primary); font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.calendar-style-label { font-size: 14px; font-weight: 700; line-height: 1.5; }
+.calendar-style-caption { color: var(--tk-t3); font-size: 11px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.calendar-style-count { display: flex; flex-shrink: 0; align-items: baseline; gap: 4px; color: var(--tk-t2); font-size: 12px; }
+.calendar-style-count strong { color: var(--tk-primary); font-size: 24px; line-height: 1; font-variant-numeric: tabular-nums; }
+.calendar-style-total { color: var(--tk-t3); font-size: 11px; }
+
+html[data-interface="swiss"] { --cal-panel-radius: 0; --cal-event-radius: 0; --cal-panel-border: 1px solid var(--tk-t1); }
+html[data-interface="swiss"] .calendar-workspace .calendar-toolbar { border-bottom: 3px solid var(--tk-t1); margin-bottom: 12px; }
+html[data-interface="swiss"] .calendar-workspace .calendar-period-title h2 { font-size: 34px; line-height: 1.15; letter-spacing: -1.5px; font-weight: 800; }
+html[data-interface="swiss"] .calendar-style-strip { background: var(--tk-surface); border-bottom: 3px solid var(--tk-t1); }
+html[data-interface="swiss"] .calendar-style-index { background: var(--tk-primary); color: var(--tk-ink); }
+html[data-interface="swiss"] .calendar-workspace .timeline-day-heading { flex-direction: row; flex-wrap: wrap; justify-content: center; border-left: 1px solid var(--tk-line); }
+html[data-interface="swiss"] .calendar-workspace .timeline-lunar { width: 100%; text-align: center; }
+html[data-interface="swiss"] .calendar-workspace :is(.timeline-event, .calendar-month-task) { border-width: 0 0 0 4px; background: var(--tk-surface-2); }
+html[data-interface="swiss"] .calendar-workspace .inspector-header { border-bottom: 3px solid var(--tk-t1); }
+
+html[data-interface="terminal"] { --cal-panel-radius: 0; --cal-event-radius: 0; --cal-panel-border: 1px dashed var(--tk-primary); --cal-heading-font: 'Cascadia Code', Consolas, 'Microsoft YaHei', monospace; --cal-grid-line: dashed; }
+html[data-interface="terminal"] .calendar-style-strip { background: var(--tk-surface); border-bottom: 1px dashed var(--tk-primary); }
+html[data-interface="terminal"] .calendar-style-index::before { content: '['; }
+html[data-interface="terminal"] .calendar-style-index::after { content: ']'; }
+html[data-interface="terminal"] .calendar-style-index { display: flex; gap: 4px; font-size: 18px; }
+html[data-interface="terminal"] .calendar-workspace :is(.calendar-style-count, .timeline-hour-label, .timeline-event-time, .calendar-period-title) { font-family: var(--cal-heading-font); }
+html[data-interface="terminal"] .calendar-workspace :is(.timeline-event, .timeline-floating-event, .calendar-month-task) { border: 1px dashed var(--tk-primary); border-left: 3px solid var(--tk-primary); background: var(--tk-surface); color: var(--tk-primary); }
+html[data-interface="terminal"] .calendar-workspace .calendar-navigation { border-right: 1px dashed var(--tk-primary); padding-right: 12px; }
+html[data-interface="terminal"] .calendar-workspace .inspector-task { border-style: dashed; }
+html[data-interface="terminal"] .calendar-workspace .timeline-day-number { font-size: 22px; border: 1px dashed var(--tk-line); }
+
+html[data-interface="brutalist"] { --cal-panel-radius: 0; --cal-event-radius: 0; --cal-panel-border: 3px solid var(--tk-t1); --cal-panel-shadow: 4px 4px 0 var(--tk-t1); }
+html[data-interface="brutalist"] .calendar-workspace .calendar-body { padding-right: 12px; padding-bottom: 12px; }
+html[data-interface="brutalist"] .calendar-style-strip { background: var(--tk-primary); color: var(--tk-ink); border-bottom: 3px solid var(--tk-t1); }
+html[data-interface="brutalist"] .calendar-style-strip :is(.calendar-style-index, .calendar-style-count, .calendar-style-count strong, .calendar-style-total, .calendar-style-caption) { color: var(--tk-ink); }
+html[data-interface="brutalist"] .calendar-style-index { border: 2px solid currentColor; }
+html[data-interface="brutalist"] .calendar-workspace :is(.calendar-period-title h2, .calendar-style-label, .timeline-day-number) { font-weight: 900; }
+html[data-interface="brutalist"] .calendar-workspace :is(.timeline-event, .timeline-floating-event, .calendar-month-task, .inspector-task) { border: 2px solid var(--tk-t1); box-shadow: 2px 2px 0 var(--tk-t1); }
+html[data-interface="brutalist"] .calendar-workspace .timeline-head { border-bottom: 3px solid var(--tk-t1); }
+html[data-interface="brutalist"] .calendar-workspace .timeline-day-number { border: 2px solid var(--tk-t1); font-size: 28px; }
+
+html[data-interface="retro"] { --cal-panel-radius: 0; --cal-event-radius: 0; --cal-panel-border: 2px solid var(--tk-line); --cal-panel-shadow: inset 2px 2px 0 var(--tk-surface), inset -2px -2px 0 var(--tk-t3), 2px 2px 0 var(--tk-t1); --cal-heading-font: Tahoma, 'Microsoft YaHei', sans-serif; }
+html[data-interface="retro"] .calendar-workspace .calendar-toolbar { background: var(--tk-surface-2); padding: 12px; margin-bottom: 10px; border: var(--cal-panel-border); box-shadow: var(--cal-panel-shadow); }
+html[data-interface="retro"] .calendar-style-strip { min-height: 52px; background: var(--tk-primary); color: var(--tk-ink); margin: 3px; padding: 6px 12px; }
+html[data-interface="retro"] .calendar-style-strip :is(.calendar-style-index, .calendar-style-caption, .calendar-style-count, .calendar-style-count strong, .calendar-style-total) { color: var(--tk-ink); }
+html[data-interface="retro"] .calendar-style-index { border: 2px outset var(--tk-line); font-size: 18px; }
+html[data-interface="retro"] .calendar-workspace :is(.timeline-head, .calendar-month-head) { background: var(--tk-surface-2); box-shadow: inset 0 -2px 0 var(--tk-t3); }
+html[data-interface="retro"] .calendar-workspace :is(.timeline-event, .timeline-floating-event, .calendar-month-task) { border: 2px solid var(--tk-line); box-shadow: inset 1px 1px 0 var(--tk-surface), inset -1px -1px 0 var(--tk-t3); }
+html[data-interface="retro"] .calendar-workspace .calendar-view-switch button.is-active { box-shadow: inset 2px 2px 0 var(--tk-t1), inset -1px -1px 0 var(--tk-surface); }
+
+html[data-interface="botanical"] { --cal-panel-radius: 24px 4px 24px 4px; --cal-event-radius: 16px 3px 16px 3px; --cal-heading-font: 'Noto Serif SC', SimSun, Georgia, serif; }
+html[data-interface="botanical"] .calendar-style-strip { background: var(--tk-surface); border-bottom: 1px solid var(--tk-primary); }
+html[data-interface="botanical"] .calendar-style-index { border: 1px solid var(--tk-primary); border-radius: 24px 2px 24px 2px; }
+html[data-interface="botanical"] .calendar-workspace .calendar-period-title h2 { font-size: 28px; }
+html[data-interface="botanical"] .calendar-workspace .calendar-navigation { padding: 12px; border-left: 1px solid var(--tk-primary); background: var(--tk-surface); }
+html[data-interface="botanical"] .calendar-workspace :is(.timeline-event, .calendar-month-task) { border-left-width: 1px; border-bottom: 3px solid var(--tk-primary); padding-inline: 10px; }
+html[data-interface="botanical"] .calendar-workspace .timeline-day-heading { padding-top: 20px; }
+html[data-interface="botanical"] .calendar-workspace .inspector-header { background: var(--tk-surface-2); }
+
+html[data-interface="orbital"] { --cal-panel-radius: 28px; --cal-event-radius: 18px; --cal-panel-border: 1px solid color-mix(in srgb, var(--tk-primary) 45%, var(--tk-line)); --cal-panel-shadow: inset 0 0 0 4px var(--tk-surface-2); }
+html[data-interface="orbital"] .calendar-style-strip { background: var(--tk-surface); padding-inline: 24px; border-bottom: 1px solid var(--tk-primary); }
+html[data-interface="orbital"] .calendar-style-index { border: 1px solid var(--tk-primary); border-radius: 50%; box-shadow: 0 0 0 4px var(--tk-surface-2); font-size: 18px; }
+html[data-interface="orbital"] .calendar-style-count { border: 1px solid var(--tk-line); border-radius: 99px; padding: 8px 14px; }
+html[data-interface="orbital"] .calendar-workspace .timeline-day-number { box-shadow: 0 0 0 3px var(--tk-surface-2); }
+html[data-interface="orbital"] .calendar-workspace :is(.timeline-event, .calendar-month-task) { border: 1px solid var(--tk-primary); border-left-width: 4px; }
+html[data-interface="orbital"] .calendar-workspace .calendar-navigation { border: 1px solid var(--tk-line); border-radius: 20px; padding: 16px; background: var(--tk-surface); }
+html[data-interface="orbital"] .calendar-workspace .timeline-event.is-short { border-radius: 12px; }
+
+html[data-interface="atelier"] { --cal-panel-radius: 2px; --cal-event-radius: 2px; --cal-panel-border: 1px solid var(--tk-t3); --cal-heading-font: 'Noto Serif SC', SimSun, Georgia, serif; --cal-grid-line: dashed; }
+html[data-interface="atelier"] .calendar-style-strip { background: var(--tk-surface); border-bottom: 2px solid var(--tk-primary); padding-left: 28px; }
+html[data-interface="atelier"] .calendar-style-index { background: var(--tk-primary); color: var(--tk-ink); border-radius: 2px 2px 12px 2px; transform: rotate(-3deg); }
+html[data-interface="atelier"] .calendar-workspace .calendar-canvas { border-left: 8px double var(--tk-primary); }
+html[data-interface="atelier"] .calendar-workspace .calendar-navigation { background: var(--tk-surface); border-left: 6px double var(--tk-primary); padding: 12px; }
+html[data-interface="atelier"] .calendar-workspace :is(.timeline-event, .calendar-month-task, .inspector-task) { border: 1px dashed var(--tk-t3); border-left: 3px solid var(--tk-primary); background: var(--tk-surface); }
+html[data-interface="atelier"] .calendar-workspace .timeline-day-number { border-bottom: 2px solid var(--tk-primary); }
+
+html[data-interface="blueprint"] { --cal-panel-radius: 0; --cal-event-radius: 0; --cal-panel-border: 1px solid var(--tk-primary); --cal-heading-font: 'Cascadia Code', Consolas, 'Microsoft YaHei', monospace; }
+html[data-interface="blueprint"] .calendar-workspace .calendar-toolbar { border: 1px solid var(--tk-primary); margin-bottom: 12px; padding: 12px; }
+html[data-interface="blueprint"] .calendar-style-strip { background: var(--tk-surface); padding: 0; border-bottom: 1px solid var(--tk-primary); }
+html[data-interface="blueprint"] .calendar-style-heading { gap: 0; }
+html[data-interface="blueprint"] .calendar-style-index { width: 62px; height: 62px; border-right: 1px solid var(--tk-primary); margin-right: 12px; }
+html[data-interface="blueprint"] .calendar-style-count { align-self: stretch; align-items: center; border-left: 1px solid var(--tk-primary); padding-inline: 16px; font-family: var(--cal-heading-font); }
+html[data-interface="blueprint"] .calendar-workspace :is(.timeline-event, .calendar-month-task) { border: 1px solid var(--tk-primary); border-left: 4px double var(--tk-primary); background: var(--tk-surface); }
+html[data-interface="blueprint"] .calendar-workspace .timeline-day-heading { border-left: 1px solid var(--tk-line); }
+html[data-interface="blueprint"] .calendar-workspace .inspector-header { border-block: 1px solid var(--tk-primary); }
+
+html[data-interface="gallery"] { --cal-panel-radius: 0; --cal-event-radius: 0; --cal-panel-border: 1px solid var(--tk-line); --cal-heading-font: 'Noto Serif SC', SimSun, Georgia, serif; }
+html[data-interface="gallery"] .calendar-workspace .calendar-toolbar { padding-block: 16px; border-bottom: 1px solid var(--tk-t1); margin-bottom: 16px; }
+html[data-interface="gallery"] .calendar-workspace .calendar-period-title h2 { font-size: 32px; }
+html[data-interface="gallery"] .calendar-style-strip { background: var(--tk-surface); padding-block: 16px; border-bottom: 1px solid var(--tk-t1); }
+html[data-interface="gallery"] .calendar-style-index { font-size: 34px; border-right: 1px solid var(--tk-t1); padding-right: 16px; }
+html[data-interface="gallery"] .calendar-style-label { letter-spacing: 3px; }
+html[data-interface="gallery"] .calendar-workspace :is(.timeline-event, .timeline-floating-event, .calendar-month-task) { border: 0; border-left: 2px solid var(--tk-primary); background: var(--tk-surface-2); }
+html[data-interface="gallery"] .calendar-workspace .timeline-day-heading { gap: 10px; }
+html[data-interface="gallery"] .calendar-workspace .calendar-view-switch button { border-bottom: 1px solid var(--tk-t1); }
+html[data-interface="gallery"] .calendar-workspace .inspector-task { border: 0; border-bottom: 1px solid var(--tk-t1); padding-inline: 0; }
+
+html[data-interface="arcade"] { --cal-panel-radius: 0; --cal-event-radius: 0; --cal-panel-border: 2px solid var(--tk-primary); --cal-panel-shadow: 3px 3px 0 var(--tk-line); --cal-heading-font: 'Cascadia Code', Consolas, 'Microsoft YaHei', monospace; }
+html[data-interface="arcade"] .calendar-style-strip { border-bottom: 3px solid var(--tk-primary); background: var(--tk-surface); }
+html[data-interface="arcade"] .calendar-style-index { background: var(--tk-primary); color: var(--tk-ink); box-shadow: 3px 0 0 var(--tk-primary), -3px 0 0 var(--tk-primary), 0 3px 0 var(--tk-primary), 0 -3px 0 var(--tk-primary); height: 28px; min-width: 28px; font-size: 20px; margin-inline: 4px; }
+html[data-interface="arcade"] .calendar-style-count { font-family: var(--cal-heading-font); border-bottom: 3px dashed var(--tk-primary); padding-bottom: 4px; }
+html[data-interface="arcade"] .calendar-workspace :is(.timeline-event, .calendar-month-task, .inspector-task) { border: 2px solid var(--tk-primary); box-shadow: 2px 2px 0 var(--tk-line); }
+html[data-interface="arcade"] .calendar-workspace .timeline-day-number { border-bottom: 3px solid var(--tk-primary); font-weight: 800; }
+html[data-interface="arcade"] .calendar-workspace .timeline-head { border-bottom: 2px solid var(--tk-primary); }
+
+html[data-interface="sunrise"] { --cal-panel-radius: 20px 20px 6px 6px; --cal-event-radius: 12px 12px 4px 4px; --cal-heading-font: 'Noto Serif SC', SimSun, Georgia, serif; }
+html[data-interface="sunrise"] .calendar-style-strip { background: var(--tk-surface-2); padding-inline: 24px; }
+html[data-interface="sunrise"] .calendar-style-index { background: var(--tk-primary); color: var(--tk-ink); border-radius: 36px 36px 4px 4px; }
+html[data-interface="sunrise"] .calendar-workspace .timeline-day-number { border-radius: 24px 24px 4px 4px; }
+html[data-interface="sunrise"] .calendar-workspace .calendar-navigation { border-top: 3px solid var(--tk-primary); padding-top: 12px; }
+html[data-interface="sunrise"] .calendar-workspace .timeline-event { border-left-width: 1px; border-top: 3px solid var(--tk-primary); }
+html[data-interface="aurora"] { --cal-panel-radius: 20px; --cal-event-radius: 14px; --cal-panel-shadow: 0 4px 14px color-mix(in srgb, var(--tk-t1) 8%, transparent); }
+html[data-interface="aurora"] .calendar-style-strip { margin: 8px; border: 1px solid var(--tk-line); border-radius: 14px; }
+html[data-interface="aurora"] .calendar-style-index { background: var(--tk-primary); color: var(--tk-ink); border-radius: 12px; }
+html[data-interface="aurora"] .calendar-workspace .timeline-event { box-shadow: 0 2px 6px color-mix(in srgb, var(--tk-t1) 8%, transparent); }
+html[data-interface="aurora"] .calendar-workspace .calendar-navigation { border: 1px solid var(--tk-line); border-radius: 16px; padding: 12px; background: var(--tk-surface); }
+html[data-interface="precision"] { --cal-panel-radius: 4px; --cal-event-radius: 2px; --cal-heading-font: 'Cascadia Code', Consolas, 'Microsoft YaHei', monospace; }
+html[data-interface="precision"] .calendar-style-strip { min-height: 48px; padding: 4px 12px; }
+html[data-interface="precision"] .calendar-style-index { font-size: 18px; border-right: 1px solid var(--tk-line); padding-right: 12px; }
+html[data-interface="precision"] .calendar-workspace .timeline-day-heading { flex-direction: row; justify-content: center; flex-wrap: wrap; gap: 2px; padding-top: 6px; }
+html[data-interface="precision"] .calendar-workspace .timeline-lunar { width: 100%; text-align: center; }
+html[data-interface="precision"] .calendar-workspace .timeline-day-number { font-size: 20px; }
+html[data-interface="precision"] .calendar-workspace .calendar-navigation { gap: 12px; }
+
+html[data-interface] .calendar-workspace .timeline-event.is-done { border-color: var(--tk-line); color: var(--tk-t3); background: var(--tk-surface-2); box-shadow: none; }
+html[data-interface] .calendar-workspace .timeline-event.is-linked:not(.is-done) { border-left-color: var(--tk-info); }
+html[data-interface] .calendar-workspace .timeline-event:hover { background: color-mix(in srgb, var(--tk-primary) 12%, var(--tk-surface)); }
+html[data-interface] .calendar-workspace :is(.calendar-month-task.is-done, .timeline-floating-event.is-done, .mini-date.is-outside) { opacity: 1; color: var(--tk-t3); }
+html[data-interface] .calendar-workspace :is(.mini-date.is-today, .timeline-day-heading.is-today .timeline-day-number, .calendar-month-date.is-today > span:first-child) { background: var(--tk-primary-strong); color: var(--tk-ink); }
+html[data-interface] .calendar-workspace :is(.timeline-floating-event, .calendar-month-task):not(.is-done) { color: var(--tk-primary-strong); }
+
+@media (min-width: 1100px) {
+  html:is([data-interface="botanical"], [data-interface="atelier"]) .calendar-workspace .calendar-navigation { order: 2; }
+}
+@media (max-width: 1099px) {
+  html[data-interface] .calendar-workspace .calendar-navigation { border: var(--cal-panel-border); border-radius: var(--cal-panel-radius); box-shadow: var(--cal-panel-shadow); }
+}
+@media (max-width: 767px) {
+  html[data-interface] .calendar-workspace .calendar-toolbar { margin-bottom: 0; padding: 4px 0 12px; border: 0; box-shadow: none; background: transparent; gap: 8px; }
+  html[data-interface] .calendar-workspace .calendar-toolbar-actions { gap: 0; }
+  html[data-interface] .calendar-workspace .calendar-period-nav { gap: 2px; }
+  html[data-interface] .calendar-workspace .calendar-period-title h2 { font-size: 18px; line-height: 24px; letter-spacing: -.5px; }
+  html[data-interface] .calendar-workspace .calendar-toolbar-actions > .calendar-view-switch { top: 56px; }
+  html[data-interface] .calendar-workspace .calendar-today-button { padding-inline: 8px; }
+  html[data-interface] .calendar-workspace .calendar-canvas { border-width: 1px; }
+  html[data-interface] .calendar-workspace .calendar-month-task { min-height: 44px; padding: 4px 2px; }
+  html[data-interface] .calendar-workspace .calendar-style-strip { min-height: 48px; padding: 6px 12px; margin: 0; gap: 8px; }
+  html[data-interface] .calendar-workspace .calendar-style-index { height: 28px; width: auto; min-width: 28px; font-size: 20px; margin-right: 0; }
+  html[data-interface] .calendar-workspace .calendar-style-caption { font-size: 10px; }
+  html[data-interface] .calendar-workspace .calendar-style-total { display: none; }
+  html[data-interface] .calendar-workspace .calendar-style-count { padding: 4px 6px; border-left: 0; }
+  html[data-interface] .calendar-workspace .calendar-style-count strong { font-size: 20px; }
+  html[data-interface] .calendar-workspace .calendar-style-label { font-size: 12px; letter-spacing: 0; }
+  html[data-interface] .calendar-workspace .calendar-style-heading { gap: 8px; }
+  html[data-interface] .calendar-workspace .mini-date { min-height: 40px; }
+}

@@ -80,7 +80,7 @@ const inputCls =
 <template>
   <ModalShell :open="open" @close="emit('close')">
     <div class="flex items-center justify-between">
-      <h3 class="text-lg font-semibold">{{ entry ? '编辑账号' : '新增账号' }}</h3>
+      <h3 class="text-lg font-semibold">{{ entry ? '编辑账号' : '添加账号' }}</h3>
       <button
         aria-label="关闭"
         class="rounded-lg p-1.5 text-t4 transition hover:bg-surface hover:text-t2"

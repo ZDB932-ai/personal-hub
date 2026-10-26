@@ -131,7 +131,7 @@ function convertToTask(memo: Memo): void {
     repeat: 'none',
     tags: extractTags(memo.content).slice(0, 3),
   })
-  toast('已转为今日任务，去「计划」查看')
+  toast('已转为今日任务，可在「任务与计划」中查看')
 }
 
 function scheduledTasks(memo: Memo) {
@@ -141,19 +141,21 @@ function scheduledTasks(memo: Memo) {
 
 <template>
   <div>
-    <PageHeader title="备忘录" eyebrow="日常">
-      <template #description>共 {{ memos.length }} 条便签 · 支持 #标签 与 [ ] 清单语法</template>
+    <PageHeader title="备忘录" eyebrow="知识与资料">
+      <template #description>{{ memos.length }} 条便签 · 记录想法、清单与工作进展</template>
       <template #actions>
         <RouterLink to="/calendar" class="ui-secondary-button gap-2"><CalendarDays class="h-4 w-4" />日历</RouterLink>
         <button class="ui-secondary-button gap-2" @click="quickAdd">
           <Plus class="mr-1 inline h-4 w-4" />
-          快速新建
+          快速记录
         </button>
         <button class="ui-primary-button" @click="openCreate">
           新建便签
         </button>
       </template>
     </PageHeader>
+
+    <details class="resource-guidance"><summary>标签与清单</summary><p>在正文中输入 #标签 归类内容，用 [ ] 创建清单。便签可转为今日任务，也可以从任务中关联，原文会保留。</p></details>
 
     <div v-if="memos.length > 0" class="control-bar mt-4">
       <label class="control-search w-full sm:w-52">
@@ -190,7 +192,7 @@ function scheduledTasks(memo: Memo) {
     <div v-if="memos.length === 0" class="empty-state mt-8">
       <StickyNote class="mx-auto h-10 w-10 text-t4" />
       <p class="mt-4 text-sm font-medium text-t2">还没有任何便签</p>
-      <p class="mt-1 text-xs text-t4">随手记工作要点、线索、灵感；支持 #标签 与 [ ] 清单</p>
+      <p class="mt-1 text-xs text-t4">记下工作要点或想法，之后可以按标签查找，或转为任务。</p>
       <button class="ui-primary-button mt-4" @click="openCreate">新建便签</button>
     </div>
 

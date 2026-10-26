@@ -157,7 +157,8 @@ export class RecordSyncEngine {
         if (final.pending || final.conflicts) final.status = 'pending'
         return final
       }
-      const wire = await sealScopedOperation(this.key, this.space, operation)
+      const sealed = await sealScopedOperation(this.key, this.space, operation)
+      const wire = this.transport.prepare ? await this.transport.prepare(sealed) : sealed
       await this.update(payload => {
         const current = journalOf(payload)
         const latest = current.pending.find(item => item.operationId === operation.operationId)

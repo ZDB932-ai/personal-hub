@@ -12,6 +12,7 @@ import {
 import { emptyProfile, readJSON, uid } from '@/lib/utils'
 import { deleteBlob, getBlob, putBlob } from '@/lib/docdb'
 import { commitRepository, readRepository, refreshVaultRepository, repositoryRevision, type RepositoryKey } from '@/lib/vaultRepository'
+import { beforeDesktopTodoLock, afterDesktopTodoLock, desktopTodoLockFailed } from '@/lib/desktopTodoLifecycle'
 import { toast } from '@/lib/toast'
 import { biometricClear, biometricEnabled, biometricStoreSecret } from '@/lib/biometric'
 import {
@@ -39,6 +40,8 @@ import { recoveryItems } from './recovery'
 import { resetRecoveryBaseline } from './database'
 import { recoveryAttachmentMetas } from '@/lib/recovery'
 import { createLocalRecovery, recoverLocalPassword, createVaultKey, rewrapVaultKey, unlockEnvelope, type LocalRecovery } from '@/lib/vaultKeys'
+import { mergeRemote } from '@/lib/syncMerge'
+import type { SyncRecord } from '@/lib/syncProtocol'
 
 const PREFS_KEY = 'xk.lock.v2'
 const LEGACY_LOCK_KEY = 'xk.lock.v1'
@@ -51,6 +54,7 @@ export interface LockPrefs {
   autoLockMinutes: number
   accountName?: string
   recovery?: LocalRecovery
+  cloudAccount?: string
 }
 
 function hasLegacyRecord(): boolean {
@@ -102,6 +106,7 @@ export const usesSetupScreen = computed(() => {
 export const lockHint = computed(() => prefs.value.hint)
 export const autoLockMinutes = computed(() => prefs.value.autoLockMinutes)
 export const localAccountName = computed(() => prefs.value.accountName ?? '')
+export const localCloudAccount = computed(() => prefs.value.cloudAccount ?? '')
 export const hasLocalRecovery = computed(() => dataEnvelope.value?.v === 3 && prefs.value.recovery?.vaultId === dataEnvelope.value.vaultId && prefs.value.recovery?.keyId === dataEnvelope.value.keyId)
 
 function validateAccount(name: string, password: string): void {
@@ -111,6 +116,54 @@ function validateAccount(name: string, password: string): void {
 
 let accountBusy = false
 let unlocking = false
+
+export async function installCloudAccount(name: string, env: import('@/types').WrappedEnvelope, key: CryptoKey, records: SyncRecord[], credentials: import('@/lib/recordSyncCredentials').RecordCredentials): Promise<void> {
+  if (accountBusy || unlocking || mode.value !== 'fresh') throw new Error('本机已有账户，请使用本机登录入口')
+  accountBusy = true
+  try {
+    await refreshVaultRepository()
+    const revision = repositoryRevision()
+    if (readRepository('xk.data.v2')) throw new Error('本机已有数据，请刷新后登录')
+    const payload = prepareOfflinePayload({ schemaVersion: 1, profile: emptyProfile(), entries: [] })
+    payload.offlineJournal!.pending = []
+    for (const record of records) mergeRemote(payload, record)
+    const envelope = { ...env, ts: Date.now(), ...await encryptJSON(key, payload) }
+    const nextPrefs = { hint: '', autoLockMinutes: 5, accountName: name, cloudAccount: name }
+    const sealedCredentials = await encryptJSON(key, credentials)
+    await commitRepository({ 'xk.data.v2': envelope, [PREFS_KEY]: nextPrefs, 'xk.record-sync.secure': sealedCredentials }, () => repositoryRevision() === revision && !readRepository('xk.data.v2'))
+    prefs.value = nextPrefs
+    await initFromEnvelope(envelope, key)
+    setActiveKey(key)
+    finishUnlock()
+  } finally { accountBusy = false }
+}
+
+export async function refreshCloudAccount(name: string, remote: import('@/types').WrappedEnvelope, key: CryptoKey, credentials: import('@/lib/recordSyncCredentials').RecordCredentials): Promise<void> {
+  if (accountBusy || unlocking || passwordChange || locking.value) throw new Error('账户正在更新，请稍后重试')
+  accountBusy = true
+  const wasGated = isGated.value, previousKey = getActiveKey()
+  let updating = false
+  try {
+    if (!wasGated) await flushPendingSave()
+    await beginDatabaseUpdate(); updating = true
+    await refreshVaultRepository()
+    const revision = repositoryRevision(), dataRevision = getDataRevision()
+    const env = readRepository<DataEnvelope>('xk.data.v2')
+    const savedPrefs = readRepository<LockPrefs>(PREFS_KEY)
+    if (savedPrefs?.cloudAccount !== name || env?.v !== 3 || env.vaultId !== remote.vaultId || env.keyId !== remote.keyId) throw new Error('云账号与本机保险库不匹配，本机数据未修改')
+    await decryptJSON(key, env.ivB64, env.ctB64)
+    const nextEnvelope = { ...env, kdf: remote.kdf, wrappedKey: remote.wrappedKey }
+    const sealed = await encryptJSON(key, credentials)
+    const valid = () => !locking.value && isGated.value === wasGated && getActiveKey() === previousKey && getDataRevision() === dataRevision && repositoryRevision() === revision
+    await commitRepository({ 'xk.data.v2': nextEnvelope, 'xk.record-sync.secure': sealed }, valid)
+    prefs.value = savedPrefs
+    dataEnvelope.value = nextEnvelope
+    if (wasGated) await initFromEnvelope(nextEnvelope, key)
+    setActiveKey(key)
+    finishUnlock()
+    if (JSON.stringify(env.wrappedKey) !== JSON.stringify(remote.wrappedKey)) await biometricClear().catch(() => {})
+  } finally { if (updating) endDatabaseUpdate(); accountBusy = false }
+}
 
 export async function createLocalAccount(name: string, password: string, code: string): Promise<void> {
   validateAccount(name, password)
@@ -278,10 +331,13 @@ export function lockApp(): Promise<void> {
   lockPromise = (async () => {
     try {
       if (passwordChange) await passwordChange
+      await beforeDesktopTodoLock()
       await flushPendingSave()
+      await afterDesktopTodoLock()
       unlocked.value = false
-      wipeMemory()
+      wipeMemory(true)
     } catch (error) {
+      await desktopTodoLockFailed().catch(() => {})
       startActivityWatch()
       throw error
     } finally {
@@ -298,7 +354,7 @@ interface SecureRecord {
 }
 
 async function readSecureRecords(key: CryptoKey): Promise<SecureRecord[]> {
-  const storageKeys: RepositoryKey[] = ['xk.sync.secure', 'xk.github.secure', 'xk.ai.secrets.v1', 'xk.record-sync.secure']
+  const storageKeys: RepositoryKey[] = ['xk.sync.secure', 'xk.github.secure', 'xk.ai.secrets.v1', 'xk.record-sync.secure', 'xk.desktop-todo.secure']
   const records: SecureRecord[] = []
   for (const storageKey of storageKeys) {
     const secure = readJSON<{ ivB64: string; ctB64: string }>(storageKey)
@@ -443,6 +499,8 @@ function bumpActivity(): void {
   if (!unlocked.value) return
   resetTimer()
 }
+
+export function noteDesktopActivity(): void { bumpActivity() }
 
 function startActivityWatch(): void {
   if (watching || typeof window === 'undefined') return

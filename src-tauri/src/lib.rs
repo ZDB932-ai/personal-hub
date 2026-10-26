@@ -1,4 +1,5 @@
 mod pet;
+mod todo;
 
 use tauri::{
   menu::{Menu, MenuItem},
@@ -28,17 +29,26 @@ pub fn run() {
       .with_filter(|label| label == "main")
       .build())
     .manage(pet::PetState::default())
-    .invoke_handler(tauri::generate_handler![pet::pet_preferences, pet::pet_configure, pet::pet_home, pet::pet_reset_position])
+    .manage(todo::TodoState::default())
+    .invoke_handler(tauri::generate_handler![pet::pet_preferences, pet::pet_configure, pet::pet_home, pet::pet_reset_position,
+      todo::todo_connect, todo::todo_publish, todo::todo_read, todo::todo_configure, todo::todo_reset_position,
+      todo::todo_submit, todo::todo_work, todo::todo_resolve, todo::todo_home, todo::todo_activity,
+      todo::todo_heartbeat, todo::todo_disconnect, todo::todo_finish_quit, todo::todo_cancel_quit,
+      todo::todo_window_bounds, todo::todo_set_window_bounds])
     .plugin(tauri_plugin_notification::init())
     .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_fs::init())
     .setup(|app| {
       pet::setup(app.handle())?;
+      todo::setup(app.handle())?;
       let open = MenuItem::with_id(app, "open", "打开 Personal Hub", true, None::<&str>)?;
       let lock = MenuItem::with_id(app, "lock", "锁定应用", true, None::<&str>)?;
       let quit = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
-      let menu = Menu::with_items(app, &[&open, &lock, &quit])?;
+      let show_todo = MenuItem::with_id(app, "todo-show", "显示桌面 Todo", true, None::<&str>)?;
+      let hide_todo = MenuItem::with_id(app, "todo-hide", "关闭桌面 Todo", true, None::<&str>)?;
+      let reset_todo = MenuItem::with_id(app, "todo-reset", "找回 Todo 位置", true, None::<&str>)?;
+      let menu = Menu::with_items(app, &[&open, &show_todo, &hide_todo, &reset_todo, &lock, &quit])?;
       TrayIconBuilder::with_id("personal-hub-tray")
         .tooltip("Personal Hub")
         .icon(app.default_window_icon().unwrap().clone())
@@ -51,7 +61,10 @@ pub fn run() {
               let _ = window.emit("desktop://lock", ());
             }
           }
-          "quit" => app.exit(0),
+          "todo-show" => { if let Err(error) = todo::set_enabled(app, true) { log::warn!("显示 Todo 失败: {error}"); } },
+          "todo-hide" => { if let Err(error) = todo::set_enabled(app, false) { log::warn!("关闭 Todo 失败: {error}"); } },
+          "todo-reset" => { if let Err(error) = todo::reset_position(app) { log::warn!("找回 Todo 失败: {error}"); } },
+          "quit" => todo::request_quit(app),
           _ => {}
         })
         .on_tray_icon_event(|tray, event| {
@@ -75,6 +88,7 @@ pub fn run() {
       Ok(())
     })
     .on_window_event(|window, event| {
+      todo::window_event(window, event);
       if window.label() != "main" { return; }
       if matches!(event, WindowEvent::Resized(_) | WindowEvent::Focused(_)) {
         pet::refresh(window.app_handle());

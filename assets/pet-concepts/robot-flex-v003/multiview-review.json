@@ -1,0 +1,22 @@
+{
+  "status": "four_views_approved",
+  "user_approval": {
+    "date": "2026-10-16",
+    "evidence": "用户对新增左侧、右侧、背面的外观确认请求回复：均确认。结合此前正面稿的确认，覆盖本版本四张参考图。",
+    "scope": "参考设计外观；不代表三维模型、绑定、动作变形或最终交付验收。",
+    "sha256": {
+      "front-concept.png": "3a4bec91bbfa95be126b29441d9659bac19ed873622790965524511edefcdbf1",
+      "left.png": "88dae8ab31fa240bd6ef32bb23e540a5f434b00e13d9f3084410ad303bdf7ada",
+      "right.png": "cb078e580c126167fac951074b0431b614965936cd44c91123cb2ed62da5d9f0",
+      "back.png": "28dfab100f9923f38492fc84dd44d4242a6dcdead688b39b67a83620d4e9397b"
+    }
+  },
+  "front_approval": "用户已确认front-concept.png；不自动扩展至新增侧背面。",
+  "files": {"front":"front-concept.png","left":"left.png","right":"right.png","back":"back.png"},
+  "tool": "built-in image_gen",
+  "prompt_set": "multiview-generation-brief.json",
+  "recovery": "上轮并行工具调用中断，仅找到并查看exec-76a02300-d272-443f-b414-7656c9462097.png，归档为left.png。未取得右侧及背面结果或可恢复句柄，分别重新生成缺失视图，未重做左图。",
+  "observations": ["四图主体完整、配色和柔性关节方向一致", "左右侧分别面朝画面左与右；均独立生成，非文件镜像", "背面无背包，采用简洁青绿色背板与象牙白头壳", "侧面远侧肢体存在自然遮挡，不能据此判断模型缺少肢体"],
+  "inferred_details": ["背板形状", "头壳厚度与后脑曲面", "鞋跟及侧面厚度"],
+  "limits": "尚未提交三维生成；图片不证明拓扑、蒙皮、接触、循环或引擎验收通过。旧参考、正式母版和历史诊断记录保持不变。"
+}

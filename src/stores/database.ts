@@ -1,4 +1,5 @@
 import { nextTick, ref, watch } from 'vue'
+import { invalidateDesktopTodoSession } from '@/lib/desktopTodoLifecycle'
 import type { DataEnvelope, KdfParams, VaultPayload } from '@/types'
 import { decryptJSON, encryptJSON, newKdfParams } from '@/lib/crypto'
 import { emptyProfile, readJSON, writeJSON } from '@/lib/utils'
@@ -99,7 +100,7 @@ export async function initFresh(kdf?: KdfParams): Promise<void> {
   await persistNow(kdf)
 }
 
-export async function initFromEnvelope(env: DataEnvelope, key: CryptoKey, canApply = () => true, onStored = () => {}): Promise<boolean> {
+export async function initFromEnvelope(env: DataEnvelope, key: CryptoKey, canApply = () => true, onStored = () => {}, resetDesktopSelection = false): Promise<boolean> {
   let payload = await decryptJSON<VaultPayload>(key, env.ivB64, env.ctB64)
   validatePayload(payload)
   validateRecovery(payload.recoveryItems)
@@ -108,11 +109,12 @@ export async function initFromEnvelope(env: DataEnvelope, key: CryptoKey, canApp
     env = { ...env, ...await encryptJSON(key, payload) }
   }
   if (!canApply()) return false
-  if (JSON.stringify(readJSON<DataEnvelope>(DATA_KEY)) !== JSON.stringify(env)) {
-    await commitRepository({ [DATA_KEY]: env }, canApply)
+  if (resetDesktopSelection || JSON.stringify(readJSON<DataEnvelope>(DATA_KEY)) !== JSON.stringify(env)) {
+    await commitRepository({ [DATA_KEY]: env, ...(resetDesktopSelection ? { 'xk.desktop-todo.secure': undefined } : {}) }, canApply)
   }
   onStored()
   if (!canApply()) return false
+  if (resetDesktopSelection) invalidateDesktopTodoSession()
   clearSaveTimer()
   hydratePayload(payload)
   dataEnvelope.value = env
@@ -271,7 +273,8 @@ export function onDataSaved(fn: (env: DataEnvelope) => void): () => void {
   return () => savedListeners.delete(fn)
 }
 
-export function wipeMemory(): void {
+export function wipeMemory(preserveDesktopSnapshot = false): void {
+  if (!preserveDesktopSnapshot) invalidateDesktopTodoSession()
   extraPayload = {}
   previousPayload = undefined
   recoveryItems.value = []

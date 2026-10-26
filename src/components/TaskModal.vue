@@ -45,7 +45,7 @@ const form = reactive({
 const subInput = ref('')
 const error = ref('')
 const source = computed(() => props.entry ? taskPlans(props.entry, weeklyPlans.value, longPlans.value) : null)
-const goalOptions = computed(() => [{ value: '', label: '不关联方向' }, ...(form.longPlanId && !longPlans.value.some(goal => goal.id === form.longPlanId) ? [{ value: form.longPlanId, label: '原方向已删除或尚未同步' }] : []), ...longPlans.value.filter(goal => goal.status === 'active' || goal.id === form.longPlanId).map(goal => ({ value: goal.id, label: goal.title }))])
+const goalOptions = computed(() => [{ value: '', label: '不关联目标' }, ...(form.longPlanId && !longPlans.value.some(goal => goal.id === form.longPlanId) ? [{ value: form.longPlanId, label: '关联目标已删除或尚未同步' }] : []), ...longPlans.value.filter(goal => goal.status === 'active' || goal.id === form.longPlanId).map(goal => ({ value: goal.id, label: goal.title }))])
 
 watch(
   () => props.open,
@@ -138,7 +138,7 @@ const inputCls =
 </script>
 
 <template>
-  <ModalShell :open="open" mobile-sheet @close="emit('close')">
+  <ModalShell :open="open" mobile-sheet panel-class="task-style-panel" @close="emit('close')">
     <template #header>
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold">{{ entry ? '编辑任务' : '新建任务' }}</h3>
@@ -153,7 +153,7 @@ const inputCls =
     </template>
 
     <TaskResume v-if="entry" :task="entry" />
-    <div class="space-y-5">
+    <div class="task-form-fields space-y-5">
       <label class="block">
         <span class="mb-1.5 block text-xs font-medium text-t3">任务内容 *</span>
         <input v-model="form.title" :class="inputCls" placeholder="要做什么？" />
@@ -173,8 +173,8 @@ const inputCls =
       </div>
       <label class="block"><span class="mb-1.5 block text-xs font-medium text-t3">预计时长（分钟，可选）</span><input v-model.number="form.estimatedMinutes" type="number" min="1" max="1440" step="1" :class="inputCls" placeholder="未填写时，排期按 30 分钟估算" /></label>
       <TaskScheduleHint :date="form.date" :time="form.time" :minutes="form.estimatedMinutes" :task-id="entry?.id" />
-      <p v-if="source?.weekly" class="rounded-lg bg-primary/10 p-3 text-xs leading-5 text-primary">来自周计划「{{ source.weekly.title }}」{{ source.goal ? `，朝向「${source.goal.title}」` : '' }}。方向关联跟随周计划。</p>
-      <label v-else class="block"><span class="mb-1.5 block text-xs font-medium text-t3">这一步，想靠近哪个方向？</span><AppSelect v-model="form.longPlanId" :options="goalOptions" aria-label="关联长期方向" /></label>
+      <p v-if="source?.weekly" class="rounded-lg bg-primary/10 p-3 text-xs leading-5 text-primary">来自周计划「{{ source.weekly.title }}」{{ source.goal ? `，关联目标「${source.goal.title}」` : '' }}。目标关联由周计划决定。</p>
+      <label v-else class="block"><span class="mb-1.5 block text-xs font-medium text-t3">关联长期目标</span><AppSelect v-model="form.longPlanId" :options="goalOptions" aria-label="关联长期目标" /></label>
       <div class="grid grid-cols-2 gap-3">
         <label class="block">
           <span class="mb-1.5 block text-xs font-medium text-t3">优先级</span>
@@ -196,7 +196,7 @@ const inputCls =
           />
         </label>
       </div>
-      <div class="rounded-xl border border-line bg-inset p-3.5">
+      <div class="task-form-subtasks rounded-xl border border-line bg-inset p-3.5">
         <p class="text-xs font-medium text-t3">子任务（{{ form.subtasks.filter((s) => s.done).length }}/{{ form.subtasks.length }}）</p>
         <ul v-if="form.subtasks.length > 0" class="mt-2 space-y-1.5">
           <li v-for="s in form.subtasks" :key="s.id" class="flex items-center gap-2.5">
@@ -242,7 +242,7 @@ const inputCls =
 
     <template #footer>
     <p v-if="error" role="alert" class="mb-3 rounded-lg border border-danger/25 bg-danger/10 px-3 py-2 text-xs text-danger">{{ error }}</p>
-    <div class="flex justify-end gap-3">
+    <div class="task-form-actions flex justify-end gap-3">
       <button
         class="ui-secondary-button min-h-11 flex-1 sm:flex-none"
         @click="emit('close')"

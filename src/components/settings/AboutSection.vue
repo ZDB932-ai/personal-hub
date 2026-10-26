@@ -5,40 +5,34 @@ const desktop = isTauriDesktop()
 </script>
 
 <template>
-  <div class="space-y-3">
-    <div class="rounded-xl border border-line bg-surface p-4">
-      <p class="text-sm font-medium">Personal Hub v{{ version }}</p>
-      <p class="mt-1 text-xs leading-relaxed text-t4">
-        本地优先的个人信息管理台：密码库 / 每日计划 / 备忘录 / 项目收藏 / 资料库，加密存储，可选云同步，安卓 APP 随身携带。
-      </p>
-    </div>
-
-    <div class="rounded-xl border border-line bg-surface p-4 text-xs leading-relaxed text-t3">
-      <p class="mb-2 text-sm font-medium text-t2">数据存在哪里</p>
-      <ul class="space-y-1.5">
-        <li>· 业务数据与连接凭据：本机 IndexedDB（xk-vault），AES-256-GCM 加密，事务保存</li>
-        <li>· 资料文件：IndexedDB（xk-docs），逐文件加密</li>
-        <li>· 主密钥：仅存内存，锁定时释放；开启指纹解锁后，主密码由系统安全凭据存储保护</li>
-        <li>· 云同步（如开启）：服务器只见密文，零知识</li>
+  <div class="settings-stack">
+    <section class="settings-card space-y-3">
+      <div class="settings-row"><div class="settings-row-copy"><h3 class="settings-section-title">Personal Hub</h3><p class="settings-description">让日程、资料和个人账户各有其所。</p></div><span class="settings-status text-t3">版本 {{ version }}</span></div>
+      <p class="text-sm leading-relaxed text-t2">在同一个工作空间安排今天、整理想法、保存文件与密码。个人内容在本机加密保存，云同步帮助你在多个设备间继续工作。</p>
+    </section>
+    <section class="settings-card space-y-3">
+      <h3 class="settings-section-title">数据与隐私</h3>
+      <ul class="space-y-3 text-sm leading-relaxed text-t2">
+        <li>离线时仍可使用，修改先保存在当前设备。</li>
+        <li>个人内容和资料文件在设备上加密，云同步传输加密后的内容。</li>
+        <li>锁定后释放内存中的解锁密钥，重新打开需要验证身份。</li>
+        <li>备份独立于同步。清理浏览器或卸载应用前，请先导出备份并确认同步状态。</li>
       </ul>
-    </div>
-
-    <div class="rounded-xl border border-line bg-surface p-4 text-xs leading-relaxed text-t3">
-      <p class="mb-2 text-sm font-medium text-t2">快捷键</p>
-      <ul class="space-y-1.5">
-        <li>· <kbd class="rounded bg-surface-2 px-1.5 py-0.5 font-mono">Ctrl / ⌘ + K</kbd> 搜索所有内容；↑ ↓ 选择，Enter 打开</li>
-        <li>· <kbd class="rounded bg-surface-2 px-1.5 py-0.5 font-mono">/</kbd> 密码库页快速聚焦搜索</li>
-        <li>· <kbd class="rounded bg-surface-2 px-1.5 py-0.5 font-mono">Enter</kbd> 每日计划页快速创建任务</li>
-        <li>· <kbd class="rounded bg-surface-2 px-1.5 py-0.5 font-mono">Esc</kbd> 关闭弹窗</li>
-      </ul>
-    </div>
-    <div v-if="desktop" class="rounded-xl border border-line bg-surface p-4 text-xs leading-relaxed text-t3">
-      <p class="mb-2 text-sm font-medium text-t2">桌面窗口</p>
-      <ul class="space-y-1.5">
-        <li>· 关闭窗口后应用继续驻留托盘；点击托盘图标或再次启动应用即可返回。</li>
-        <li>· 下次启动会恢复主窗口大小、位置和最大化状态，并显示窗口。</li>
-        <li>· 完全退出请右键托盘图标，选择「退出」；退出后停止提醒和桌面玩偶。</li>
-      </ul>
-    </div>
+      <details class="settings-disclosure settings-subsection"><summary class="text-sm font-medium text-t1">存储与加密详情</summary><div class="settings-disclosure-body space-y-2 text-xs leading-relaxed text-t3"><p>个人记录和连接凭据由本机 IndexedDB（xk-vault）事务保存，使用 AES-256-GCM 加密。资料文件在 xk-docs 中逐文件加密。</p><p>云服务存储加密内容及维持账户和同步所需的信息。开启生物识别解锁后，解锁凭据由系统安全存储保护。</p><p>壁纸与外观偏好属于设备设置，不与个人内容共用加密存储。</p></div></details>
+    </section>
+    <section class="settings-card space-y-3">
+      <h3 class="settings-section-title">键盘快捷键</h3>
+      <dl class="space-y-3 text-sm text-t2">
+        <div class="settings-row"><dt class="settings-row-copy">搜索所有内容</dt><dd><kbd class="rounded bg-surface-2 px-2 py-1 text-xs">Ctrl / ⌘ + K</kbd></dd></div>
+        <div class="settings-row"><dt class="settings-row-copy">密码库中搜索</dt><dd><kbd class="rounded bg-surface-2 px-2 py-1 text-xs">/</kbd></dd></div>
+        <div class="settings-row"><dt class="settings-row-copy">提交快速任务</dt><dd><kbd class="rounded bg-surface-2 px-2 py-1 text-xs">Enter</kbd></dd></div>
+        <div class="settings-row"><dt class="settings-row-copy">关闭当前弹窗</dt><dd><kbd class="rounded bg-surface-2 px-2 py-1 text-xs">Esc</kbd></dd></div>
+      </dl>
+      <p class="settings-description">全局搜索中使用 ↑ ↓ 选择结果，按 Enter 打开。</p>
+    </section>
+    <section v-if="desktop" class="settings-card space-y-3">
+      <h3 class="settings-section-title">桌面窗口</h3>
+      <ul class="space-y-3 text-sm leading-relaxed text-t2"><li>关闭主窗口后，应用继续在系统托盘运行。点击托盘图标或再次打开应用即可返回。</li><li>下次启动会恢复主窗口大小、位置和最大化状态。</li><li>完全退出请右键托盘图标，选择「退出」。退出后，任务提醒、桌面清单和桌面伙伴同时停止。</li></ul>
+    </section>
   </div>
 </template>

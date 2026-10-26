@@ -39,7 +39,7 @@ async function join(): Promise<void> {
   <details class="mt-4 rounded-lg border border-line bg-surface-2 p-3 text-xs text-t2">
     <summary class="cursor-pointer">加入已有保险库</summary>
     <div class="mt-3 space-y-3">
-      <p class="leading-relaxed">从原设备的「安全 → 设备独立密码」生成文件和转移码。这里只复制当前数据，不会开启自动同步。</p>
+      <p class="leading-relaxed">从原设备的「设置 → 备份与迁移 → 迁移到其他设备」生成文件和转移码。这里只复制当前数据，不会开启自动同步。</p>
       <input type="file" accept=".phub-device" :disabled="busy || props.disabled" class="w-full text-xs" @change="choose" />
       <PasswordInput v-model="code" :disabled="busy || props.disabled" class="py-2.5" placeholder="32 位转移码" />
       <PasswordInput v-model="password" :disabled="busy || props.disabled" class="py-2.5" placeholder="本机新主密码（至少 8 位）" />

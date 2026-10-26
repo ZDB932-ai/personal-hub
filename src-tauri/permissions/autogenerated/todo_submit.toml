@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-todo-submit"
+description = "Enables the todo_submit command without any pre-configured scope."
+commands.allow = ["todo_submit"]
+
+[[permission]]
+identifier = "deny-todo-submit"
+description = "Denies the todo_submit command without any pre-configured scope."
+commands.deny = ["todo_submit"]

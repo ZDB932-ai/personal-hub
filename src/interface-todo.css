@@ -1,0 +1,119 @@
+html.todo-window, html.todo-window body, html.todo-window #app { min-width: 0; width: 100%; }
+html[data-interface] .desktop-todo-root { border-radius: var(--cal-panel-radius); font-family: inherit; }
+html[data-interface] .desktop-todo-root .desktop-todo-titlebar { gap: 2px; }
+html[data-interface] .desktop-todo-root .desktop-todo-drag { font-family: var(--cal-heading-font); }
+html[data-interface] .desktop-todo-root .desktop-todo-icon { min-width: 44px; width: 44px; padding: 0; }
+html[data-interface] .desktop-todo-root .desktop-todo-summary { min-height: 44px; flex-shrink: 0; }
+html[data-interface] .desktop-todo-root .desktop-todo-summary > button { min-height: 44px; text-align: left; color: var(--tk-primary-strong); }
+html[data-interface] .desktop-todo-count { flex-shrink: 0; }
+html[data-interface] .desktop-todo-count strong { font-size: 18px; font-weight: 700; color: var(--tk-primary); }
+html[data-interface] .desktop-todo-style-label { display: flex; flex-shrink: 0; gap: 8px; justify-content: space-between; padding: 4px 12px 8px; color: var(--tk-t3); font-family: var(--cal-heading-font); font-size: 11px; border-bottom: 1px solid var(--tk-line); }
+html[data-interface] .desktop-todo-style-label span { font-family: ui-monospace, Consolas, monospace; font-variant-numeric: tabular-nums; }
+html[data-interface] .desktop-todo-root .desktop-todo-footer { flex-shrink: 0; background: var(--tk-surface); }
+html[data-interface] .desktop-todo-root .desktop-todo-footer button { min-height: 44px; }
+html[data-interface] .desktop-todo-root .desktop-todo-footer button.text-primary { color: var(--tk-primary-strong); }
+html[data-interface] .desktop-todo-root .desktop-todo-footer form > p { max-height: 40px; overflow-y: auto; }
+html[data-interface] .desktop-todo-root #desktop-todo-input { border: var(--ic-action-border, 1px solid var(--tk-line)); border-radius: var(--ic-action-radius, 8px); }
+html[data-interface] .desktop-todo-root .desktop-todo-check { border-radius: var(--ic-action-radius, 8px); }
+html[data-interface] .desktop-todo-root .desktop-todo-task-title { line-height: 1.6; overflow-wrap: anywhere; }
+html[data-interface] .desktop-todo-root .desktop-todo-task-meta { line-height: 1.6; }
+html[data-interface] .desktop-todo-root :is(.desktop-todo-menu, .desktop-todo-confirm) { border: var(--cal-panel-border); border-radius: var(--cal-event-radius); max-height: calc(100% - 62px); overflow-y: auto; box-shadow: var(--cal-panel-shadow); }
+html[data-interface] .desktop-todo-root .desktop-todo-menu button { border-radius: var(--ic-action-radius, 8px); }
+html[data-interface] .desktop-todo-root :is(button, input):focus-visible { outline: 2px solid var(--tk-primary); outline-offset: -2px; }
+html[data-interface] .desktop-todo-root .desktop-todo-resize:focus-visible { background: var(--tk-primary); }
+.desktop-todo-appearance-note { padding: 12px 16px; border: var(--cal-panel-border); border-radius: var(--cal-event-radius); background: var(--tk-surface-2); line-height: 1.7; }
+.today-desktop-todo-entry { min-height: 44px; font-size: 12px; }
+
+html[data-interface="swiss"] .desktop-todo-root .desktop-todo-titlebar { border-bottom: 3px solid var(--tk-t1); }
+html[data-interface="swiss"] .desktop-todo-root .desktop-todo-summary { border-bottom: 1px solid var(--tk-t1); }
+html[data-interface="swiss"] .desktop-todo-root .desktop-todo-count strong { font-size: 28px; }
+html[data-interface="swiss"] .desktop-todo-root .desktop-todo-task { border-bottom-color: var(--tk-t1); }
+html[data-interface="swiss"] .desktop-todo-root .desktop-todo-task-title { font-weight: 700; }
+html[data-interface="swiss"] .desktop-todo-root .desktop-todo-check { border-right: 1px solid var(--tk-line); }
+
+html[data-interface="terminal"] .desktop-todo-root { box-shadow: inset 0 0 0 1px var(--tk-primary); }
+html[data-interface="terminal"] .desktop-todo-root .desktop-todo-titlebar { border-bottom: 1px dashed var(--tk-primary); }
+html[data-interface="terminal"] .desktop-todo-root .desktop-todo-drag::before { content: '>'; color: var(--tk-primary); font-family: monospace; font-weight: 700; }
+html[data-interface="terminal"] .desktop-todo-root :is(.desktop-todo-task-meta, .desktop-todo-count) { font-family: var(--cal-heading-font); }
+html[data-interface="terminal"] .desktop-todo-root .desktop-todo-task { border-bottom-style: dashed; }
+html[data-interface="terminal"] .desktop-todo-root .desktop-todo-check { border: 1px dashed var(--tk-primary); }
+html[data-interface="terminal"] .desktop-todo-root .desktop-todo-footer { border-top-style: dashed; border-color: var(--tk-primary); }
+
+html[data-interface="brutalist"] .desktop-todo-root { box-shadow: inset 0 0 0 2px var(--tk-t1); }
+html[data-interface="brutalist"] .desktop-todo-root .desktop-todo-titlebar { border-bottom: 3px solid var(--tk-t1); }
+html[data-interface="brutalist"] .desktop-todo-root .desktop-todo-summary { background: var(--tk-primary); color: var(--tk-ink); }
+html[data-interface="brutalist"] .desktop-todo-root .desktop-todo-summary :is(button, span, strong) { color: var(--tk-ink); }
+html[data-interface="brutalist"] .desktop-todo-root .desktop-todo-task { border: 2px solid var(--tk-t1); box-shadow: 3px 3px 0 var(--tk-t1); margin-block: 10px; padding: 4px; }
+html[data-interface="brutalist"] .desktop-todo-root .desktop-todo-task-title { font-weight: 800; }
+
+html[data-interface="retro"] .desktop-todo-root { box-shadow: inset 2px 2px 0 var(--tk-surface), inset -2px -2px 0 var(--tk-t3); padding: 2px; }
+html[data-interface="retro"] .desktop-todo-root .desktop-todo-titlebar { background: var(--tk-primary); padding-inline: 4px; }
+html[data-interface="retro"] .desktop-todo-root .desktop-todo-drag :is(span, svg) { color: var(--tk-ink); }
+html[data-interface="retro"] .desktop-todo-root .desktop-todo-list { margin: 4px; border: 2px inset var(--tk-line); padding: 0 6px; }
+html[data-interface="retro"] .desktop-todo-root .desktop-todo-summary { background: var(--tk-surface-2); }
+html[data-interface="retro"] .desktop-todo-root .desktop-todo-check { border: 2px solid var(--tk-line); box-shadow: inset 1px 1px 0 var(--tk-surface), inset -1px -1px 0 var(--tk-t3); }
+html[data-interface="retro"] .desktop-todo-root #desktop-todo-input { box-shadow: inset 1px 1px 0 var(--tk-t3); }
+html[data-interface="retro"] .desktop-todo-root.is-collapsed { padding-block: 0; }
+html[data-interface="retro"] .desktop-todo-root.is-collapsed .desktop-todo-titlebar { height: 54px; }
+
+html[data-interface="botanical"] .desktop-todo-root .desktop-todo-titlebar { background: var(--tk-surface-2); border-bottom: 1px solid var(--tk-primary); }
+html[data-interface="botanical"] .desktop-todo-root .desktop-todo-task { border: 1px solid var(--tk-line); border-bottom: 2px solid var(--tk-primary); border-radius: 18px 3px 18px 3px; padding: 6px; margin-block: 8px; }
+html[data-interface="botanical"] .desktop-todo-root .desktop-todo-task-title { font-family: var(--cal-heading-font); font-size: 15px; }
+html[data-interface="botanical"] .desktop-todo-root .desktop-todo-check { background: var(--tk-surface-2); }
+
+html[data-interface="orbital"] .desktop-todo-root .desktop-todo-titlebar { border-bottom: 1px solid var(--tk-primary); }
+html[data-interface="orbital"] .desktop-todo-root .desktop-todo-count { border: 1px solid var(--tk-primary); border-radius: 99px; padding: 3px 10px; }
+html[data-interface="orbital"] .desktop-todo-root .desktop-todo-task { border: 1px solid var(--tk-line); border-left: 3px solid var(--tk-primary); border-radius: 18px; padding: 6px; margin-block: 8px; }
+html[data-interface="orbital"] .desktop-todo-root .desktop-todo-check { box-shadow: inset 0 0 0 1px var(--tk-primary); }
+html[data-interface="orbital"] .desktop-todo-root .desktop-todo-style-label { border-bottom-style: dashed; }
+
+html[data-interface="atelier"] .desktop-todo-root .desktop-todo-titlebar { border-bottom: 4px double var(--tk-primary); }
+html[data-interface="atelier"] .desktop-todo-root .desktop-todo-list { border-left: 5px double var(--tk-primary); margin-left: 8px; padding-left: 4px; }
+html[data-interface="atelier"] .desktop-todo-root .desktop-todo-task { border-bottom: 1px dashed var(--tk-t3); }
+html[data-interface="atelier"] .desktop-todo-root .desktop-todo-task-title { font-family: var(--cal-heading-font); }
+html[data-interface="atelier"] .desktop-todo-root .desktop-todo-style-label { border-bottom: 1px dashed var(--tk-primary); }
+html[data-interface="atelier"] .desktop-todo-root .desktop-todo-check { border-bottom: 2px solid var(--tk-primary); }
+
+html[data-interface="blueprint"] .desktop-todo-root { box-shadow: inset 0 0 0 1px var(--tk-primary); }
+html[data-interface="blueprint"] .desktop-todo-root .desktop-todo-titlebar { border-bottom: 1px solid var(--tk-primary); }
+html[data-interface="blueprint"] .desktop-todo-root .desktop-todo-summary { border-bottom: 1px solid var(--tk-primary); }
+html[data-interface="blueprint"] .desktop-todo-root .desktop-todo-count { border-left: 1px solid var(--tk-primary); padding-left: 10px; font-family: var(--cal-heading-font); }
+html[data-interface="blueprint"] .desktop-todo-root .desktop-todo-task { border: 1px solid var(--tk-primary); border-left: 4px double var(--tk-primary); margin-block: 8px; padding: 4px; }
+html[data-interface="blueprint"] .desktop-todo-root .desktop-todo-task-meta { font-family: var(--cal-heading-font); }
+html[data-interface="blueprint"] .desktop-todo-root .desktop-todo-check { border: 1px solid var(--tk-primary); }
+
+html[data-interface="gallery"] .desktop-todo-root .desktop-todo-titlebar { border-bottom: 1px solid var(--tk-t1); }
+html[data-interface="gallery"] .desktop-todo-root .desktop-todo-style-label { letter-spacing: 2px; padding-block: 8px; }
+html[data-interface="gallery"] .desktop-todo-root .desktop-todo-task { padding-block: 16px; }
+html[data-interface="gallery"] .desktop-todo-root .desktop-todo-task-title { font-family: var(--cal-heading-font); font-size: 16px; }
+html[data-interface="gallery"] .desktop-todo-root .desktop-todo-count strong { font-family: var(--cal-heading-font); font-size: 26px; }
+html[data-interface="gallery"] .desktop-todo-root .desktop-todo-check { border-right: 1px solid var(--tk-line); }
+
+html[data-interface="arcade"] .desktop-todo-root { box-shadow: inset 0 0 0 2px var(--tk-primary); }
+html[data-interface="arcade"] .desktop-todo-root .desktop-todo-titlebar { border-bottom: 3px solid var(--tk-primary); }
+html[data-interface="arcade"] .desktop-todo-root .desktop-todo-style-label { border-bottom: 2px dashed var(--tk-primary); }
+html[data-interface="arcade"] .desktop-todo-root .desktop-todo-task { border: 2px solid var(--tk-primary); box-shadow: 2px 2px 0 var(--tk-line); padding: 4px; margin-block: 10px; }
+html[data-interface="arcade"] .desktop-todo-root .desktop-todo-count { border-bottom: 2px solid var(--tk-primary); font-family: var(--cal-heading-font); }
+html[data-interface="arcade"] .desktop-todo-root .desktop-todo-check { border: 2px solid var(--tk-primary); box-shadow: 2px 2px 0 var(--tk-line); }
+
+html[data-interface="sunrise"] .desktop-todo-root .desktop-todo-titlebar { background: var(--tk-surface-2); }
+html[data-interface="sunrise"] .desktop-todo-root .desktop-todo-task { border: 1px solid var(--tk-line); border-top: 3px solid var(--tk-primary); border-radius: 14px 14px 4px 4px; margin-block: 8px; padding: 6px; }
+html[data-interface="sunrise"] .desktop-todo-root .desktop-todo-check { background: var(--tk-surface-2); }
+html[data-interface="aurora"] .desktop-todo-root .desktop-todo-titlebar { border-bottom: 0; }
+html[data-interface="aurora"] .desktop-todo-root .desktop-todo-summary { margin-inline: 8px; border: 1px solid var(--tk-line); border-radius: 12px; background: var(--tk-surface-2); }
+html[data-interface="aurora"] .desktop-todo-root .desktop-todo-task { border: 1px solid var(--tk-line); border-radius: 14px; box-shadow: 0 2px 6px color-mix(in srgb, var(--tk-t1) 8%, transparent); margin-block: 8px; padding: 6px; }
+html[data-interface="precision"] .desktop-todo-root .desktop-todo-titlebar { border-bottom: 2px solid var(--tk-line); }
+html[data-interface="precision"] .desktop-todo-root .desktop-todo-summary { border-bottom: 1px solid var(--tk-line); }
+html[data-interface="precision"] .desktop-todo-root .desktop-todo-task { padding-block: 4px; }
+html[data-interface="precision"] .desktop-todo-root .desktop-todo-check { border: 1px solid var(--tk-line); }
+html[data-interface="precision"] .desktop-todo-root .desktop-todo-task-meta { font-family: var(--cal-heading-font); }
+
+html[data-interface] .desktop-todo-root.is-readonly .desktop-todo-task { background: var(--tk-surface-2); box-shadow: none; }
+html[data-interface] .desktop-todo-root.is-collapsed { border-radius: 4px; }
+@media (max-height: 360px) {
+  html[data-interface] .desktop-todo-root .desktop-todo-summary { padding-block: 0; }
+  html[data-interface] .desktop-todo-root .desktop-todo-style-label { display: none; }
+  html[data-interface] .desktop-todo-root .desktop-todo-footer label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  html[data-interface] .desktop-todo-root .desktop-todo-footer { padding-block: 4px; }
+  html[data-interface] .desktop-todo-root .desktop-todo-footer form > p { max-height: 18px; }
+}

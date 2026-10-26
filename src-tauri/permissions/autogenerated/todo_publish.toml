@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-todo-publish"
+description = "Enables the todo_publish command without any pre-configured scope."
+commands.allow = ["todo_publish"]
+
+[[permission]]
+identifier = "deny-todo-publish"
+description = "Denies the todo_publish command without any pre-configured scope."
+commands.deny = ["todo_publish"]

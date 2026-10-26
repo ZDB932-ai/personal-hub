@@ -4,7 +4,6 @@ import { Capacitor } from '@capacitor/core'
 import { useRoute, useRouter } from 'vue-router'
 import AppNavigation from './components/AppNavigation.vue'
 import ProfileModal from './components/ProfileModal.vue'
-import './hub-workspace.css'
 import ToastHost from './components/ToastHost.vue'
 import StorageWarning from './components/StorageWarning.vue'
 import HubTools from './components/HubTools.vue'
@@ -26,7 +25,7 @@ const router = useRouter()
 const mainContent = ref<HTMLElement | null>(null)
 const focusActive = computed(() => route.path === '/focus' && typeof route.query.task === 'string')
 const showSettings = ref(false)
-const settingsTab = ref<'appearance' | 'security' | 'sync'>('appearance')
+const settingsTab = ref<'appearance' | 'security' | 'sync' | 'desktop'>()
 const showProfile = ref(false)
 const navigationCollapsed = ref((() => { try { return localStorage.getItem('xk.navigation.collapsed') === 'true' } catch { return false } })())
 watch(navigationCollapsed, value => { try { localStorage.setItem('xk.navigation.collapsed', String(value)) } catch {} })
@@ -36,7 +35,7 @@ async function handleLock() {
   catch { toast('保存失败，暂未锁定，请检查本机存储空间', 'error') }
 }
 
-function openSettings(tab: 'appearance' | 'security' | 'sync' = 'appearance') { settingsTab.value = tab; showSettings.value = true }
+function openSettings(tab?: 'appearance' | 'security' | 'sync') { settingsTab.value = tab; showSettings.value = true }
 
 function handleExternalLink(event: MouseEvent): void {
   if (!isTauriDesktop()) return
@@ -52,13 +51,20 @@ let unbindAutoPush: (() => void) | null = null
 let unbindNativeSchedule: (() => void) | null = null
 let unlistenDesktopLock: (() => void) | null = null
 let unbindAndroidNavigation: (() => void) | null = null
+let stopDesktopTodo: (() => void) | undefined
+let mounted = true
+const openTodoSettings = () => { settingsTab.value = 'desktop'; showSettings.value = true }
 
 onMounted(() => {
+  window.addEventListener('desktop-todo-settings', openTodoSettings)
   unbindAndroidNavigation = bindAndroidNavigation(router, () => isGated.value)
   document.addEventListener('click', handleExternalLink)
   unbindAutoPush = bindAutoPush()
   unbindNativeSchedule = bindNativeScheduleWatcher(() => !isGated.value)
   if (isTauriDesktop()) {
+    void import('./lib/desktopTodoHost').then(({ startDesktopTodoHost }) => startDesktopTodoHost(router))
+      .then(stop => { if (mounted) stopDesktopTodo = stop; else stop() })
+      .catch(() => toast('桌面清单未连接，请重新打开应用', 'error'))
     void import('@tauri-apps/api/event')
       .then(({ listen }) => listen('desktop://lock', () => handleLock()))
       .then((unlisten) => {
@@ -76,6 +82,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  mounted = false
+  stopDesktopTodo?.()
+  window.removeEventListener('desktop-todo-settings', openTodoSettings)
   unbindAndroidNavigation?.()
   finishRouteTransition()
   document.removeEventListener('click', handleExternalLink)

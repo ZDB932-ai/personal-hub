@@ -11,6 +11,8 @@ const props = defineProps<{
   maxWidth?: string
   mobileSheet?: boolean
   panelClass?: string
+  label?: string
+  escapeHandler?: () => boolean
 }>()
 
 const emit = defineEmits<{
@@ -21,6 +23,14 @@ const panel = ref<HTMLElement | null>(null)
 let returnFocus: HTMLElement | null = null
 let ownsScrollLock = false
 
+function isVisible(element: HTMLElement): boolean {
+  if (!element.getClientRects().length || !element.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) return false
+  for (let ancestor = element.parentElement; ancestor; ancestor = ancestor.parentElement) {
+    if (ancestor instanceof HTMLDetailsElement && !ancestor.open && !ancestor.querySelector(':scope > summary')?.contains(element)) return false
+  }
+  return true
+}
+
 function releaseScrollLock() {
   if (!ownsScrollLock) return
   ownsScrollLock = false
@@ -30,9 +40,9 @@ function releaseScrollLock() {
 function onKeydown(e: KeyboardEvent) {
   if (document.querySelectorAll('[role="dialog"]').item(document.querySelectorAll('[role="dialog"]').length - 1) !== panel.value) return
   if (!props.open || e.isComposing || e.defaultPrevented) return
-  if (e.key === 'Escape') { e.preventDefault(); emit('close') }
+  if (e.key === 'Escape') { e.preventDefault(); if (!props.escapeHandler?.()) emit('close') }
   if (e.key === 'Tab') {
-    const focusable = Array.from(panel.value?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), a[href], [tabindex="0"]') ?? []).filter(element => element.getClientRects().length > 0)
+    const focusable = Array.from(panel.value?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), a[href], summary, [tabindex="0"]') ?? []).filter(element => element.tabIndex >= 0 && isVisible(element))
     const first = focusable[0], last = focusable.at(-1)
     if (!first) { e.preventDefault(); panel.value?.focus() }
     else if (!panel.value?.contains(document.activeElement) || document.activeElement === panel.value) { e.preventDefault(); (e.shiftKey ? last : first)?.focus() }
@@ -56,7 +66,7 @@ watch(
       window.addEventListener('keydown', onKeydown)
       void nextTick(() => {
         if (!props.open || !panel.value || panel.value.contains(document.activeElement)) return
-        const target = panel.value.querySelector<HTMLElement>('[data-modal-autofocus]')
+        const target = Array.from(panel.value.querySelectorAll<HTMLElement>('[data-modal-autofocus]')).find(isVisible)
         ;(target ?? panel.value).focus({ preventScroll: true })
       })
     } else {
@@ -92,7 +102,7 @@ onUnmounted(() => {
         ref="panel"
         role="dialog"
         aria-modal="true"
-        aria-label="对话框"
+        :aria-label="label ?? '对话框'"
         tabindex="-1"
         class="modal-panel relative max-h-[85dvh] w-full overflow-y-auto overscroll-contain rounded-xl border border-line bg-elevated p-4 shadow-2xl shadow-black/50 sm:p-6"
         :class="[maxWidth ?? 'max-w-lg', panelClass, { 'modal-with-regions': $slots.header || $slots.footer, 'modal-mobile-sheet': mobileSheet }]"

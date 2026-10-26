@@ -1,0 +1,146 @@
+html[data-interface]:not([data-interface="classic"]) .task-style-panel { color: var(--tk-t1); background: var(--tk-elevated); }
+html[data-interface] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"], .ui-primary-button, .ui-secondary-button, .ui-icon-button) { min-height: 44px; }
+.task-style-panel .modal-region-header .ui-icon-button { color: var(--tk-t2); }
+html[data-interface]:not([data-interface="classic"]) .task-style-panel :is(.ui-primary-button, .ui-secondary-button, .ui-icon-button) { position: relative; min-width: 44px; }
+html[data-interface]:not([data-interface="classic"]) .task-style-panel :is(input, textarea, button):focus-visible { outline: 2px solid var(--tk-primary); outline-offset: 3px; }
+html[data-interface]:not([data-interface="classic"]) .task-style-panel button:disabled { opacity: .5; cursor: not-allowed; }
+html[data-interface]:not([data-interface="classic"]) .task-style-panel button > svg { flex-shrink: 0; }
+html[data-interface]:not([data-interface="classic"]) .task-style-panel .ui-primary-button:hover { background-color: var(--tk-primary-strong); color: var(--tk-ink); }
+html[data-interface]:not([data-interface="classic"]) .task-style-panel :is(.ui-secondary-button, .ui-icon-button):hover { border-color: var(--tk-primary); }
+
+html[data-interface="swiss"] .task-style-panel { border: 1px solid var(--tk-t1); border-radius: 0; box-shadow: none; }
+html[data-interface="swiss"] .task-style-panel .modal-region-header { border-bottom: 4px solid var(--tk-t1); padding-block: 16px; }
+html[data-interface="swiss"] .task-style-panel h3 { font-family: 'Arial Black', 'Microsoft YaHei', sans-serif; font-size: 30px; letter-spacing: -.06em; font-weight: 900; }
+html[data-interface="swiss"] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"]) { border: 0; border-bottom: 2px solid var(--tk-t1); border-radius: 0; box-shadow: none; background: transparent; padding-left: 4px; }
+html[data-interface="swiss"] .task-style-panel input[placeholder="要做什么？"] { font-size: 18px; font-weight: 600; }
+html[data-interface="swiss"] .task-style-panel .ui-primary-button { background: transparent; color: var(--tk-t1); border: 0; border-bottom: 4px solid var(--tk-primary); border-radius: 0; padding-inline: 24px; font-weight: 900; }
+html[data-interface="swiss"] .task-style-panel :is(.ui-secondary-button, .ui-icon-button) { border: 1px solid var(--tk-t1); border-radius: 0; background: transparent; }
+html[data-interface="swiss"] .task-style-panel .task-form-subtasks { border: 0; border-block: 1px solid var(--tk-line); border-radius: 0; background: transparent; padding-inline: 0; }
+html[data-interface="swiss"] .task-style-panel .modal-region-footer { border-top: 2px solid var(--tk-t1); }
+
+html[data-interface="terminal"] .task-style-panel { border: 1px solid var(--tk-primary); border-radius: 0; font-family: Consolas, 'Microsoft YaHei', monospace; box-shadow: 0 0 0 5px var(--tk-body); }
+html[data-interface="terminal"] .task-style-panel .modal-region-header { background: var(--tk-primary); color: var(--tk-ink); padding-block: 8px; border: 0; }
+html[data-interface="terminal"] .task-style-panel h3 { font-family: inherit; font-size: 18px; font-weight: 500; letter-spacing: .06em; }
+html[data-interface="terminal"] .task-style-panel .modal-region-header .ui-icon-button,
+html[data-interface="terminal"] .task-style-panel .modal-region-header .ui-icon-button:hover { color: var(--tk-ink); background: var(--tk-primary); border: 1px solid currentColor; border-radius: 0; }
+html[data-interface="terminal"] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"]) { border: 1px dashed var(--tk-line); border-left: 4px solid var(--tk-primary); border-radius: 0; background: var(--tk-inset); font-family: inherit; }
+html[data-interface="terminal"] .task-style-panel :is(.ui-primary-button, .ui-secondary-button) { border: 1px dashed var(--tk-primary); border-inline: 3px solid var(--tk-primary); border-radius: 0; background: transparent; color: var(--tk-t1); padding-inline: 22px; font-family: inherit; letter-spacing: .06em; }
+html[data-interface="terminal"] .task-style-panel .ui-secondary-button { border-color: var(--tk-line); color: var(--tk-t2); }
+html[data-interface="terminal"] .task-style-panel .task-form-subtasks { border-style: dashed; border-radius: 0; }
+html[data-interface="terminal"] .task-style-panel .modal-region-footer { border-top: 1px dashed var(--tk-primary); background: var(--tk-inset); }
+
+html[data-interface="brutalist"] .task-style-panel { border: 3px solid var(--tk-t1); border-radius: 0; box-shadow: 8px 8px 0 var(--tk-t1); }
+html[data-interface="brutalist"] .task-style-panel .modal-region-header { border-bottom: 3px solid var(--tk-t1); background: var(--tk-primary); color: var(--tk-ink); padding-block: 14px; }
+html[data-interface="brutalist"] .task-style-panel h3 { font-size: 28px; font-weight: 950; letter-spacing: -.05em; }
+html[data-interface="brutalist"] .task-style-panel .modal-region-header .ui-icon-button,
+html[data-interface="brutalist"] .task-style-panel .modal-region-header .ui-icon-button:hover { color: var(--tk-ink); background: var(--tk-primary); border-color: currentColor; }
+html[data-interface="brutalist"] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"]) { border: 2px solid var(--tk-t1); border-radius: 0; box-shadow: 3px 3px 0 var(--tk-line); font-weight: 600; }
+html[data-interface="brutalist"] .task-style-panel :is(.ui-primary-button, .ui-secondary-button, .ui-icon-button) { border: 3px solid var(--tk-t1); border-radius: 0; box-shadow: 4px 4px 0 var(--tk-t1); font-weight: 900; padding-inline: 20px; }
+html[data-interface="brutalist"] .task-style-panel .ui-icon-button { padding-inline: 0; box-shadow: 2px 2px 0 var(--tk-t1); }
+html[data-interface="brutalist"] .task-style-panel .task-form-subtasks { border: 2px solid var(--tk-t1); border-radius: 0; box-shadow: 4px 4px 0 var(--tk-line); }
+html[data-interface="brutalist"] .task-style-panel .modal-region-footer { border-top: 3px solid var(--tk-t1); padding-bottom: 20px; }
+
+html[data-interface="retro"] .task-style-panel { border: 3px outset var(--tk-line); border-radius: 0; box-shadow: 4px 4px 0 var(--tk-t3); background: var(--tk-surface-2); font-family: Tahoma, 'Microsoft YaHei', sans-serif; }
+html[data-interface="retro"] .task-style-panel .modal-region-header { margin: 3px; border: 0; padding: 4px 10px; background: var(--tk-primary); color: var(--tk-ink); }
+html[data-interface="retro"] .task-style-panel h3 { font-size: 16px; font-weight: 700; font-family: inherit; }
+html[data-interface="retro"] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"]) { border: 2px inset var(--tk-line); border-radius: 0; background: var(--tk-surface); box-shadow: inset 1px 1px 0 var(--tk-t3); }
+html[data-interface="retro"] .task-style-panel :is(.ui-primary-button, .ui-secondary-button, .ui-icon-button) { border: 2px outset var(--tk-line); border-radius: 0; background: var(--tk-surface-2); color: var(--tk-t1); box-shadow: 1px 1px 0 var(--tk-t1); padding-inline: 18px; font-family: inherit; }
+html[data-interface="retro"] .task-style-panel .ui-icon-button { padding-inline: 0; }
+html[data-interface="retro"] .task-style-panel .ui-primary-button { outline: 1px solid var(--tk-t1); outline-offset: 3px; font-weight: 800; }
+html[data-interface="retro"] .task-style-panel .task-form-subtasks { border: 2px inset var(--tk-line); border-radius: 0; }
+html[data-interface="retro"] .task-style-panel .modal-region-footer { margin: 0 3px 3px; border-top: 2px groove var(--tk-line); }
+
+html[data-interface="botanical"] .task-style-panel { border: 1px solid var(--tk-line); border-radius: 40px 8px 40px 8px; box-shadow: 0 10px 40px var(--tk-shadow); }
+html[data-interface="botanical"] .task-style-panel .modal-region-header { position: relative; border-bottom: 1px solid var(--tk-primary); padding-block: 20px; }
+html[data-interface="botanical"] .task-style-panel h3 { font: 500 26px/1.3 Georgia, 'Songti SC', SimSun, serif; letter-spacing: .06em; }
+html[data-interface="botanical"] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"]) { border: 1px solid var(--tk-line); border-bottom: 2px solid var(--tk-primary); border-radius: 16px 3px 16px 3px; background: var(--tk-surface); }
+html[data-interface="botanical"] .task-style-panel :is(.ui-primary-button, .ui-secondary-button) { border-radius: 24px 4px 24px 4px; border: 1px solid var(--tk-primary); padding-inline: 26px; font-weight: 500; }
+html[data-interface="botanical"] .task-style-panel .ui-icon-button { border: 1px solid var(--tk-line); border-radius: 50%; }
+html[data-interface="botanical"] .task-style-panel .task-form-subtasks { border-style: dotted; border-radius: 4px 24px 4px 4px; background: var(--tk-inset); }
+html[data-interface="botanical"] .task-style-panel .modal-region-footer { border-top-style: dotted; }
+
+html[data-interface="orbital"] .task-style-panel { border: 1px solid var(--tk-primary); border-radius: 36px; box-shadow: 0 0 0 5px var(--tk-body), 0 0 0 6px var(--tk-line); }
+html[data-interface="orbital"] .task-style-panel .modal-region-header { border-bottom: 1px solid var(--tk-line); padding: 22px 28px; }
+html[data-interface="orbital"] .task-style-panel h3 { font-size: 24px; font-weight: 400; letter-spacing: .14em; }
+html[data-interface="orbital"] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"]) { border: 1px solid var(--tk-line); border-radius: 22px; background: var(--tk-inset); box-shadow: inset 0 0 0 3px var(--tk-surface); padding-inline: 18px; }
+html[data-interface="orbital"] .task-style-panel :is(.ui-primary-button, .ui-secondary-button, .ui-icon-button) { border: 1px solid var(--tk-primary); border-radius: 999px; box-shadow: inset 0 0 0 3px var(--tk-surface); padding-inline: 24px; font-weight: 500; }
+html[data-interface="orbital"] .task-style-panel .ui-icon-button { padding-inline: 0; }
+html[data-interface="orbital"] .task-style-panel .task-form-subtasks { border-radius: 24px; background: transparent; }
+html[data-interface="orbital"] .task-style-panel .modal-region-footer { border-top: 1px solid var(--tk-primary); padding-block: 20px; }
+
+html[data-interface="atelier"] .task-style-panel { border: 1px solid var(--tk-line); border-left: 6px double var(--tk-primary); border-radius: 0; box-shadow: 5px 5px 0 var(--tk-surface-2), 6px 6px 0 var(--tk-line); }
+html[data-interface="atelier"] .task-style-panel .modal-region-header { border-bottom: 3px double var(--tk-line); background: var(--tk-inset); }
+html[data-interface="atelier"] .task-style-panel h3 { font: 500 28px/1.3 Georgia, 'Songti SC', SimSun, serif; }
+html[data-interface="atelier"] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"]) { border: 0; border-bottom: 1px dashed var(--tk-primary); border-radius: 0; background: var(--tk-inset); box-shadow: none; }
+html[data-interface="atelier"] .task-style-panel :is(.ui-primary-button, .ui-secondary-button) { border: 1px dashed var(--tk-primary); border-radius: 2px; box-shadow: 3px 3px 0 var(--tk-line); padding-inline: 22px; font-family: Georgia, 'Songti SC', SimSun, serif; font-size: 15px; }
+html[data-interface="atelier"] .task-style-panel .ui-primary-button::after { content: ''; position: absolute; inset: 3px; border: 1px dashed var(--tk-ink); pointer-events: none; }
+html[data-interface="atelier"] .task-style-panel .ui-icon-button { border: 1px dashed var(--tk-line); border-radius: 2px; }
+html[data-interface="atelier"] .task-style-panel .task-form-subtasks { border: 1px dashed var(--tk-line); border-radius: 0; }
+html[data-interface="atelier"] .task-style-panel .modal-region-footer { border-top: 3px double var(--tk-line); }
+
+html[data-interface="blueprint"] .task-style-panel { border: 1px solid var(--tk-primary); border-radius: 0; box-shadow: 0 0 0 4px var(--tk-body), 0 0 0 5px var(--tk-line); }
+html[data-interface="blueprint"] .task-style-panel .modal-region-header { border-bottom: 3px double var(--tk-primary); border-left: 5px solid var(--tk-primary); padding-block: 12px; }
+html[data-interface="blueprint"] .task-style-panel h3 { font-family: Consolas, 'Microsoft YaHei', monospace; font-size: 22px; font-weight: 400; letter-spacing: .1em; }
+html[data-interface="blueprint"] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"]) { border: 1px dashed var(--tk-primary); border-radius: 0; outline: 1px solid var(--tk-line); outline-offset: 3px; background: var(--tk-inset); font-family: Consolas, 'Microsoft YaHei', monospace; }
+html[data-interface="blueprint"] .task-style-panel :is(.ui-primary-button, .ui-secondary-button, .ui-icon-button) { border: 1px solid var(--tk-primary); border-radius: 0; box-shadow: 3px 3px 0 var(--tk-line); padding-inline: 20px; font-family: Consolas, 'Microsoft YaHei', monospace; font-weight: 500; }
+html[data-interface="blueprint"] .task-style-panel .ui-icon-button { padding-inline: 0; border-style: double; border-width: 3px; }
+html[data-interface="blueprint"] .task-style-panel .ui-secondary-button { border-style: dashed; box-shadow: none; }
+html[data-interface="blueprint"] .task-style-panel .task-form-subtasks { border: 1px solid var(--tk-primary); border-radius: 0; background-image: linear-gradient(color-mix(in srgb, var(--tk-line) 20%, transparent) 1px, transparent 1px); background-size: 100% 24px; }
+html[data-interface="blueprint"] .task-style-panel .modal-region-footer { border-top: 3px double var(--tk-primary); }
+
+html[data-interface="gallery"] .task-style-panel { border: 0; border-radius: 0; box-shadow: 0 20px 80px var(--tk-shadow); }
+html[data-interface="gallery"] .task-style-panel .modal-region-header { border: 0; padding-block: 28px 14px; }
+html[data-interface="gallery"] .task-style-panel h3 { font: 400 36px/1.2 Georgia, 'Songti SC', SimSun, serif; letter-spacing: .02em; }
+html[data-interface="gallery"] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"]) { border: 0; border-bottom: 1px solid var(--tk-t3); border-radius: 0; padding-inline: 0; box-shadow: none; background: transparent; font-family: Georgia, 'Songti SC', SimSun, serif; font-size: 16px; }
+html[data-interface="gallery"] .task-style-panel :is(.ui-primary-button, .ui-secondary-button) { border: 0; border-bottom: 1px solid var(--tk-t1); border-radius: 0; background: transparent; color: var(--tk-t1); box-shadow: none; padding-inline: 4px; margin-left: 20px; font-weight: 400; letter-spacing: .1em; }
+html[data-interface="gallery"] .task-style-panel .ui-icon-button { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+html[data-interface="gallery"] .task-style-panel .task-form-subtasks { border: 0; border-block: 1px solid var(--tk-line); border-radius: 0; padding-inline: 0; background: transparent; }
+html[data-interface="gallery"] .task-style-panel .modal-region-footer { border-top: 1px solid var(--tk-t1); }
+
+html[data-interface="arcade"] .task-style-panel { border: 3px solid var(--tk-primary); border-radius: 0; box-shadow: -5px 0 0 var(--tk-line), 5px 0 0 var(--tk-line), 0 -5px 0 var(--tk-line), 0 7px 0 var(--tk-line); font-family: Consolas, 'Microsoft YaHei', monospace; }
+html[data-interface="arcade"] .task-style-panel .modal-region-header { border-bottom: 3px dashed var(--tk-line); }
+html[data-interface="arcade"] .task-style-panel h3 { font-family: inherit; font-size: 24px; letter-spacing: .1em; font-weight: 900; }
+html[data-interface="arcade"] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"]) { border: 2px solid var(--tk-primary); border-radius: 0; background: var(--tk-inset); box-shadow: inset 3px 3px 0 var(--tk-line); font-family: inherit; }
+html[data-interface="arcade"] .task-style-panel :is(.ui-primary-button, .ui-secondary-button, .ui-icon-button) { border: 2px solid var(--tk-t1); border-radius: 0; box-shadow: -3px 0 0 var(--tk-t1), 3px 0 0 var(--tk-t1), 0 -3px 0 var(--tk-t1), 0 5px 0 var(--tk-t1); padding-inline: 18px; font-family: inherit; font-weight: 800; margin: 3px; }
+html[data-interface="arcade"] .task-style-panel .ui-icon-button { padding-inline: 0; }
+html[data-interface="arcade"] .task-style-panel .task-form-subtasks { border: 2px solid var(--tk-line); border-radius: 0; }
+html[data-interface="arcade"] .task-style-panel .modal-region-footer { border-top: 3px dashed var(--tk-line); padding-block: 20px; }
+
+html[data-interface="sunrise"] .task-style-panel { border: 1px solid var(--tk-line); border-radius: 28px 28px 10px 10px; box-shadow: 0 14px 44px var(--tk-shadow); }
+html[data-interface="sunrise"] .task-style-panel .modal-region-header { border-bottom: 3px double var(--tk-line); background: var(--tk-inset); }
+html[data-interface="sunrise"] .task-style-panel h3 { font: 500 28px/1.3 Georgia, 'Songti SC', SimSun, serif; }
+html[data-interface="sunrise"] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"]) { border: 1px solid var(--tk-line); border-bottom: 3px solid var(--tk-primary); border-radius: 14px 14px 4px 4px; background: var(--tk-surface); }
+html[data-interface="sunrise"] .task-style-panel .ui-primary-button { border: 1px solid var(--tk-primary); border-radius: 24px 24px 8px 8px; box-shadow: 0 4px 0 var(--tk-line); padding-inline: 24px; }
+html[data-interface="sunrise"] .task-style-panel :is(.ui-secondary-button, .ui-icon-button) { border: 1px solid var(--tk-line); border-radius: 12px; background: var(--tk-surface); }
+html[data-interface="sunrise"] .task-style-panel .task-form-subtasks { border-radius: 24px 24px 8px 8px; border-top: 3px solid var(--tk-line); }
+
+html[data-interface="aurora"] .task-style-panel { border: 1px solid var(--tk-line); border-radius: 30px; box-shadow: 0 20px 60px var(--tk-shadow); }
+html[data-interface="aurora"] .task-style-panel .modal-region-header { border: 0; padding-bottom: 8px; }
+html[data-interface="aurora"] .task-style-panel h3 { font-size: 26px; font-weight: 500; letter-spacing: -.03em; }
+html[data-interface="aurora"] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"]) { border: 0; border-radius: 18px; background: var(--tk-inset); box-shadow: inset 0 2px 5px color-mix(in srgb, var(--tk-t1) 10%, transparent); }
+html[data-interface="aurora"] .task-style-panel .ui-primary-button { border: 0; border-radius: 18px; padding-inline: 24px; box-shadow: 0 5px 0 color-mix(in srgb, var(--tk-primary) 25%, var(--tk-surface)); }
+html[data-interface="aurora"] .task-style-panel :is(.ui-secondary-button, .ui-icon-button) { border: 1px solid var(--tk-line); border-radius: 18px; box-shadow: 0 4px 12px color-mix(in srgb, var(--tk-t1) 8%, transparent); }
+html[data-interface="aurora"] .task-style-panel .task-form-subtasks { border-radius: 24px; border: 0; background: var(--tk-inset); }
+html[data-interface="aurora"] .task-style-panel .modal-region-footer { border: 0; padding-top: 8px; padding-bottom: 22px; }
+
+html[data-interface="precision"] .task-style-panel { border: 1px solid var(--tk-primary); border-radius: 2px; box-shadow: 0 10px 40px var(--tk-shadow); }
+html[data-interface="precision"] .task-style-panel .modal-region-header { border-bottom: 1px solid var(--tk-primary); background: var(--tk-inset); padding-block: 10px; }
+html[data-interface="precision"] .task-style-panel h3 { font-size: 18px; font-weight: 600; }
+html[data-interface="precision"] .task-style-panel :is(input, textarea, .date-picker-trigger, [role="combobox"]) { border: 1px solid var(--tk-line); border-left: 3px solid var(--tk-line); border-radius: 2px; background: var(--tk-inset); font-family: Consolas, 'Microsoft YaHei', monospace; font-size: 13px; }
+html[data-interface="precision"] .task-style-panel :is(.ui-primary-button, .ui-secondary-button) { border: 1px solid var(--tk-line); border-left: 4px solid var(--tk-t1); border-radius: 2px; box-shadow: none; font: 500 13px Consolas, 'Microsoft YaHei', monospace; padding-inline: 18px; }
+html[data-interface="precision"] .task-style-panel .ui-icon-button { border: 1px solid var(--tk-line); border-radius: 2px; }
+html[data-interface="precision"] .task-style-panel .task-form-subtasks { border-radius: 2px; border-left: 3px solid var(--tk-line); }
+html[data-interface="precision"] .task-style-panel .modal-region-footer { background: var(--tk-inset); border-top: 1px solid var(--tk-primary); }
+
+@media (max-width: 639px) {
+  html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"], [data-interface="precision"]) .task-style-panel { border-radius: 0; }
+  html[data-interface]:not([data-interface="classic"]) .task-style-panel .modal-region-header { padding: 10px 16px; }
+  html[data-interface]:not([data-interface="classic"]) .task-style-panel .modal-region-header h3 { font-size: 24px; }
+  html[data-interface="retro"] .task-style-panel .modal-region-header h3,
+  html[data-interface="terminal"] .task-style-panel .modal-region-header h3,
+  html[data-interface="precision"] .task-style-panel .modal-region-header h3 { font-size: 18px; }
+  html[data-interface="arcade"] .task-style-panel { width: calc(100% - 10px); max-height: calc(100dvh - 24px); margin: 5px; }
+  html[data-interface="brutalist"] .task-style-panel { width: calc(100% - 8px); margin-right: 8px; }
+  html:is([data-interface="botanical"], [data-interface="orbital"], [data-interface="sunrise"], [data-interface="aurora"]) .task-style-panel { border-radius: 24px 24px 0 0; }
+  html[data-interface="gallery"] .task-style-panel .task-form-actions button { margin-left: 0; }
+}

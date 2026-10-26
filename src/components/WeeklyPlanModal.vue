@@ -31,7 +31,7 @@ const error = ref('')
 const weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
 
 const longPlanOptions = computed(() => [
-  { value: '', label: '不关联长期方向' },
+  { value: '', label: '不关联长期目标' },
   ...longPlans.value
     .filter((plan) => plan.status !== 'completed')
     .map((plan) => ({ value: plan.id, label: plan.title })),
@@ -82,7 +82,7 @@ function save(): void {
   }
   const sessions = Math.floor(Number(form.sessions))
   if (!Number.isFinite(sessions) || sessions < 1) {
-    error.value = '请输入至少 1 次行动'
+    error.value = '每周次数至少为 1 次'
     return
   }
   const draft = {
@@ -114,18 +114,18 @@ const inputCls =
     <div class="flex items-center justify-between gap-4">
       <div>
         <p class="text-xs font-medium text-primary">本周计划</p>
-        <h3 class="mt-1 text-lg font-semibold text-t1">{{ entry ? '编辑这周的方向' : '给这周留一个方向' }}</h3>
+        <h3 class="mt-1 text-lg font-semibold text-t1">{{ entry ? '编辑周计划' : '创建周计划' }}</h3>
       </div>
       <button aria-label="关闭" class="ui-icon-button" @click="emit('close')">
         <X class="h-5 w-5" />
       </button>
     </div>
 
-    <p class="mt-3 text-xs leading-relaxed text-t3">不必把一周排满。先选一件想推进或想照顾的事，再决定投入几次。</p>
+    <p class="mt-3 text-xs leading-relaxed text-t3">设置本周要推进的事项、次数和预计时长，保存后可预览排期，再分配到每天。</p>
 
     <div class="mt-5 space-y-4">
       <label class="block">
-        <span class="mb-1.5 block text-xs font-medium text-t3">这周想照顾的事 *</span>
+        <span class="mb-1.5 block text-xs font-medium text-t3">计划名称 *</span>
         <input v-model="form.title" :class="inputCls" placeholder="例如：整理作品集、恢复跑步节奏" />
       </label>
       <label class="block">
@@ -155,7 +155,7 @@ const inputCls =
         </label>
       </div>
       <label class="block">
-        <span class="mb-1.5 block text-xs font-medium text-t3">关联长期方向</span>
+        <span class="mb-1.5 block text-xs font-medium text-t3">关联长期目标</span>
         <AppSelect v-model="form.longPlanId" :options="longPlanOptions" />
       </label>
       <label class="block"><span class="mb-1.5 block text-xs font-medium text-t3">每次预计时长（分钟）</span><input v-model.number="form.estimatedMinutes" type="number" min="1" max="1440" step="1" :class="inputCls" /></label>

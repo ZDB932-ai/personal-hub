@@ -1,0 +1,113 @@
+import { chromium } from 'playwright'
+import { mkdir, writeFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
+import { createHash } from 'node:crypto'
+import assert from 'node:assert/strict'
+
+const output = resolve('.visual-qa', `pet-presets-${Date.now()}`)
+await mkdir(output, { recursive: true })
+const browser = await chromium.launch({ channel: 'msedge', headless: true })
+const context = await browser.newContext({ viewport: { width: 1000, height: 900 } })
+const page = await context.newPage()
+const errors = []
+page.on('pageerror', error => errors.push(error.message))
+page.setDefaultTimeout(60000)
+const digest = buffer => createHash('sha256').update(buffer).digest('hex')
+try {
+  await page.goto(process.env.PHUB_PET_REVIEW_URL ?? 'http://127.0.0.1:4197')
+  const production = !new URL(page.url()).searchParams.has('pet')
+  const openSamples = async () => {
+    await page.getByRole('button', { name: '设置', exact: true }).first().click()
+    await page.getByRole('button', { name: '玩偶', exact: true }).click()
+    assert.equal(await page.getByRole('checkbox', { name: '开启桌面玩偶', exact: true }).count(), 0)
+    await page.getByRole('button', { name: '查看 Tripo 动作样片', exact: true }).click()
+    assert.equal(await page.getByRole('checkbox', { name: '开启桌面玩偶', exact: true }).count(), 0)
+  }
+  if (production) {
+    await page.getByPlaceholder('创建主密码', { exact: true }).fill('QA-Pet-Presets-Only')
+    await page.getByPlaceholder('再次输入主密码', { exact: true }).fill('QA-Pet-Presets-Only')
+    await page.getByPlaceholder('例如：我的工作台').fill('桌宠测试临时账户')
+    await page.getByRole('button', { name: '下一步：保存恢复密钥', exact: true }).click()
+    const recovery = await page.locator('textarea[readonly]').inputValue()
+    await page.getByLabel('确认密钥最后 8 位').fill(recovery.slice(-8))
+    await page.getByRole('checkbox', { name: '我已在应用之外保存完整密钥' }).check()
+    await page.getByRole('button', { name: '确认保存并启用', exact: true }).click()
+    await openSamples()
+  }
+  await page.locator('[data-state="ready"]').waitFor()
+  await page.getByRole('button', { name: /奶龙 萌系/ }).click()
+  assert.equal(await page.getByRole('button', { name: '播放鼓掌', exact: true }).count(), 0)
+  assert.equal(await page.locator('[data-state="ready"]').count(), 0)
+  await page.getByRole('button', { name: /星际维修员 人形/ }).click()
+  await page.locator('[data-state="ready"]').waitFor()
+  const canvas = page.locator('[data-state="ready"] canvas')
+  await canvas.scrollIntoViewIfNeeded()
+  await page.screenshot({ path: resolve(output, 'front.png') })
+  await page.getByRole('button', { name: '播放鼓掌', exact: true }).click()
+  await page.waitForTimeout(400)
+  const first = digest(await canvas.screenshot())
+  await page.waitForTimeout(500)
+  const second = digest(await canvas.screenshot())
+  assert.notEqual(first, second, '实际画面随鼓掌动画改变')
+  await page.screenshot({ path: resolve(output, 'clap.png') })
+  await page.waitForTimeout(12000)
+  const ended = digest(await canvas.screenshot())
+  await page.waitForTimeout(400)
+  assert.equal(ended, digest(await canvas.screenshot()), '单次动作结束后停止连续播放')
+  await page.screenshot({ path: resolve(output, 'finished.png') })
+  await page.getByRole('button', { name: '停止播放', exact: true }).click()
+  await page.getByRole('button', { name: '右转 45°', exact: true }).click()
+  await page.screenshot({ path: resolve(output, 'angle.png') })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.getByRole('button', { name: '播放鼓掌', exact: true }).click()
+  await page.waitForTimeout(300)
+  const still = digest(await canvas.screenshot())
+  await page.waitForTimeout(500)
+  assert.equal(still, digest(await canvas.screenshot()), '减少动态效果时画面静止')
+  await canvas.evaluate(async element => {
+    const gl = element.getContext('webgl2')
+    const extension = gl?.getExtension('WEBGL_lose_context')
+    if (!extension) throw new Error('当前浏览器不支持上下文恢复测试')
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('WebGL 上下文恢复超时')), 10000)
+      element.addEventListener('webglcontextlost', () => setTimeout(() => extension.restoreContext(), 100), { once: true })
+      element.addEventListener('webglcontextrestored', () => { clearTimeout(timeout); resolve() }, { once: true })
+      extension.loseContext()
+    })
+  })
+  await page.waitForTimeout(500)
+  assert.equal(still, digest(await canvas.screenshot()), '上下文恢复后重新绘制原姿势和贴图')
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.waitForTimeout(300)
+  const recovered = digest(await canvas.screenshot())
+  await page.waitForTimeout(400)
+  assert.notEqual(recovered, digest(await canvas.screenshot()), '上下文恢复后动画继续播放')
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const stats = await page.getByTestId('pet-render-stats').innerText()
+  assert.match(stats, /OfficialClap 11.39 秒/)
+  for (const width of [375, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 })
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${width}px 无横向溢出`)
+    await page.screenshot({ path: resolve(output, `width-${width}.png`) })
+  }
+  await page.route('**/pets/samples/official-clap.glb', route => route.fulfill({ status: 404, body: 'missing' }))
+  await page.reload()
+  if (production) {
+    await page.getByPlaceholder('主密码', { exact: true }).fill('QA-Pet-Presets-Only')
+    await page.getByRole('button', { name: '登录', exact: true }).click()
+    await openSamples()
+  }
+  await page.getByRole('alert').waitFor()
+  assert.equal(await page.getByRole('button', { name: '播放鼓掌', exact: true }).isEnabled(), false)
+  await page.unroute('**/pets/samples/official-clap.glb')
+  await page.getByRole('button', { name: '重新加载', exact: true }).click()
+  await page.locator('[data-state="ready"]').waitFor()
+  assert.deepEqual(errors, [])
+  await writeFile(resolve(output, 'result.json'), JSON.stringify({ stats, checks: ['catalog-switch', 'web-hides-native-controls', 'actual-animation-pixels', 'one-shot-finished', 'reduced-motion', 'webgl-context-recovery', 'responsive-widths', '404-and-retry', 'no-page-errors'], errors }, null, 2))
+  console.log(JSON.stringify({ output, stats, passed: true }))
+} catch (error) {
+  await page.screenshot({ path: resolve(output, 'failure.png') }).catch(() => {})
+  await writeFile(resolve(output, 'failure.json'), JSON.stringify({ error: String(error), errors, body: await page.locator('body').innerText().catch(() => '') }, null, 2))
+  console.error(output)
+  throw error
+} finally { await browser.close() }

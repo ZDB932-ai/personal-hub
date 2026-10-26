@@ -1,0 +1,7 @@
+{
+  "productName": "Personal Hub Todo QA",
+  "identifier": "com.zdb.personalhub.todoqa",
+  "build": { "devUrl": "http://127.0.0.1:5187", "beforeDevCommand": "", "beforeBuildCommand": "" },
+  "app": { "windows": [{ "label": "main", "title": "Todo QA · 隔离测试", "url": "scripts/fixtures/desktop-todo.html", "width": 1000, "height": 700 }], "security": { "capabilities": ["default", "pet", "pet-commands", "todo", "todo-host", { "identifier": "todo-qa-inspection", "windows": ["main"], "permissions": ["core:window:allow-close", "core:window:allow-is-always-on-top"] }] } },
+  "bundle": { "active": false }
+}

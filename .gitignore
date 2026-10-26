@@ -33,3 +33,10 @@ releases/
 *.phub
 *.phub-device
 .zcodeignore
+__pycache__/
+/promo/**/audio/.deps/
+/promo/**/*.mp4
+/promo/**/*.zip
+/promo/**/audio/*.wav
+/promo/**/audio/*.mp3
+/promo/**/audio/clips/

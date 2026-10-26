@@ -194,9 +194,9 @@ function clearFavoriteFilters(): void {
 
 <template>
   <div>
-    <PageHeader :title="viewTab === 'favorites' ? '项目收藏' : '我的项目'" eyebrow="开发资源">
+    <PageHeader title="项目收藏" eyebrow="知识与资料">
       <template #description>
-        <span v-if="viewTab === 'favorites'">共 {{ repos.length }} 个 GitHub 项目 · 粘贴链接即可自动抓取信息</span>
+        <span v-if="viewTab === 'favorites'">已收藏 {{ repos.length }} 个 GitHub 项目</span>
         <span v-else-if="githubCfg">查看 {{ githubCfg.username }} 的仓库与 Issue</span>
         <span v-else>连接 GitHub 后查看自己的仓库与 Issue</span>
       </template>
@@ -256,7 +256,7 @@ function clearFavoriteFilters(): void {
     <div v-if="repos.length === 0" class="empty-state mt-8">
       <FolderGit2 class="mx-auto h-10 w-10 text-t4" />
       <p class="mt-4 text-sm font-medium text-t2">还没有收藏任何项目</p>
-      <p class="mt-1 text-xs text-t4">刷到好项目时粘贴链接收藏，分类整理方便日后取用</p>
+      <p class="mt-1 text-xs text-t4">粘贴 GitHub 链接或搜索项目名称，将常用项目集中保存。</p>
       <button class="ui-primary-button mt-4" @click="openCreate">收藏项目</button>
     </div>
 

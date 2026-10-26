@@ -1,0 +1,17 @@
+{
+  "productName": "Personal Hub Pet QA",
+  "identifier": "com.zdb.personalhub.petqa",
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Personal Hub Pet QA",
+        "url": "index.html?pet=1",
+        "width": 800,
+        "height": 700,
+        "visible": false
+      }
+    ]
+  },
+  "bundle": { "active": false }
+}

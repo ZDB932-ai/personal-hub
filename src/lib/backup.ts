@@ -131,7 +131,7 @@ export async function applyBackup(parsed: BackupFile, backupPassword?: string): 
       ...await encryptJSON(activeKey, prepareOfflinePayload(payload)),
     }
     if (!canApply()) throw new Error('恢复期间本地数据发生变化，请重试')
-    const applied = await initFromEnvelope(envelope, activeKey, canApply, () => { committed = true })
+    const applied = await initFromEnvelope(envelope, activeKey, canApply, () => { committed = true }, true)
     if (!applied) throw new Error('恢复期间本地数据发生变化，已保留本窗口内容，请先导出备份')
   } finally {
     if (!committed) await Promise.allSettled(staged.map(deleteBlob))

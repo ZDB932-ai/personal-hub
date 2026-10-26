@@ -1,0 +1,18 @@
+{
+  "method": "FFmpeg loudnorm input measurements on mix.wav segments; no listening-based naturalness acceptance claimed.",
+  "opening": {
+    "start_seconds": 0.6,
+    "duration_seconds": 4.2,
+    "integrated_lufs": -14.92,
+    "true_peak_dbtp": -2.43,
+    "loudness_range_lu": 0.4
+  },
+  "closing": {
+    "start_seconds": 53.5,
+    "duration_seconds": 5.7,
+    "integrated_lufs": -14.91,
+    "true_peak_dbtp": -2.66,
+    "loudness_range_lu": 0.5
+  },
+  "assessment": "Opening and closing are level-matched within 0.01 LU, with no detected clipping. Opening rate +5%; closing default rate. Last spoken sentence fits entirely before 59.144 seconds."
+}

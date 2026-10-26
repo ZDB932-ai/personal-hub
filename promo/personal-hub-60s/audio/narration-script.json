@@ -1,0 +1,90 @@
+[
+  {
+    "index": 1,
+    "start": 0.6,
+    "window_end": 4.8,
+    "text": "想法、任务、资料，总在不同地方来回切换？",
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "rate_percent": 5,
+    "duration": 4.118,
+    "actual_end": 4.718,
+    "path": "audio\\clips\\01.wav"
+  },
+  {
+    "index": 2,
+    "start": 5.5,
+    "window_end": 10.5,
+    "text": "让 Personal Hub，把它们放进同一个个人工作台。",
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "rate_percent": 0,
+    "duration": 3.9583541666666666,
+    "actual_end": 9.458354166666666,
+    "path": "audio\\clips\\02.wav"
+  },
+  {
+    "index": 3,
+    "start": 11.5,
+    "window_end": 19.2,
+    "text": "从今天要做的事开始。拆分子任务，安排时间，让每一步都清楚。",
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "rate_percent": 0,
+    "duration": 6.1786666666666665,
+    "actual_end": 17.678666666666665,
+    "path": "audio\\clips\\03.wav"
+  },
+  {
+    "index": 4,
+    "start": 20.5,
+    "window_end": 27.3,
+    "text": "随手记下灵感，整理备忘录，再把想法变成可以推进的任务。",
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "rate_percent": 0,
+    "duration": 5.5408333333333335,
+    "actual_end": 26.04083333333333,
+    "path": "audio\\clips\\04.wav"
+  },
+  {
+    "index": 5,
+    "start": 28.5,
+    "window_end": 35.3,
+    "text": "文档、图片和常用资料，集中归档，随时预览。需要的时候，一搜就能找到。",
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "rate_percent": 15,
+    "duration": 6.7141875,
+    "actual_end": 35.2141875,
+    "path": "audio\\clips\\05.wav"
+  },
+  {
+    "index": 6,
+    "start": 36.5,
+    "window_end": 43.2,
+    "text": "账号密码与个人资料，在本地加密保存。让信息有序，也让自己安心。",
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "rate_percent": 3,
+    "duration": 6.4935625,
+    "actual_end": 42.9935625,
+    "path": "audio\\clips\\06.wav"
+  },
+  {
+    "index": 7,
+    "start": 44.5,
+    "window_end": 52.3,
+    "text": "从电脑到手机，用熟悉的方式继续。再选一套喜欢的外观，让工作台更像你。",
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "rate_percent": 0,
+    "duration": 7.088916666666667,
+    "actual_end": 51.58891666666667,
+    "path": "audio\\clips\\07.wav"
+  },
+  {
+    "index": 8,
+    "start": 53.5,
+    "window_end": 59.2,
+    "text": "Personal Hub。让记录接上行动，把生活与工作，慢慢理顺。",
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "rate_percent": 0,
+    "duration": 5.6437083333333335,
+    "actual_end": 59.143708333333336,
+    "path": "audio\\clips\\08.wav"
+  }
+]

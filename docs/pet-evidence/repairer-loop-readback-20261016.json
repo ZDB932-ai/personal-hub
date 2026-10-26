@@ -1,0 +1,93 @@
+{
+  "source": "E:\\Tripo pipline\\assets\\stellar-repairer\\delivery\\release\\Repairer_orange_17clips.glb",
+  "sha256": "c5c4ce3917de76dbe7728f389689ed711e30ca62c4ec81404d6bafb7d63913cf",
+  "blender": "5.2.0 LTS",
+  "fps": 24.0,
+  "rest_height": 2.0,
+  "evaluated_vertices": 41940,
+  "meshes": [
+    "Icosphere",
+    "Repairer_Body",
+    "Tool_Backpack"
+  ],
+  "available_clips": [
+    "Idle",
+    "LookWaveTwice",
+    "Walk",
+    "basketball_shot",
+    "box_01",
+    "cast_a_spell",
+    "cheer",
+    "clap",
+    "dance_01",
+    "dance_02",
+    "dance_03",
+    "dance_04",
+    "dance_05",
+    "dance_06",
+    "flip",
+    "jump",
+    "run"
+  ],
+  "clips": [
+    {
+      "clip": "Idle",
+      "frames": [
+        1.0,
+        369.0
+      ],
+      "seconds": 15.333333333333334,
+      "assigned_bindings": [
+        {
+          "object": "body-pack-native-rig-input-v002.glb",
+          "action": "Idle",
+          "slot": "OBbody-pack-native-rig-input-v002.glb"
+        },
+        {
+          "object": "Armature",
+          "action": "Idle",
+          "slot": "OBArmature"
+        }
+      ],
+      "endpoint_max_height_ratio": 0.00015482444503728024,
+      "endpoint_p95_height_ratio": 0.0001223535779637527,
+      "endpoint_centroid_delta": [
+        6.148437511490474e-05,
+        1.089336495400245e-06,
+        -6.912816890247697e-06
+      ],
+      "endpoint_velocity_max_height_per_second": 0.04848075607969758,
+      "step_frames": 0.5
+    },
+    {
+      "clip": "Walk",
+      "frames": [
+        1.0,
+        57.0
+      ],
+      "seconds": 2.3333333333333335,
+      "assigned_bindings": [
+        {
+          "object": "body-pack-native-rig-input-v002.glb",
+          "action": "Walk",
+          "slot": "OBbody-pack-native-rig-input-v002.glb"
+        },
+        {
+          "object": "Armature",
+          "action": "Walk",
+          "slot": "OBArmature"
+        }
+      ],
+      "endpoint_max_height_ratio": 0.0002871497040921459,
+      "endpoint_p95_height_ratio": 0.00022366185469973267,
+      "endpoint_centroid_delta": [
+        1.8977494723412293e-06,
+        2.3163015075029422e-05,
+        1.3090332672271998e-05
+      ],
+      "endpoint_velocity_max_height_per_second": 0.22382597005818214,
+      "step_frames": 0.5
+    }
+  ],
+  "scope": "Read-only GLB clean import and evaluated world-space endpoint comparison. No root removal, no source save. Finite-difference velocity only; not sole contact, interior deformation, aesthetic acceptance or final delivery approval."
+}

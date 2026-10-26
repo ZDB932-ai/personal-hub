@@ -73,108 +73,38 @@ const lastSyncText = computed(() =>
 </script>
 
 <template>
-  <div>
-    <div class="mb-4 space-y-2 rounded-xl border border-line bg-surface p-4">
-      <p class="text-sm font-medium text-t1">本机离线数据</p>
-      <p class="text-xs leading-relaxed text-t2">没有服务器也能正常使用。保存的数据与待同步记录一同加密保存在本机。</p>
-      <p class="text-xs text-t3">已准备 {{ offlinePendingCount }} 条记录，其中删除记录 {{ offlineDeletedCount }} 条。</p>
-      <p v-if="offlinePreparedAt" class="text-xs text-t4">最近保存：{{ new Date(offlinePreparedAt).toLocaleString('zh-CN') }}</p>
-      <p v-if="offlineInFlight" class="text-xs text-warn">有一条已发出但尚未确认的操作，重试时会沿用原请求。</p>
-      <p v-if="offlineSyncError" class="text-xs text-warn">{{ offlineSyncError }}<span v-if="offlineRetryAt"> · 可重试时间：{{ new Date(offlineRetryAt).toLocaleTimeString('zh-CN') }}</span></p>
-      <p class="text-xs leading-relaxed text-t4">连接逐条同步服务后可上传待同步记录。请在「备份」中定期导出，保留另一份副本。</p>
-    </div>
+  <div class="settings-stack">
     <SyncConflicts :open="props.open" />
-    <SyncRehearsal />
     <RecordSyncSection v-if="dataEnvelope?.v === 3" :open="props.open" />
-    <template v-else-if="!isSyncConfigured">
-      <div class="space-y-3 rounded-xl border border-line bg-surface p-4">
-        <p class="text-sm font-medium">连接 PocketBase 服务器</p>
-        <p class="text-xs leading-relaxed text-warn">此入口使用整库同步，两台设备分别修改后可能互相覆盖；不支持逐条合并和附件传输。</p>
-        <input v-model="form.serverUrl" class="control-input px-3" placeholder="服务器地址，如 pb.example.com" />
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <input v-model="form.email" class="control-input px-3" placeholder="同步账号邮箱" />
-          <PasswordInput v-model="form.password" placeholder="同步密码（≥8位）" />
-        </div>
-        <label class="flex cursor-pointer items-center gap-2 text-xs text-t3">
-          <input v-model="form.autoSync" type="checkbox" class="accent-primary" />
-          自动同步：修改后约 5 秒推送，进入应用时拉取
-        </label>
-        <p v-if="error" class="text-xs text-danger">{{ error }}</p>
-        <button
-          :disabled="!form.serverUrl || !form.email || !form.password || syncing"
-          class="ui-primary-button w-full gap-2 disabled:cursor-not-allowed disabled:opacity-40"
-          @click="submitConnect"
-        >
-          <Cloud class="h-4 w-4" />
-          {{ syncing ? '正在连接…' : '连接并开启同步' }}
-        </button>
-        <details class="group">
-          <summary class="cursor-pointer list-none text-xs text-primary hover:text-primary">
-            如何部署 PocketBase？展开说明
-          </summary>
-          <ol class="mt-2 list-decimal space-y-1.5 pl-4 text-[11px] leading-relaxed text-t4">
-            <li>从 pocketbase.io 下载单文件程序，在服务器运行 <code class="rounded bg-inset px-1">./pocketbase serve</code></li>
-            <li>打开 <code class="rounded bg-inset px-1">http://服务器IP:8090/_/</code> 创建管理员</li>
-            <li>新建集合 <code class="rounded bg-inset px-1">vaults</code>：字段 user(关联 users)、data(JSON)</li>
-            <li>API Rules 全部四项均填：<code class="rounded bg-inset px-1">@request.auth.id != "" && user = @request.auth.id</code></li>
-            <li>users 集合保持默认开启注册即可；建议给域名配置 HTTPS</li>
-          </ol>
-        </details>
+    <section v-else class="settings-card space-y-3">
+      <div class="settings-row"><div class="settings-row-copy"><h3 class="settings-section-title">同步状态</h3><p class="settings-description">此账户使用兼容的整库同步方式。</p></div><span class="settings-status" :class="isSyncConfigured ? 'text-ok' : 'text-t3'">{{ isSyncConfigured ? '已连接' : '未连接' }}</span></div>
+      <p v-if="isSyncConfigured" role="status" :class="syncing ? 'text-primary' : syncMeta.lastError ? 'text-danger' : 'text-t2'">{{ syncing ? '同步中…' : syncMeta.lastError || `最近同步：${lastSyncText}` }}</p>
+      <p class="settings-description">前往「账户与恢复」设置恢复密钥并升级加密格式，即可使用逐条合并与附件同步。操作前请导出一份备份。</p>
+      <div v-if="isSyncConfigured" class="settings-actions flex flex-wrap gap-2"><button :disabled="syncing" class="ui-primary-button disabled:opacity-40" @click="void syncNow()"><RefreshCw class="h-4 w-4" :class="{ 'animate-spin': syncing }" />立即同步</button><button class="ui-secondary-button" :aria-pressed="!!syncConfig?.autoSync" @click="void setAutoSync(!syncConfig?.autoSync)">{{ syncConfig?.autoSync ? '自动同步已开启' : '自动同步已关闭' }}</button></div>
+    </section>
+    <details class="settings-card settings-disclosure">
+      <summary class="settings-section-title">本机离线记录<span v-if="offlineSyncError || offlineInFlight" class="settings-status text-warn">等待确认</span><span v-else class="settings-status text-t3">{{ offlinePendingCount }} 条待处理</span></summary>
+      <div class="settings-disclosure-body space-y-2"><p class="settings-description">离线时仍可使用。内容和待同步记录会一起加密保存在本机，连接恢复后继续同步。</p><p class="text-sm text-t2">待处理 {{ offlinePendingCount }} 条，其中删除记录 {{ offlineDeletedCount }} 条。</p><p v-if="offlinePreparedAt" class="settings-description">最近保存：{{ new Date(offlinePreparedAt).toLocaleString('zh-CN') }}</p><p v-if="offlineInFlight" class="text-xs text-warn">有一项操作正在等待云端确认，重新连接后将继续处理。</p><p v-if="offlineSyncError" role="status" class="text-xs text-warn">{{ offlineSyncError }}<span v-if="offlineRetryAt"> · 下次可重试：{{ new Date(offlineRetryAt).toLocaleTimeString('zh-CN') }}</span></p><p class="settings-description">同步不能代替独立备份。请在「备份与迁移」中定期导出文件。</p></div>
+    </details>
+    <details class="settings-card settings-disclosure">
+      <summary class="settings-section-title">高级与诊断</summary>
+      <div class="settings-disclosure-body settings-stack">
+        <section v-if="dataEnvelope?.v !== 3" class="settings-subsection space-y-3">
+          <h4 class="settings-section-title">旧版同步连接</h4>
+          <p class="text-xs leading-relaxed text-warn">PocketBase 整库同步不支持逐条合并或传输附件。两台设备分别修改后，内容可能互相覆盖。</p>
+          <form v-if="!isSyncConfigured" class="space-y-3" @submit.prevent="submitConnect">
+            <label class="settings-field">服务器地址<input v-model="form.serverUrl" :disabled="syncing" class="control-input px-3" placeholder="https://pb.example.com" /></label>
+            <label class="settings-field">账户邮箱<input v-model="form.email" :disabled="syncing" class="control-input px-3" type="email" autocomplete="username" placeholder="用于此同步服务的邮箱" /></label>
+            <div class="settings-field"><label for="settings-legacy-sync-password">同步密码</label><PasswordInput id="settings-legacy-sync-password" v-model="form.password" :disabled="syncing" placeholder="输入同步服务密码" autocomplete="current-password" /></div>
+            <label class="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-t2"><input v-model="form.autoSync" :disabled="syncing" type="checkbox" class="accent-primary" />自动同步修改，并在进入应用时拉取内容</label>
+            <p v-if="error" role="alert" class="text-xs text-danger">{{ error }}</p>
+            <button :disabled="!form.serverUrl || !form.email || !form.password || syncing" class="ui-primary-button disabled:opacity-40"><Cloud class="h-4 w-4" />{{ syncing ? '正在连接…' : '连接旧版同步服务' }}</button>
+          </form>
+          <div v-else class="space-y-3"><dl class="space-y-2 text-xs"><div><dt class="text-t3">服务器</dt><dd class="break-all text-t1">{{ syncConfig?.serverUrl }}</dd></div><div><dt class="text-t3">账户</dt><dd class="break-all text-t1">{{ syncConfig?.email }}</dd></div></dl><p class="settings-description">断开后保留本机与云端已有内容，停止后续同步。</p><button :disabled="syncing" class="ui-danger-button" @click="handleDisconnect"><CloudOff class="h-4 w-4" />断开旧版同步</button></div>
+          <details class="settings-disclosure"><summary class="text-sm text-t2">PocketBase 配置参考</summary><ol class="settings-disclosure-body list-decimal space-y-2 pl-5 text-xs leading-relaxed text-t3"><li>从 pocketbase.io 下载服务程序，运行 <code>./pocketbase serve</code>。</li><li>打开 <code>http://服务器IP:8090/_/</code> 创建管理员。</li><li>创建集合 <code>vaults</code>，字段为 user（关联 users）与 data（JSON）。</li><li class="break-all">API Rules 四项均设为：<code>@request.auth.id != "" &amp;&amp; user = @request.auth.id</code>。</li><li>users 集合开启注册，并为跨设备访问配置 HTTPS。</li></ol></details>
+        </section>
+        <SyncRehearsal />
       </div>
-    </template>
-
-    <template v-else>
-      <div class="space-y-3 rounded-xl border border-line bg-surface p-4">
-        <div class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-          <div class="min-w-0">
-            <p class="text-xs text-t4">服务器</p>
-            <p class="truncate">{{ syncConfig?.serverUrl }}</p>
-          </div>
-          <div class="min-w-0">
-            <p class="text-xs text-t4">账号</p>
-            <p class="truncate">{{ syncConfig?.email }}</p>
-          </div>
-          <div>
-            <p class="text-xs text-t4">上次同步</p>
-            <p>{{ lastSyncText }}</p>
-          </div>
-          <div>
-            <p class="text-xs text-t4">状态</p>
-            <p :class="syncing ? 'text-primary' : syncMeta.lastError ? 'text-danger' : 'text-ok'">
-              {{ syncing ? '同步中…' : syncMeta.lastError ? syncMeta.lastError : syncMeta.lastSyncAt ? '已连接' : '尚未同步' }}
-            </p>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap gap-2 pt-1">
-          <button
-            :disabled="syncing"
-            class="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-primary/40 bg-primary/12 py-2 text-xs font-medium text-primary transition hover:bg-primary/20 disabled:opacity-40"
-            @click="void syncNow()"
-          >
-            <RefreshCw class="h-3.5 w-3.5" :class="{ 'animate-spin': syncing }" />
-            立即同步
-          </button>
-          <button
-            class="flex-1 rounded-lg border border-line py-2 text-xs font-medium transition hover:bg-surface"
-            :class="syncConfig?.autoSync ? 'text-ok' : 'text-t3'"
-            @click="void setAutoSync(!syncConfig?.autoSync)"
-          >
-            {{ syncConfig?.autoSync ? '自动同步：开' : '自动同步：关' }}
-          </button>
-          <button
-            class="flex items-center justify-center gap-1.5 rounded-lg border border-danger/25 bg-danger/10 px-3 py-2 text-xs font-medium text-danger transition hover:bg-danger/20"
-            @click="handleDisconnect"
-          >
-            <CloudOff class="h-3.5 w-3.5" />
-            断开
-          </button>
-        </div>
-
-        <p class="text-[11px] leading-relaxed text-t4">
-          同步范围：资料 / 密码 / 任务 / 备忘录 / 项目收藏 / 资料库文件列表。文件本体不随同步（用备份导出搬运）。
-        </p>
-      </div>
-    </template>
+    </details>
   </div>
 </template>

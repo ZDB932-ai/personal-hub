@@ -1,0 +1,12 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "todo",
+  "description": "Desktop Todo display and native window controls",
+  "windows": ["todo"],
+  "permissions": [
+    "core:event:allow-listen", "core:event:allow-unlisten",
+    "allow-todo-window-bounds", "allow-todo-set-window-bounds",
+    "allow-todo-read", "allow-todo-configure", "allow-todo-reset-position",
+    "allow-todo-submit", "allow-todo-home", "allow-todo-activity"
+  ]
+}

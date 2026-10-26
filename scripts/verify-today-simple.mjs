@@ -10,6 +10,7 @@ page.setDefaultTimeout(20000)
 const errors=[]; page.on('pageerror',e=>errors.push(e.message))
 try {
 await page.goto(url)
+await page.getByRole('button',{name:'仅在本机使用 / 旧版设备加入',exact:true}).click()
 await page.getByPlaceholder('创建主密码',{exact:true}).fill('QA-Layout-Password')
 await page.getByPlaceholder('再次输入主密码',{exact:true}).fill('QA-Layout-Password')
 await page.getByPlaceholder('例如：我的工作台').fill('自动验收账户')

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { usePlanView } from '@/composables/usePlanView'
+import { isTauriDesktop } from '@/lib/desktop'
+import { openDesktopTodoSettings } from '@/lib/desktopTodo'
 import { useRoute, useRouter } from 'vue-router'
 import {
   CalendarDays,
@@ -100,7 +102,7 @@ const scheduleDraft = ref<WeekScheduleDraft | null>(null)
 const lastSchedule = ref<{ planId: string; taskIds: string[] } | null>(null)
 const showLongPlanModal = ref(false)
 const editingLongPlan = ref<LongPlan | null>(null)
-const deletingPlan = ref<{ kind: '周计划' | '长期方向'; plan: WeeklyPlan | LongPlan } | null>(null)
+const deletingPlan = ref<{ kind: '周计划' | '长期目标'; plan: WeeklyPlan | LongPlan } | null>(null)
 const showGentlePause = ref(false)
 const showGentleReset = ref(false)
 const showOverdueQueue = ref(false)
@@ -112,7 +114,7 @@ const VIEWS = [
   { key: 'today' as const, label: '今天', icon: CalendarCheck },
   { key: 'week' as const, label: '本周', icon: CalendarRange },
   { key: 'inbox' as const, label: '待安排', icon: Inbox },
-  { key: 'long' as const, label: '长期方向', icon: Compass },
+  { key: 'long' as const, label: '长期目标', icon: Compass },
   { key: 'all' as const, label: '已排期', icon: ListTodo },
   { key: 'done' as const, label: '已完成', icon: CheckCheck },
 ]
@@ -522,7 +524,7 @@ function applyWeekSchedule(): void {
   lastSchedule.value = taskIds.length > 0 ? { planId: plan.id, taskIds } : null
   schedulePlan.value = null
   scheduleDraft.value = null
-  toast(taskIds.length > 0 ? `已安排 ${taskIds.length} 个行动块` : '这份安排没有需要新增的行动块')
+  toast(taskIds.length > 0 ? `已安排 ${taskIds.length} 项任务` : '本次安排中的任务已存在，无需重复创建')
 }
 
 function undoLastSchedule(): void {
@@ -561,7 +563,7 @@ function addLongPlanNextStep(plan: LongPlan): void {
 function toggleLongPlanPause(plan: LongPlan): void {
   const wasPaused = plan.status === 'paused'
   setLongPlanStatus(plan.id, wasPaused ? 'active' : 'paused')
-  toast(wasPaused ? '已继续这个方向' : '已暂停，不会从默认建议中出现')
+  toast(wasPaused ? '已恢复该目标' : '已暂停该目标，相关任务仍会保留')
 }
 
 function completeLongPlan(plan: LongPlan): void {
@@ -569,7 +571,7 @@ function completeLongPlan(plan: LongPlan): void {
   toast('已标记完成，辛苦了')
 }
 
-function requestPlanDelete(kind: '周计划' | '长期方向', plan: WeeklyPlan | LongPlan): void {
+function requestPlanDelete(kind: '周计划' | '长期目标', plan: WeeklyPlan | LongPlan): void {
   deletingPlan.value = { kind, plan }
 }
 
@@ -585,11 +587,11 @@ function confirmPlanDelete(): void {
         lastRemovedWeeklyPlan.value = null
         weeklyDeleteUndoTimer = null
       }, 10000)
-      toast(`已撤销本周安排，并移除 ${removal.tasks.length} 项每日行动`)
+      toast(`已撤销本周安排，并移除 ${removal.tasks.length} 项任务`)
     }
   } else {
     removeLongPlan(target.plan.id)
-    toast('长期方向已删除，已有任务仍会保留')
+    toast('长期目标已删除，已有任务仍会保留')
   }
   deletingPlan.value = null
 }
@@ -601,7 +603,7 @@ function restoreRemovedWeeklyPlan(): void {
   lastRemovedWeeklyPlan.value = null
   if (weeklyDeleteUndoTimer) clearTimeout(weeklyDeleteUndoTimer)
   weeklyDeleteUndoTimer = null
-  toast('已恢复周计划和关联的每日行动')
+  toast('已恢复周计划和关联任务')
 }
 
 function chooseDayEnergy(energy: PlannerEnergy): void {
@@ -651,7 +653,7 @@ onUnmounted(() => {
 
 <template>
   <div class="planning-workspace">
-    <PageHeader :title="view === 'today' ? '今天' : '计划'" eyebrow="日常">
+    <PageHeader title="任务与计划" eyebrow="日程与行动">
       <template #description>
         <template v-if="view === 'today'">
           {{ displayDate(selected) }}
@@ -659,7 +661,7 @@ onUnmounted(() => {
         </template>
         <span v-else-if="view === 'week'">{{ weekRangeLabel }} · 已完成 {{ weekDoneCount }} 件</span>
         <span v-else-if="view === 'inbox'">{{ pendingTaskCount }} 项待安排 · {{ overdueList.length }} 项需要重新决定日期</span>
-        <span v-else-if="view === 'long'">{{ activeLongPlans.length }} 个方向正在慢慢靠近</span>
+        <span v-else-if="view === 'long'">{{ activeLongPlans.length }} 个进行中的长期目标</span>
         <span v-else-if="view === 'all'">今天及之后的待办 · 较早的任务在待安排中整理</span>
         <span v-else>最近完成的任务</span>
         <button v-if="overdueList.length > 0 && view !== 'done' && view !== 'long'" type="button" class="task-overdue-link" @click="showOverdueQueue = true">
@@ -668,6 +670,7 @@ onUnmounted(() => {
       </template>
       <template #actions>
         <div class="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap">
+          <button v-if="isTauriDesktop()" class="ui-secondary-button" @click="openDesktopTodoSettings">桌面清单</button>
           <div v-if="view === 'today'" class="flex flex-wrap items-center gap-2 sm:flex-nowrap">
             <button class="ui-icon-button" aria-label="前一天" @click="shiftDate(-1)">
               <ChevronLeft class="h-4 w-4" />
@@ -698,7 +701,7 @@ onUnmounted(() => {
           </button>
           <button v-else-if="view === 'long'" class="ui-primary-button gap-2" @click="openLongPlanCreate">
             <Plus class="h-4 w-4" />
-            新建长期方向
+            新建长期目标
           </button>
           <button v-else class="ui-primary-button gap-2" @click="openCreate">
             <Plus class="h-4 w-4" />
@@ -772,9 +775,9 @@ onUnmounted(() => {
             <div class="flex flex-wrap gap-2">
               <button type="button" class="ui-secondary-button gap-1.5 text-xs" @click="showGentlePause = true">
                 <Coffee class="h-3.5 w-3.5" />
-                缓一缓
+                暂停安排
               </button>
-              <button type="button" class="ui-ghost-button text-xs" @click="showGentleReset = true">安放任务</button>
+              <button type="button" class="ui-ghost-button text-xs" @click="showGentleReset = true">重新整理任务</button>
             </div>
           </div>
         </div>
@@ -883,7 +886,7 @@ onUnmounted(() => {
       <div class="plan-week-summary mt-5"><h2 class="text-sm font-semibold text-t1">本周安排</h2><span class="text-xs text-t3">{{ weekOpenCount }} 项待办 · {{ weekDoneCount }} 项完成</span></div>
 
       <div v-if="lastSchedule" class="week-schedule-undo mt-4">
-        <p>刚刚自动安排的行动块还可以撤回。</p>
+        <p>可以撤销本次排期，之后修改过的任务会保留。</p>
         <button type="button" @click="undoLastSchedule">撤回刚才安排</button>
       </div>
 
@@ -925,7 +928,7 @@ onUnmounted(() => {
       <section class="mt-7" aria-labelledby="week-plan-heading">
         <div class="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p class="text-xs font-medium text-primary">本周方向</p>
+            <p class="text-xs font-medium text-primary">本周计划</p>
             <h2 id="week-plan-heading" class="mt-1 text-base font-semibold text-t1">这周想照顾的事</h2>
           </div>
           <button v-if="weekPlansForView.length" class="ui-secondary-button gap-1.5 text-xs" @click="openWeeklyPlanCreate()">
@@ -966,8 +969,8 @@ onUnmounted(() => {
             </div>
             <div class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
               <p class="text-xs text-t3">
-                {{ planProgress(plan).done }}/{{ planProgress(plan).total }} 次行动
-                <span v-if="plan.longPlanId" class="text-t4">· 已关联长期方向</span>
+                {{ planProgress(plan).done }}/{{ planProgress(plan).total }} 项任务
+                <span v-if="plan.longPlanId" class="text-t4">· 已关联长期目标</span>
               </p>
               <button class="ui-secondary-button gap-1.5 text-xs" @click="previewWeekSchedule(plan)">
                 <Sparkles class="h-3.5 w-3.5" />
@@ -981,13 +984,13 @@ onUnmounted(() => {
       <section class="week-day-detail mt-7" aria-labelledby="week-day-detail-heading">
         <div class="flex items-end justify-between gap-3">
           <div>
-            <p class="text-xs font-medium text-primary">每日行动</p>
+            <p class="text-xs font-medium text-primary">当日任务</p>
             <h2 id="week-day-detail-heading" class="mt-1 text-base font-semibold text-t1">{{ displayDate(selectedWeekDate) }}</h2>
           </div>
           <span class="text-xs tabular-nums text-t4">{{ weekSelectedTasks.length }} 项待办</span>
         </div>
         <div v-if="weekSelectedTasks.length === 0" class="week-day-detail-empty mt-4">
-          <p>这一天还没有行动安排。</p>
+          <p>这一天还没有安排任务。</p>
           <button class="ui-secondary-button mt-3 text-xs" @click="openCreate">添加一件小事</button>
         </div>
         <div v-else class="mt-4 space-y-2">
@@ -1013,18 +1016,18 @@ onUnmounted(() => {
         <div class="flex min-w-0 items-start gap-3">
           <span class="long-plan-intro-icon"><Compass class="h-4 w-4" /></span>
           <div>
-            <p class="text-xs font-medium text-primary">长期方向</p>
-            <h2 class="mt-1 text-base font-semibold text-t1">方向不等于催促</h2>
-            <p class="mt-1 text-xs leading-relaxed text-t3">把想靠近的生活、工作或成长留在这里；准备好时，再把它带进本周。</p>
+            <p class="text-xs font-medium text-primary">长期目标</p>
+            <h2 class="mt-1 text-base font-semibold text-t1">把目标拆成可执行的计划</h2>
+            <p class="mt-1 text-xs leading-relaxed text-t3">记录工作、生活或学习目标，再关联周计划与具体任务。目标日期可以暂不设置。</p>
           </div>
         </div>
       </section>
 
       <div v-if="longPlans.length === 0" class="empty-state mt-6">
         <Compass class="mx-auto h-10 w-10 text-t4" />
-        <p class="mt-4 text-sm font-medium text-t2">还没有长期方向</p>
-        <p class="mt-1 text-xs text-t4">先记下一个想慢慢靠近的地方，不需要现在就有完整答案。</p>
-        <button class="ui-primary-button mt-4" @click="openLongPlanCreate">新建长期方向</button>
+        <p class="mt-4 text-sm font-medium text-t2">还没有长期目标</p>
+        <p class="mt-1 text-xs text-t4">设定一个目标，记录下一步，再按自己的节奏安排任务。</p>
+        <button class="ui-primary-button mt-4" @click="openLongPlanCreate">新建长期目标</button>
       </div>
       <div v-else class="long-plan-grid mt-6">
         <article v-for="plan in longPlans" :key="plan.id" class="long-plan-card" :class="{ 'is-paused': plan.status === 'paused' || plan.status === 'wish' }">
@@ -1032,14 +1035,14 @@ onUnmounted(() => {
             <div class="min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-2">
                 <span class="long-plan-status" :class="`is-${plan.status}`">
-                  {{ { active: '正在靠近', paused: '先暂停', completed: '已完成', wish: '愿望' }[plan.status] }}
+                  {{ { active: '进行中', paused: '已暂停', completed: '已完成', wish: '愿望清单' }[plan.status] }}
                 </span>
                 <span v-if="plan.area" class="text-xs text-t4">{{ plan.area }}</span>
               </div>
               <h3 class="mt-3 text-base font-semibold text-t1">{{ plan.title }}</h3>
               <p v-if="plan.description" class="mt-2 line-clamp-3 text-xs leading-relaxed text-t3">{{ plan.description }}</p>
             </div>
-            <CardActionMenu label="更多长期方向操作">
+            <CardActionMenu label="更多长期目标操作">
               <button class="menu-item" @click="openLongPlanEdit(plan)">
                 <Pencil class="h-3.5 w-3.5" />
                 编辑
@@ -1053,7 +1056,7 @@ onUnmounted(() => {
                 <CheckCheck class="h-3.5 w-3.5" />
                 标记完成
               </button>
-              <button class="menu-item is-danger" @click="requestPlanDelete('长期方向', plan)">
+              <button class="menu-item is-danger" @click="requestPlanDelete('长期目标', plan)">
                 <Trash2 class="h-3.5 w-3.5" />
                 删除
               </button>
@@ -1062,10 +1065,10 @@ onUnmounted(() => {
           <div class="long-plan-meta mt-5">
             <span>{{ { month: '这个月', quarter: '这个季度', year: '这一年', custom: '慢慢来' }[plan.horizon] }}</span>
             <span v-if="plan.targetDate">目标日期 {{ plan.targetDate }}</span>
-            <span>{{ longPlanProgress(plan).weeklyCount }} 个周计划 · {{ longPlanProgress(plan).done }}/{{ longPlanProgress(plan).total }} 个行动完成</span>
+            <span>{{ longPlanProgress(plan).weeklyCount }} 个周计划 · 已完成 {{ longPlanProgress(plan).done }}/{{ longPlanProgress(plan).total }} 项任务</span>
           </div>
           <div v-if="plan.nextStep" class="long-plan-next-step mt-4">
-            <p class="text-xs text-t4">下一小步</p>
+            <p class="text-xs text-t4">下一步</p>
             <p class="mt-1 text-sm text-t2">{{ plan.nextStep }}</p>
           </div>
           <div class="mt-5 flex flex-wrap gap-2 border-t border-line pt-3">

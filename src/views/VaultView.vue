@@ -214,12 +214,12 @@ function formatCode(code: string): string {
 
 <template>
   <div>
-    <PageHeader title="密码库" eyebrow="内容">
+    <PageHeader title="密码库" eyebrow="账号与安全">
       <template #description>共 {{ entries.length }} 条账号记录<span v-if="weakCount" class="ml-2 text-warn">· {{ weakCount }} 个弱密码，建议更新</span></template>
       <template #actions>
         <button class="ui-primary-button gap-2" @click="openCreate">
           <Plus class="h-4 w-4" />
-          新增账号
+          添加账号
         </button>
       </template>
     </PageHeader>
@@ -265,8 +265,8 @@ function formatCode(code: string): string {
     <div v-if="entries.length === 0" class="empty-state mt-8">
       <KeyRound class="mx-auto h-10 w-10 text-t4" />
       <p class="mt-4 text-sm font-medium text-t2">还没有保存任何账号</p>
-      <p class="mt-1 text-xs text-t4">点击右上角「新增账号」，保存你的第一个账号密码</p>
-      <button class="ui-primary-button mt-4" @click="openCreate">新增账号</button>
+      <p class="mt-1 text-xs text-t4">保存常用网站或应用的账号密码，需要时快速查找与复制。</p>
+      <button class="ui-primary-button mt-4" @click="openCreate">添加账号</button>
     </div>
 
     <div v-else-if="filtered.length === 0" class="empty-state mt-8">

@@ -17,7 +17,7 @@ const goalOpen = ref(false)
 const weekOpen = ref(false)
 const links = computed(() => (props.task.links ?? []).map(link => {
   const title = link.kind === 'memos' ? memos.value.find(memo => memo.id === link.id)?.title || (memos.value.some(memo => memo.id === link.id) ? '无标题便签' : undefined) : link.kind === 'docMetas' ? docMetas.value.find(doc => doc.id === link.id)?.name : repos.value.find(repo => repo.id === link.id)?.fullName
-  return { ...link, title, label: { memos: '便签', docMetas: '资料', repos: '仓库' }[link.kind] }
+  return { ...link, title, label: { memos: '便签', docMetas: '资料', repos: '项目' }[link.kind] }
 }))
 </script>
 <template>

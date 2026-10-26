@@ -1,0 +1,1193 @@
+html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"]) {
+  --ui-card-border-width: 1px;
+  --ui-card-border-style: solid;
+  --ui-card-shadow: none;
+  --ui-display-font: 'Plus Jakarta Sans', 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+  --ui-display-weight: 700;
+  --ui-display-spacing: -0.025em;
+  --ui-display-size: clamp(1.75rem, 3vw, 2.5rem);
+  --ui-label-font: inherit;
+  --ui-label-spacing: 0.03em;
+  --ui-nav-shadow: none;
+  --ui-nav-radius: var(--ui-control-radius);
+}
+
+html[data-interface="swiss"] {
+  --ui-control-radius: 0.125rem;
+  --ui-card-radius: 0.125rem;
+  --ui-display-font: Georgia, 'Noto Serif SC', 'Songti SC', SimSun, serif;
+  --ui-display-weight: 700;
+  --ui-display-spacing: -0.025em;
+  --ui-display-size: clamp(2rem, 3.5vw, 2.625rem);
+  --ui-label-spacing: 0.12em;
+  --tk-body: #f2f1ed;
+  --tk-surface: #ffffff;
+  --tk-surface-2: #e9e8e3;
+  --tk-inset: #f6f5f1;
+  --tk-chrome: #f8f7f3;
+  --tk-line: #cac9c3;
+  --tk-elevated: #ffffff;
+  --tk-t1: #20221f;
+  --tk-t2: #3e423d;
+  --tk-t3: #62665f;
+  --tk-t4: #62665f;
+}
+
+html[data-interface="swiss"][data-theme="dark"] {
+  --tk-body: #141512;
+  --tk-surface: #1e201c;
+  --tk-surface-2: #30332d;
+  --tk-inset: #191b17;
+  --tk-chrome: #191b17;
+  --tk-line: #484b43;
+  --tk-elevated: #242620;
+  --tk-t1: #f6f6ec;
+  --tk-t2: #d8dbce;
+  --tk-t3: #b0b5a7;
+  --tk-t4: #b0b5a7;
+}
+
+html[data-interface="terminal"] {
+  --ui-control-radius: 0.1875rem;
+  --ui-card-radius: 0.25rem;
+  --ui-display-font: 'Cascadia Code', 'SFMono-Regular', Consolas, 'Microsoft YaHei', monospace;
+  --ui-display-size: clamp(1.625rem, 3vw, 2.25rem);
+  --ui-display-spacing: -0.04em;
+  --ui-label-font: var(--ui-display-font);
+  --ui-label-spacing: 0.05em;
+  --ui-card-shadow: inset 0 1px 0 color-mix(in srgb, var(--tk-primary) 12%, transparent);
+  --tk-body: #edf3ef;
+  --tk-surface: #f8fcf9;
+  --tk-surface-2: #dfeae3;
+  --tk-inset: #e8f0eb;
+  --tk-chrome: #e3ece6;
+  --tk-line: #b4c9bc;
+  --tk-elevated: #f8fcf9;
+  --tk-t1: #193327;
+  --tk-t2: #344e40;
+  --tk-t3: #526e5f;
+  --tk-t4: #526e5f;
+}
+
+html[data-interface="terminal"][data-theme="dark"] {
+  --tk-body: #08110e;
+  --tk-surface: #0e1d17;
+  --tk-surface-2: #1a3026;
+  --tk-inset: #0b1712;
+  --tk-chrome: #0a1711;
+  --tk-line: #315443;
+  --tk-elevated: #12241b;
+  --tk-t1: #e0f5e8;
+  --tk-t2: #bedcc9;
+  --tk-t3: #97bba6;
+  --tk-t4: #97bba6;
+}
+
+html[data-interface="brutalist"] {
+  --ui-control-radius: 0.375rem;
+  --ui-card-radius: 0.5rem;
+  --ui-card-border-width: 2px;
+  --ui-card-shadow: 4px 4px 0 var(--tk-t1);
+  --ui-display-weight: 900;
+  --ui-display-size: clamp(2rem, 4vw, 3.25rem);
+  --ui-display-spacing: -0.06em;
+  --tk-body: #f3f0e5;
+  --tk-surface: #fffdf6;
+  --tk-surface-2: #e9e4d3;
+  --tk-inset: #f2eddc;
+  --tk-chrome: #f6f1df;
+  --tk-line: #66665c;
+  --tk-elevated: #fffdf6;
+  --tk-t1: #24251e;
+  --tk-t2: #45463b;
+  --tk-t3: #666759;
+  --tk-t4: #666759;
+}
+
+html[data-interface="brutalist"][data-theme="dark"] {
+  --tk-body: #171814;
+  --tk-surface: #262820;
+  --tk-surface-2: #383a30;
+  --tk-inset: #20221b;
+  --tk-chrome: #20221a;
+  --tk-line: #888d79;
+  --tk-elevated: #292c23;
+  --tk-t1: #f4f4df;
+  --tk-t2: #dedfca;
+  --tk-t3: #b8bca5;
+  --tk-t4: #b8bca5;
+  --ui-card-shadow: 4px 4px 0 color-mix(in srgb, var(--tk-t1) 42%, var(--tk-body));
+}
+
+html[data-interface="retro"] {
+  --ui-control-radius: 0.125rem;
+  --ui-card-radius: 0.1875rem;
+  --ui-card-border-width: 2px;
+  --ui-card-shadow: inset 1px 1px 0 var(--tk-surface), inset -1px -1px 0 var(--tk-line), 3px 3px 0 color-mix(in srgb, var(--tk-t1) 20%, transparent);
+  --ui-display-font: 'Trebuchet MS', 'Microsoft YaHei', sans-serif;
+  --ui-display-size: clamp(1.625rem, 3vw, 2.125rem);
+  --ui-display-spacing: 0.015em;
+  --ui-label-font: 'Cascadia Mono', Consolas, 'Microsoft YaHei', monospace;
+  --tk-body: #dce5e1;
+  --tk-surface: #f8f6ee;
+  --tk-surface-2: #e4e1d5;
+  --tk-inset: #edebe2;
+  --tk-chrome: #d9d8cb;
+  --tk-line: #a3a494;
+  --tk-elevated: #f8f6ee;
+  --tk-t1: #29352e;
+  --tk-t2: #445047;
+  --tk-t3: #566154;
+  --tk-t4: #566154;
+}
+
+html[data-interface="retro"][data-theme="dark"] {
+  --tk-body: #172526;
+  --tk-surface: #2c3433;
+  --tk-surface-2: #3d4743;
+  --tk-inset: #232e2c;
+  --tk-chrome: #26322f;
+  --tk-line: #64736a;
+  --tk-elevated: #303b36;
+  --tk-t1: #f1f1de;
+  --tk-t2: #d7ddcd;
+  --tk-t3: #b3c1af;
+  --tk-t4: #b3c1af;
+  --ui-card-shadow: inset 1px 1px 0 color-mix(in srgb, var(--tk-t1) 25%, transparent), inset -1px -1px 0 var(--tk-body), 3px 3px 0 var(--tk-body);
+}
+
+html[data-interface="botanical"] {
+  --ui-control-radius: 0.875rem;
+  --ui-card-radius: 1.5rem 0.5rem 1.5rem 0.5rem;
+  --ui-card-shadow: 0 4px 16px color-mix(in srgb, var(--tk-t1) 5%, transparent);
+  --ui-display-font: 'Noto Serif SC', 'Songti SC', SimSun, Georgia, serif;
+  --ui-display-weight: 600;
+  --ui-display-spacing: 0.06em;
+  --ui-display-size: clamp(1.875rem, 3.5vw, 2.625rem);
+  --ui-label-spacing: 0.1em;
+  --ui-nav-radius: 1.125rem 0.375rem 1.125rem 0.375rem;
+  --tk-body: #f0f1e7;
+  --tk-surface: #fafbf2;
+  --tk-surface-2: #e5e9d9;
+  --tk-inset: #edf0e3;
+  --tk-chrome: #e8edde;
+  --tk-line: #c4cdb5;
+  --tk-elevated: #fbfcf4;
+  --tk-t1: #2b3c29;
+  --tk-t2: #43533d;
+  --tk-t3: #59694e;
+  --tk-t4: #59694e;
+}
+
+html[data-interface="botanical"][data-theme="dark"] {
+  --tk-body: #141b13;
+  --tk-surface: #202a1d;
+  --tk-surface-2: #303d28;
+  --tk-inset: #1a2317;
+  --tk-chrome: #192316;
+  --tk-line: #485940;
+  --tk-elevated: #26311f;
+  --tk-t1: #eef3df;
+  --tk-t2: #d1dec0;
+  --tk-t3: #adbf99;
+  --tk-t4: #adbf99;
+}
+
+html[data-interface="orbital"] {
+  --ui-control-radius: 1rem;
+  --ui-card-radius: 1.5rem;
+  --ui-card-shadow: 0 10px 28px color-mix(in srgb, var(--tk-t1) 7%, transparent), inset 0 1px 0 color-mix(in srgb, var(--tk-primary) 14%, transparent);
+  --ui-display-weight: 500;
+  --ui-display-spacing: 0.035em;
+  --ui-display-size: clamp(1.875rem, 3.4vw, 2.75rem);
+  --ui-label-font: 'Cascadia Mono', Consolas, 'Microsoft YaHei', monospace;
+  --ui-label-spacing: 0.1em;
+  --ui-nav-radius: 2rem;
+  --tk-body: #edf0f9;
+  --tk-surface: #fbfcff;
+  --tk-surface-2: #e4e9f6;
+  --tk-inset: #f0f2fa;
+  --tk-chrome: #e8ecf7;
+  --tk-line: #cad2e7;
+  --tk-elevated: #fbfcff;
+  --tk-t1: #26334f;
+  --tk-t2: #465570;
+  --tk-t3: #586780;
+  --tk-t4: #586780;
+}
+
+html[data-interface="orbital"][data-theme="dark"] {
+  --tk-body: #0d1121;
+  --tk-surface: #171e34;
+  --tk-surface-2: #27304b;
+  --tk-inset: #11182b;
+  --tk-chrome: #11182a;
+  --tk-line: #3a4565;
+  --tk-elevated: #1c2540;
+  --tk-t1: #edf1ff;
+  --tk-t2: #cbd4ed;
+  --tk-t3: #a9b6d4;
+  --tk-t4: #a9b6d4;
+}
+
+html[data-interface="atelier"] {
+  --ui-control-radius: 0.375rem;
+  --ui-card-radius: 0.375rem;
+  --ui-card-shadow: 3px 3px 0 var(--tk-body), 4px 4px 0 var(--tk-line);
+  --ui-card-border-style: solid;
+  --ui-display-font: 'Noto Serif SC', 'Songti SC', SimSun, Georgia, serif;
+  --ui-display-size: clamp(1.875rem, 3vw, 2.5rem);
+  --ui-display-spacing: 0.04em;
+  --ui-label-font: 'Cascadia Mono', Consolas, 'Microsoft YaHei', monospace;
+  --tk-body: #f1e9df;
+  --tk-surface: #fffbf2;
+  --tk-surface-2: #ede2d2;
+  --tk-inset: #f7efe2;
+  --tk-chrome: #e8dece;
+  --tk-line: #cbbba5;
+  --tk-elevated: #fffbf2;
+  --tk-t1: #433628;
+  --tk-t2: #5b4d3c;
+  --tk-t3: #6f5f49;
+  --tk-t4: #6f5f49;
+}
+
+html[data-interface="atelier"][data-theme="dark"] {
+  --tk-body: #201a15;
+  --tk-surface: #2d251e;
+  --tk-surface-2: #403327;
+  --tk-inset: #251e17;
+  --tk-chrome: #261f18;
+  --tk-line: #5d4b39;
+  --tk-elevated: #33291f;
+  --tk-t1: #f5ead9;
+  --tk-t2: #e0ceb6;
+  --tk-t3: #c1ac90;
+  --tk-t4: #c1ac90;
+}
+
+html[data-interface="blueprint"] {
+  --ui-control-radius: 0.125rem;
+  --ui-card-radius: 0.125rem;
+  --ui-display-font: 'Cascadia Mono', Consolas, 'Microsoft YaHei', monospace;
+  --ui-display-size: clamp(1.75rem, 3vw, 2.375rem);
+  --ui-display-spacing: 0.025em;
+  --ui-label-font: var(--ui-display-font);
+  --ui-label-spacing: 0.08em;
+  --ui-card-shadow: 3px 3px 0 color-mix(in srgb, var(--tk-primary) 12%, transparent);
+  --tk-body: #e9f1f8;
+  --tk-surface: #f7fbff;
+  --tk-surface-2: #dce8f3;
+  --tk-inset: #edf4fb;
+  --tk-chrome: #deebf5;
+  --tk-line: #a9c2d8;
+  --tk-elevated: #f7fbff;
+  --tk-t1: #1c3855;
+  --tk-t2: #375573;
+  --tk-t3: #4c6682;
+  --tk-t4: #4c6682;
+}
+
+html[data-interface="blueprint"][data-theme="dark"] {
+  --tk-body: #0c1b2d;
+  --tk-surface: #132740;
+  --tk-surface-2: #203955;
+  --tk-inset: #0e2035;
+  --tk-chrome: #0e223a;
+  --tk-line: #3d6083;
+  --tk-elevated: #19314c;
+  --tk-t1: #e5f2ff;
+  --tk-t2: #c1dcf2;
+  --tk-t3: #a0bedb;
+  --tk-t4: #a0bedb;
+}
+
+html[data-interface="gallery"] {
+  --ui-control-radius: 0.375rem;
+  --ui-card-radius: 0.5rem;
+  --ui-card-shadow: 0 8px 22px color-mix(in srgb, var(--tk-t1) 4%, transparent);
+  --ui-display-font: 'Noto Serif SC', 'Songti SC', SimSun, Georgia, serif;
+  --ui-display-weight: 500;
+  --ui-display-spacing: 0.09em;
+  --ui-display-size: clamp(1.875rem, 3.5vw, 2.875rem);
+  --ui-label-spacing: 0.12em;
+  --tk-body: #f5f4f1;
+  --tk-surface: #ffffff;
+  --tk-surface-2: #ebe9e5;
+  --tk-inset: #f7f6f3;
+  --tk-chrome: #faf9f7;
+  --tk-line: #d9d5ce;
+  --tk-elevated: #ffffff;
+  --tk-t1: #302d2b;
+  --tk-t2: #4b4845;
+  --tk-t3: #6b655f;
+  --tk-t4: #6b655f;
+}
+
+html[data-interface="gallery"][data-theme="dark"] {
+  --tk-body: #191819;
+  --tk-surface: #252325;
+  --tk-surface-2: #363235;
+  --tk-inset: #201e20;
+  --tk-chrome: #1e1c1e;
+  --tk-line: #4b454b;
+  --tk-elevated: #2c282c;
+  --tk-t1: #f5eeee;
+  --tk-t2: #ded3d5;
+  --tk-t3: #bdb0b5;
+  --tk-t4: #bdb0b5;
+}
+
+html[data-interface="arcade"] {
+  --ui-control-radius: 0;
+  --ui-card-radius: 0;
+  --ui-card-border-width: 2px;
+  --ui-card-shadow: 4px 4px 0 color-mix(in srgb, var(--tk-primary) 35%, var(--tk-body));
+  --ui-display-font: 'Cascadia Mono', Consolas, 'Microsoft YaHei', monospace;
+  --ui-display-weight: 800;
+  --ui-display-spacing: 0.035em;
+  --ui-display-size: clamp(1.75rem, 3.25vw, 2.5rem);
+  --ui-label-font: var(--ui-display-font);
+  --ui-label-spacing: 0.05em;
+  --tk-body: #f0edf8;
+  --tk-surface: #fcfaff;
+  --tk-surface-2: #e6dff3;
+  --tk-inset: #f3eefb;
+  --tk-chrome: #e8e1f5;
+  --tk-line: #b8a6ce;
+  --tk-elevated: #fcfaff;
+  --tk-t1: #39254c;
+  --tk-t2: #574365;
+  --tk-t3: #6d587d;
+  --tk-t4: #6d587d;
+}
+
+html[data-interface="arcade"][data-theme="dark"] {
+  --tk-body: #171025;
+  --tk-surface: #261b37;
+  --tk-surface-2: #3a294f;
+  --tk-inset: #20162e;
+  --tk-chrome: #21162f;
+  --tk-line: #74558e;
+  --tk-elevated: #2d203f;
+  --tk-t1: #f9ebff;
+  --tk-t2: #e5caf2;
+  --tk-t3: #c7a8da;
+  --tk-t4: #c7a8da;
+}
+
+html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"]) .hub-shell :is(.page-title, .attention-title) {
+  font-family: var(--ui-display-font);
+  font-size: var(--ui-display-size);
+  font-weight: var(--ui-display-weight);
+  letter-spacing: var(--ui-display-spacing);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"]) .hub-shell :is(.sidebar-group-label, .page-eyebrow, .today-section-header > span, .calendar-period-title > span) {
+  font-family: var(--ui-label-font);
+  letter-spacing: var(--ui-label-spacing);
+}
+
+html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"]) .hub-shell :is(.collection-card, .vault-card, .memo-card, .agent-resource-card, .week-plan-card, .long-plan-card, .dashboard-overview, .workspace-panel, .stat-card, .today-resume, .attention-bookmark, .attention-choice, .attention-artifact, .focus-launch) {
+  border-width: var(--ui-card-border-width);
+  border-style: var(--ui-card-border-style);
+  border-radius: var(--ui-card-radius);
+  box-shadow: var(--ui-card-shadow);
+}
+
+html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"]) .hub-shell :is(.today-quick-input, .today-agenda-list button, .sidebar-search, .sidebar-collapse, .vault-entry-avatar, .calendar-search-bar) {
+  border-radius: var(--ui-control-radius);
+}
+
+html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"]) .hub-shell .sidebar-link {
+  border-radius: var(--ui-nav-radius);
+}
+
+html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"]) .hub-shell .sidebar-link.is-active {
+  box-shadow: var(--ui-nav-shadow);
+}
+
+html[data-interface="swiss"] .hub-shell .page-header {
+  border-bottom: 4px solid var(--tk-t1);
+  padding-bottom: 1.25rem;
+}
+
+html[data-interface="swiss"] .hub-shell .sidebar-link.is-active {
+  border-bottom: 2px solid var(--tk-primary);
+  background: transparent;
+  font-weight: 700;
+}
+
+html[data-interface="swiss"] .hub-shell .today-section-header {
+  border-top: 1px solid var(--tk-t1);
+  padding-top: 1rem;
+}
+
+html[data-interface="swiss"] .hub-shell :is(.sidebar-search, .today-quick-input) {
+  border-color: var(--tk-t3);
+}
+
+html[data-interface="terminal"] .hub-shell:not(.has-wallpaper) {
+  background-image: linear-gradient(color-mix(in srgb, var(--tk-primary) 3%, transparent) 1px, transparent 1px);
+  background-size: 100% 4px;
+}
+
+html[data-interface="terminal"] .hub-shell .page-header {
+  border: 1px solid var(--tk-line);
+  border-left: 4px solid var(--tk-primary);
+  padding: 1rem 1.25rem;
+  border-radius: var(--ui-card-radius);
+}
+
+html[data-interface="terminal"] .hub-shell:not(.transparent-panels) .page-header {
+  background: var(--tk-surface);
+}
+
+html[data-interface="terminal"] .hub-shell .sidebar-link.is-active {
+  border-color: var(--tk-primary);
+  border-style: dashed;
+  background: color-mix(in srgb, var(--tk-primary) 10%, var(--tk-surface));
+  --ui-nav-shadow: inset 3px 0 0 var(--tk-primary);
+}
+
+html[data-interface="terminal"] .hub-shell :is(.sidebar-label, .page-description, .today-task-meta, .today-agenda-list time) {
+  font-family: var(--ui-display-font);
+}
+
+html[data-interface="terminal"] .hub-shell :is(.today-section-header, .sidebar-group-label) {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed var(--tk-line);
+}
+
+html[data-interface="brutalist"] .hub-shell:not(.has-wallpaper) {
+  background-image: radial-gradient(color-mix(in srgb, var(--tk-t1) 16%, transparent) 0.75px, transparent 0.75px);
+  background-size: 20px 20px;
+}
+
+html[data-interface="brutalist"] .hub-shell .page-header {
+  padding: 1.25rem;
+  border: 2px solid var(--tk-t1);
+  border-radius: var(--ui-card-radius);
+  box-shadow: var(--ui-card-shadow);
+}
+
+html[data-interface="brutalist"] .hub-shell:not(.transparent-panels) .page-header {
+  background: var(--tk-surface);
+}
+
+html[data-interface="brutalist"] .hub-shell .sidebar-link.is-active {
+  background: var(--tk-primary);
+  color: var(--tk-ink);
+  border: 2px solid var(--tk-t1);
+  --ui-nav-shadow: 2px 2px 0 var(--tk-t1);
+}
+
+html[data-interface="brutalist"] .hub-shell :is(.today-section-header h2, .sidebar-group-label) {
+  font-weight: 800;
+}
+
+html[data-interface="brutalist"] .hub-shell .ui-primary-button {
+  border: 2px solid var(--tk-t1);
+  box-shadow: 2px 2px 0 var(--tk-t1);
+  font-weight: 800;
+}
+
+html[data-interface="retro"] .hub-shell .page-header {
+  position: relative;
+  border: 2px solid var(--tk-line);
+  border-radius: var(--ui-card-radius);
+  padding: 2rem 1rem 1rem;
+  box-shadow: var(--ui-card-shadow);
+}
+
+html[data-interface="retro"] .hub-shell .page-header::before {
+  content: '';
+  position: absolute;
+  inset: 4px 4px auto;
+  height: 12px;
+  background: linear-gradient(90deg, var(--tk-primary) calc(100% - 45px), transparent 0), repeating-linear-gradient(90deg, var(--tk-primary) 0 9px, transparent 9px 13px);
+  pointer-events: none;
+}
+
+html[data-interface="retro"] .hub-shell:not(.transparent-panels) .page-header {
+  background: var(--tk-surface-2);
+}
+
+html[data-interface="retro"] .hub-shell .sidebar-link.is-active {
+  border-color: var(--tk-line);
+  background: var(--tk-surface);
+  --ui-nav-shadow: inset 2px 2px 0 var(--tk-line), inset -2px -2px 0 var(--tk-surface-2);
+}
+
+html[data-interface="retro"] .hub-shell :is(.sidebar-search, .today-quick-input) {
+  border-width: 2px;
+  box-shadow: inset 1px 1px 0 var(--tk-line);
+}
+
+html[data-interface="retro"] .hub-shell .today-section-header {
+  border-block: 1px solid var(--tk-line);
+  padding-block: 0.625rem;
+}
+
+html[data-interface="botanical"] .hub-shell .page-header {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--tk-line);
+}
+
+html[data-interface="botanical"] .hub-shell .page-title {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: color-mix(in srgb, var(--tk-primary) 40%, transparent);
+  text-underline-offset: 0.3em;
+}
+
+html[data-interface="botanical"] .hub-shell .sidebar-link.is-active {
+  border-color: color-mix(in srgb, var(--tk-primary) 35%, var(--tk-line));
+  background: color-mix(in srgb, var(--tk-primary) 9%, var(--tk-surface));
+}
+
+html[data-interface="botanical"] .hub-shell .sidebar-link.is-active .sidebar-link-icon {
+  border-radius: 50% 0 50% 0;
+  background: color-mix(in srgb, var(--tk-primary) 13%, transparent);
+}
+
+html[data-interface="botanical"] .hub-shell .today-section-header h2 {
+  font-family: var(--ui-display-font);
+  letter-spacing: 0.04em;
+}
+
+html[data-interface="botanical"] .hub-shell .today-agenda {
+  border-color: color-mix(in srgb, var(--tk-primary) 35%, var(--tk-line));
+  border-style: dotted;
+}
+
+html[data-interface="orbital"] .hub-shell:not(.has-wallpaper) {
+  background-image: radial-gradient(circle at 80% 12%, color-mix(in srgb, var(--tk-primary) 9%, transparent), transparent 40%), radial-gradient(var(--tk-line) 0.7px, transparent 0.7px);
+  background-size: auto, 32px 32px;
+}
+
+html[data-interface="orbital"] .hub-shell .page-header {
+  border: 1px solid var(--tk-line);
+  border-radius: var(--ui-card-radius);
+  padding: 1.5rem;
+  box-shadow: var(--ui-card-shadow);
+}
+
+html[data-interface="orbital"] .hub-shell:not(.transparent-panels) .page-header {
+  background-color: var(--tk-surface);
+  background-image: radial-gradient(ellipse at 100% 0, color-mix(in srgb, var(--tk-primary) 11%, transparent), transparent 65%);
+}
+
+html[data-interface="orbital"] .hub-shell .sidebar-link.is-active {
+  border-color: color-mix(in srgb, var(--tk-primary) 60%, var(--tk-line));
+  background: color-mix(in srgb, var(--tk-primary) 12%, var(--tk-surface));
+  --ui-nav-shadow: inset 0 0 0 3px var(--tk-chrome);
+}
+
+html[data-interface="orbital"] .hub-shell .today-section-header {
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid var(--tk-line);
+}
+
+html[data-interface="orbital"] .hub-shell .today-section-header h2 {
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+
+html[data-interface="atelier"] .hub-shell:not(.has-wallpaper) {
+  background-image: radial-gradient(color-mix(in srgb, var(--tk-t3) 14%, transparent) 0.65px, transparent 0.65px);
+  background-size: 7px 7px;
+}
+
+html[data-interface="atelier"] .hub-shell .page-header {
+  padding-bottom: 1.25rem;
+  border-bottom: 3px double var(--tk-t3);
+}
+
+html[data-interface="atelier"] .hub-shell .sidebar-link.is-active {
+  border: 1px dashed var(--tk-primary);
+  background: var(--tk-surface);
+  --ui-nav-shadow: 2px 2px 0 var(--tk-line);
+}
+
+html[data-interface="atelier"] .hub-shell .today-section-header {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px dashed var(--tk-line);
+}
+
+html[data-interface="atelier"] .hub-shell .today-section-header h2 {
+  font-family: var(--ui-display-font);
+}
+
+html[data-interface="atelier"] .hub-shell :is(.today-quick-input, .sidebar-search) {
+  border-style: dashed;
+}
+
+html[data-interface="blueprint"] .hub-shell:not(.has-wallpaper) {
+  background-image: linear-gradient(color-mix(in srgb, var(--tk-line) 35%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--tk-line) 35%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+html[data-interface="blueprint"] .hub-shell .page-header {
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--tk-line);
+  border-top: 3px solid var(--tk-primary);
+  outline: 1px solid var(--tk-line);
+  outline-offset: 4px;
+}
+
+html[data-interface="blueprint"] .hub-shell:not(.transparent-panels) .page-header {
+  background: var(--tk-surface);
+}
+
+html[data-interface="blueprint"] .hub-shell .sidebar-link.is-active {
+  border: 1px solid var(--tk-primary);
+  border-left-width: 4px;
+  background: color-mix(in srgb, var(--tk-primary) 8%, var(--tk-surface));
+}
+
+html[data-interface="blueprint"] .hub-shell :is(.today-section-header, .sidebar-group-label) {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed var(--tk-line);
+}
+
+html[data-interface="blueprint"] .hub-shell :is(.today-task-row, .today-agenda) {
+  border-style: dashed;
+}
+
+html[data-interface="gallery"] .hub-shell .page-header {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--tk-line);
+}
+
+html[data-interface="gallery"] .hub-shell .page-description {
+  margin-top: 0.875rem;
+  letter-spacing: 0.05em;
+}
+
+html[data-interface="gallery"] .hub-shell .sidebar-link.is-active {
+  background: transparent;
+  border-left: 2px solid var(--tk-primary);
+  border-radius: 0;
+  font-weight: 600;
+}
+
+html[data-interface="gallery"] .hub-shell :is(.today-section-header h2, .attention-choice h2) {
+  font-family: var(--ui-display-font);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+
+html[data-interface="gallery"] .hub-shell .today-resume {
+  border-top: 3px solid var(--tk-primary);
+}
+
+html[data-interface="arcade"] .hub-shell:not(.has-wallpaper) {
+  background-image: linear-gradient(color-mix(in srgb, var(--tk-line) 15%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--tk-line) 15%, transparent) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+html[data-interface="arcade"] .hub-shell .page-header {
+  padding: 1.25rem;
+  border: 2px solid var(--tk-primary);
+  box-shadow: var(--ui-card-shadow);
+}
+
+html[data-interface="arcade"] .hub-shell:not(.transparent-panels) .page-header {
+  background: var(--tk-surface);
+}
+
+html[data-interface="arcade"] .hub-shell .sidebar-link.is-active {
+  border: 2px solid var(--tk-primary);
+  background: var(--tk-surface);
+  --ui-nav-shadow: 3px 3px 0 color-mix(in srgb, var(--tk-primary) 40%, var(--tk-chrome));
+}
+
+html[data-interface="arcade"] .hub-shell .sidebar-link.is-active .sidebar-link-icon {
+  background: var(--tk-primary);
+  color: var(--tk-ink);
+  border-radius: 0;
+}
+
+html[data-interface="arcade"] .hub-shell .today-section-header {
+  border-bottom: 3px double var(--tk-line);
+  padding-bottom: 0.75rem;
+}
+
+html[data-interface="arcade"] .hub-shell .today-section-header h2 {
+  font-family: var(--ui-display-font);
+  letter-spacing: 0.03em;
+}
+
+html[data-interface="arcade"] .hub-shell .today-task-check > span {
+  border-radius: 0;
+  border-width: 2px;
+}
+
+@media (min-width: 768px) {
+  html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"]) .hub-shell :is(.today-columns > section, .today-agenda) {
+    border: var(--ui-card-border-width) var(--ui-card-border-style) var(--tk-line);
+    border-radius: var(--ui-card-radius);
+    box-shadow: var(--ui-card-shadow);
+    padding: 1.25rem;
+  }
+
+  html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"]) .hub-shell:not(.transparent-panels) :is(.today-columns > section, .today-agenda) {
+    background: var(--tk-surface);
+  }
+
+  html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"]) .hub-shell.transparent-panels :is(.today-columns > section, .today-agenda) {
+    background: color-mix(in srgb, var(--tk-surface) var(--panel-fill), transparent);
+  }
+
+  html[data-interface="swiss"] .hub-shell :is(.today-columns > section, .today-agenda) {
+    border: 0;
+    border-top: 2px solid var(--tk-t1);
+    border-bottom: 1px solid var(--tk-line);
+    padding-inline: 1rem;
+  }
+
+  html[data-interface="swiss"] .hub-shell .today-section-header {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  html[data-interface="terminal"] .hub-shell :is(.today-columns > section, .today-agenda) {
+    border-top: 2px solid var(--tk-primary);
+  }
+
+  html[data-interface="brutalist"] .hub-shell :is(.today-columns > section, .today-agenda) {
+    border-color: var(--tk-t1);
+  }
+
+  html[data-interface="retro"] .hub-shell :is(.today-columns > section, .today-agenda) {
+    border-top: 5px solid var(--tk-primary);
+  }
+
+  html[data-interface="botanical"] .hub-shell .today-agenda {
+    border-style: dotted;
+    border-radius: 0.5rem 1.5rem 0.5rem 1.5rem;
+  }
+
+  html[data-interface="botanical"] .hub-shell .today-columns > section {
+    border-top: 3px solid color-mix(in srgb, var(--tk-primary) 50%, var(--tk-line));
+  }
+
+  html[data-interface="atelier"] .hub-shell .today-agenda {
+    border-style: dashed;
+  }
+
+  html[data-interface="blueprint"] .hub-shell :is(.today-columns > section, .today-agenda) {
+    outline: 1px solid color-mix(in srgb, var(--tk-line) 70%, transparent);
+    outline-offset: 3px;
+  }
+
+  html[data-interface="gallery"] .hub-shell .today-columns > section {
+    border-color: transparent;
+  }
+
+  html[data-interface="gallery"] .hub-shell .today-agenda {
+    border-top: 3px solid var(--tk-primary);
+  }
+
+  html[data-interface="arcade"] .hub-shell :is(.today-columns > section, .today-agenda) {
+    border-color: var(--tk-primary);
+  }
+}
+
+html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"]) .hub-shell .planning-workspace > .page-header {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  outline: 0;
+  padding: 0 0 1rem;
+  background: transparent;
+}
+
+html[data-interface="retro"] .hub-shell .planning-workspace > .page-header::before {
+  content: none;
+}
+
+@media (max-width: 767px) {
+  html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"]) {
+    --ui-display-size: 1.75rem;
+  }
+
+  html:is([data-interface="terminal"], [data-interface="brutalist"], [data-interface="orbital"], [data-interface="blueprint"], [data-interface="arcade"]) .hub-shell .page-header {
+    padding: 1rem;
+  }
+
+  html:is([data-interface="swiss"], [data-interface="terminal"], [data-interface="brutalist"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="gallery"], [data-interface="arcade"]) .hub-shell .planning-workspace > .page-header {
+    padding: 0 0 1rem;
+  }
+}
+
+.style-preview:is([data-preview="swiss"], [data-preview="terminal"], [data-preview="brutalist"], [data-preview="retro"], [data-preview="botanical"], [data-preview="orbital"], [data-preview="atelier"], [data-preview="blueprint"], [data-preview="gallery"], [data-preview="arcade"]) {
+  --preview-accent: var(--tk-primary);
+  --preview-line: color-mix(in srgb, var(--preview-text) 25%, var(--preview-surface));
+  --preview-shadow: none;
+  --preview-font: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  --preview-heading-size: 12px;
+  --preview-heading-weight: 700;
+  --preview-heading-spacing: 0;
+  --preview-border-width: 1px;
+  --preview-nav-radius: var(--preview-radius);
+  --preview-heading-rule: none;
+  --preview-heading-padding: 0;
+}
+
+.style-preview[data-preview="swiss"] {
+  --preview-body: #f2f1ed;
+  --preview-surface: #ffffff;
+  --preview-chrome: #e9e8e3;
+  --preview-text: #20221f;
+  --preview-radius: 0;
+  --preview-font: Georgia, 'Songti SC', SimSun, serif;
+  --preview-heading-weight: 700;
+  --preview-heading-size: 15px;
+  --preview-heading-spacing: -0.025em;
+  --preview-heading-rule: 2px solid var(--preview-text);
+  --preview-heading-padding: 3px;
+}
+
+.style-preview[data-preview="terminal"] {
+  --preview-body: #edf3ef;
+  --preview-surface: #f8fcf9;
+  --preview-chrome: #dfeae3;
+  --preview-text: #193327;
+  --preview-radius: 1px;
+  --preview-font: Consolas, 'Microsoft YaHei', monospace;
+  --preview-heading-size: 11px;
+  --preview-heading-rule: 1px dashed var(--preview-accent);
+  --preview-heading-padding: 3px;
+  background-image: linear-gradient(color-mix(in srgb, var(--preview-accent) 5%, transparent) 1px, transparent 1px);
+  background-size: 100% 4px;
+}
+
+.style-preview[data-preview="brutalist"] {
+  --preview-body: #f3f0e5;
+  --preview-surface: #fffdf6;
+  --preview-chrome: #e9e4d3;
+  --preview-text: #24251e;
+  --preview-line: var(--preview-text);
+  --preview-radius: 2px;
+  --preview-border-width: 1.5px;
+  --preview-shadow: 2px 2px 0 var(--preview-text);
+  --preview-heading-size: 15px;
+  --preview-heading-weight: 900;
+  --preview-heading-spacing: -0.05em;
+  background-image: radial-gradient(color-mix(in srgb, var(--preview-text) 20%, transparent) 0.65px, transparent 0.65px);
+  background-size: 8px 8px;
+}
+
+.style-preview[data-preview="retro"] {
+  --preview-body: #dce5e1;
+  --preview-surface: #f8f6ee;
+  --preview-chrome: #d9d8cb;
+  --preview-text: #29352e;
+  --preview-radius: 1px;
+  --preview-font: 'Trebuchet MS', 'Microsoft YaHei', sans-serif;
+  --preview-shadow: inset 1px 1px 0 var(--preview-surface), inset -1px -1px 0 var(--preview-line), 2px 2px 0 color-mix(in srgb, var(--preview-text) 25%, transparent);
+}
+
+.style-preview[data-preview="botanical"] {
+  --preview-body: #f0f1e7;
+  --preview-surface: #fafbf2;
+  --preview-chrome: #dce4cb;
+  --preview-text: #2b3c29;
+  --preview-radius: 9px 2px 9px 2px;
+  --preview-nav-radius: 12px 3px 12px 3px;
+  --preview-font: 'Songti SC', SimSun, Georgia, serif;
+  --preview-heading-size: 14px;
+  --preview-heading-spacing: 0.06em;
+  --preview-heading-rule: 1px solid var(--preview-line);
+  --preview-heading-padding: 3px;
+}
+
+.style-preview[data-preview="orbital"] {
+  --preview-body: #edf0f9;
+  --preview-surface: #fbfcff;
+  --preview-chrome: #dce3f4;
+  --preview-text: #26334f;
+  --preview-radius: 9px;
+  --preview-nav-radius: 12px;
+  --preview-heading-weight: 500;
+  --preview-heading-size: 14px;
+  --preview-heading-spacing: 0.06em;
+  --preview-shadow: 0 3px 8px color-mix(in srgb, var(--preview-text) 10%, transparent);
+  background-image: radial-gradient(circle at 90% 0, color-mix(in srgb, var(--preview-accent) 15%, transparent), transparent 60%), radial-gradient(var(--preview-line) 0.6px, transparent 0.6px);
+  background-size: auto, 14px 14px;
+}
+
+.style-preview[data-preview="atelier"] {
+  --preview-body: #f1e9df;
+  --preview-surface: #fffbf2;
+  --preview-chrome: #e2d4c0;
+  --preview-text: #433628;
+  --preview-radius: 2px;
+  --preview-font: 'Songti SC', SimSun, Georgia, serif;
+  --preview-heading-size: 14px;
+  --preview-shadow: 2px 2px 0 var(--preview-body), 3px 3px 0 var(--preview-line);
+  --preview-heading-rule: 3px double var(--preview-line);
+  --preview-heading-padding: 3px;
+  background-image: radial-gradient(color-mix(in srgb, var(--preview-text) 10%, transparent) 0.6px, transparent 0.6px);
+  background-size: 5px 5px;
+}
+
+.style-preview[data-preview="blueprint"] {
+  --preview-body: #e9f1f8;
+  --preview-surface: #f7fbff;
+  --preview-chrome: #cfdfec;
+  --preview-text: #1c3855;
+  --preview-radius: 0;
+  --preview-font: Consolas, 'Microsoft YaHei', monospace;
+  --preview-heading-size: 11px;
+  --preview-heading-rule: 1px dashed var(--preview-accent);
+  --preview-heading-padding: 3px;
+  --preview-shadow: 2px 2px 0 color-mix(in srgb, var(--preview-accent) 15%, transparent);
+  background-image: linear-gradient(var(--preview-chrome) 1px, transparent 1px), linear-gradient(90deg, var(--preview-chrome) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+.style-preview[data-preview="gallery"] {
+  --preview-body: #f5f4f1;
+  --preview-surface: #ffffff;
+  --preview-chrome: #ebe9e5;
+  --preview-text: #302d2b;
+  --preview-radius: 3px;
+  --preview-font: 'Songti SC', SimSun, Georgia, serif;
+  --preview-heading-size: 14px;
+  --preview-heading-weight: 500;
+  --preview-heading-spacing: 0.12em;
+  --preview-shadow: 0 2px 8px color-mix(in srgb, var(--preview-text) 7%, transparent);
+}
+
+.style-preview[data-preview="arcade"] {
+  --preview-body: #f0edf8;
+  --preview-surface: #fcfaff;
+  --preview-chrome: #e0d5ee;
+  --preview-text: #39254c;
+  --preview-radius: 0;
+  --preview-font: Consolas, 'Microsoft YaHei', monospace;
+  --preview-heading-size: 12px;
+  --preview-heading-weight: 800;
+  --preview-border-width: 1.5px;
+  --preview-shadow: 3px 3px 0 color-mix(in srgb, var(--preview-accent) 40%, var(--preview-body));
+  background-image: linear-gradient(var(--preview-chrome) 1px, transparent 1px), linear-gradient(90deg, var(--preview-chrome) 1px, transparent 1px);
+  background-size: 6px 6px;
+}
+
+html[data-theme="dark"] .style-preview[data-preview="swiss"] {
+  --preview-body: #141512;
+  --preview-surface: #1e201c;
+  --preview-chrome: #30332d;
+  --preview-text: #f6f6ec;
+}
+
+html[data-theme="dark"] .style-preview[data-preview="terminal"] {
+  --preview-body: #08110e;
+  --preview-surface: #0e1d17;
+  --preview-chrome: #1a3026;
+  --preview-text: #e0f5e8;
+}
+
+html[data-theme="dark"] .style-preview[data-preview="brutalist"] {
+  --preview-body: #171814;
+  --preview-surface: #262820;
+  --preview-chrome: #383a30;
+  --preview-text: #f4f4df;
+  --preview-line: #888d79;
+  --preview-shadow: 2px 2px 0 color-mix(in srgb, var(--preview-text) 42%, var(--preview-body));
+}
+
+html[data-theme="dark"] .style-preview[data-preview="retro"] {
+  --preview-body: #172526;
+  --preview-surface: #2c3433;
+  --preview-chrome: #3d4743;
+  --preview-text: #f1f1de;
+}
+
+html[data-theme="dark"] .style-preview[data-preview="botanical"] {
+  --preview-body: #141b13;
+  --preview-surface: #202a1d;
+  --preview-chrome: #303d28;
+  --preview-text: #eef3df;
+}
+
+html[data-theme="dark"] .style-preview[data-preview="orbital"] {
+  --preview-body: #0d1121;
+  --preview-surface: #171e34;
+  --preview-chrome: #27304b;
+  --preview-text: #edf1ff;
+}
+
+html[data-theme="dark"] .style-preview[data-preview="atelier"] {
+  --preview-body: #201a15;
+  --preview-surface: #2d251e;
+  --preview-chrome: #403327;
+  --preview-text: #f5ead9;
+}
+
+html[data-theme="dark"] .style-preview[data-preview="blueprint"] {
+  --preview-body: #0c1b2d;
+  --preview-surface: #132740;
+  --preview-chrome: #203955;
+  --preview-text: #e5f2ff;
+}
+
+html[data-theme="dark"] .style-preview[data-preview="gallery"] {
+  --preview-body: #191819;
+  --preview-surface: #252325;
+  --preview-chrome: #363235;
+  --preview-text: #f5eeee;
+}
+
+html[data-theme="dark"] .style-preview[data-preview="arcade"] {
+  --preview-body: #171025;
+  --preview-surface: #261b37;
+  --preview-chrome: #3a294f;
+  --preview-text: #f9ebff;
+}
+
+html[data-theme="dark"] .style-preview:is([data-preview="swiss"], [data-preview="terminal"], [data-preview="brutalist"], [data-preview="retro"], [data-preview="botanical"], [data-preview="orbital"], [data-preview="atelier"], [data-preview="blueprint"], [data-preview="gallery"], [data-preview="arcade"]) {
+  --preview-accent: var(--tk-primary);
+}
+
+.style-preview:is([data-preview="swiss"], [data-preview="terminal"], [data-preview="brutalist"], [data-preview="retro"], [data-preview="botanical"], [data-preview="orbital"], [data-preview="atelier"], [data-preview="blueprint"], [data-preview="gallery"], [data-preview="arcade"]) .style-preview-heading {
+  font-family: var(--preview-font);
+  font-size: var(--preview-heading-size);
+  font-weight: var(--preview-heading-weight);
+  letter-spacing: var(--preview-heading-spacing);
+  border-bottom: var(--preview-heading-rule);
+  padding-bottom: var(--preview-heading-padding);
+}
+
+.style-preview:is([data-preview="swiss"], [data-preview="terminal"], [data-preview="brutalist"], [data-preview="retro"], [data-preview="botanical"], [data-preview="orbital"], [data-preview="atelier"], [data-preview="blueprint"], [data-preview="gallery"], [data-preview="arcade"]) .style-preview-nav {
+  border-radius: var(--preview-nav-radius);
+}
+
+.style-preview:is([data-preview="swiss"], [data-preview="terminal"], [data-preview="brutalist"], [data-preview="retro"], [data-preview="botanical"], [data-preview="orbital"], [data-preview="atelier"], [data-preview="blueprint"], [data-preview="gallery"], [data-preview="arcade"]) :is(.style-preview-stats > i, .style-preview-card) {
+  border-width: var(--preview-border-width);
+  border-color: var(--preview-line);
+  box-shadow: var(--preview-shadow);
+}
+
+.style-preview[data-preview="swiss"] .style-preview-nav {
+  border-right: 1px solid var(--preview-line);
+  background: transparent;
+}
+
+.style-preview[data-preview="swiss"] .style-preview-nav > i:first-of-type {
+  background: transparent;
+  border-bottom: 2px solid var(--preview-accent);
+  border-radius: 0;
+}
+
+.style-preview[data-preview="terminal"] .style-preview-nav > i:first-of-type {
+  border: 1px dashed var(--preview-accent);
+  border-left-width: 3px;
+  border-radius: 0;
+  background: var(--preview-surface);
+}
+
+.style-preview[data-preview="terminal"] .style-preview-card {
+  border-top: 2px solid var(--preview-accent);
+}
+
+.style-preview[data-preview="brutalist"] .style-preview-nav {
+  border: 1.5px solid var(--preview-line);
+  box-shadow: var(--preview-shadow);
+}
+
+.style-preview[data-preview="brutalist"] .style-preview-nav > i:first-of-type {
+  border: 1px solid var(--preview-line);
+  box-shadow: 1px 1px 0 var(--preview-text);
+}
+
+.style-preview[data-preview="retro"] .style-preview-heading {
+  padding-top: 6px;
+  border-top: 5px solid var(--preview-accent);
+  line-height: 1.25;
+}
+
+.style-preview[data-preview="retro"] .style-preview-heading > span {
+  line-height: 1.25;
+}
+
+.style-preview[data-preview="retro"] .style-preview-nav {
+  border: 1px solid var(--preview-line);
+  box-shadow: var(--preview-shadow);
+}
+
+.style-preview[data-preview="retro"] .style-preview-nav > i:first-of-type {
+  background: var(--preview-surface);
+  box-shadow: inset 1px 1px 0 var(--preview-line), inset -1px -1px 0 var(--preview-text);
+  border-radius: 0;
+}
+
+.style-preview[data-preview="botanical"] .style-preview-logo {
+  border-radius: 50% 0 50% 0;
+}
+
+.style-preview[data-preview="botanical"] .style-preview-nav > i:first-of-type {
+  border-radius: 7px 2px 7px 2px;
+}
+
+.style-preview[data-preview="orbital"] .style-preview-logo {
+  border: 1px solid var(--preview-accent);
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--preview-chrome), inset 0 0 0 4px var(--preview-accent);
+}
+
+.style-preview[data-preview="orbital"] .style-preview-nav > i:first-of-type {
+  border-radius: 10px;
+  border: 1px solid var(--preview-accent);
+  background: transparent;
+}
+
+.style-preview[data-preview="atelier"] .style-preview-nav > i:first-of-type {
+  border: 1px dashed var(--preview-accent);
+  background: var(--preview-surface);
+  box-shadow: 1px 1px 0 var(--preview-line);
+}
+
+.style-preview[data-preview="blueprint"] .style-preview-nav {
+  border: 1px solid var(--preview-line);
+  background-color: var(--preview-surface);
+}
+
+.style-preview[data-preview="blueprint"] .style-preview-nav > i:first-of-type {
+  background: var(--preview-chrome);
+  border: 1px solid var(--preview-accent);
+  border-left-width: 3px;
+  border-radius: 0;
+}
+
+.style-preview[data-preview="gallery"] .style-preview-nav {
+  background: transparent;
+}
+
+.style-preview[data-preview="gallery"] .style-preview-nav > i:first-of-type {
+  background: transparent;
+  border-left: 2px solid var(--preview-accent);
+  border-radius: 0;
+}
+
+.style-preview[data-preview="gallery"] .style-preview-card {
+  border-top: 2px solid var(--preview-accent);
+}
+
+.style-preview[data-preview="arcade"] .style-preview-logo {
+  border-radius: 0;
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--preview-accent) 40%, transparent);
+}
+
+.style-preview[data-preview="arcade"] .style-preview-nav > i:first-of-type {
+  border-radius: 0;
+  border: 1px solid var(--preview-accent);
+  background: var(--preview-surface);
+  box-shadow: 2px 2px 0 var(--preview-accent);
+}

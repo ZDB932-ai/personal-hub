@@ -29,7 +29,7 @@ async function moveFocus(event: KeyboardEvent, date: string): Promise<void> {
 
 <template>
   <section class="mini-month" aria-label="迷你月历">
-    <div class="flex items-center justify-between"><h2 class="text-sm font-semibold text-t1" aria-live="polite">{{ title }}</h2><div class="flex"><button class="calendar-icon" aria-label="迷你月历上个月" @click="month = shiftMonth(month, -1)"><ChevronLeft class="h-4 w-4" /></button><button class="calendar-icon" aria-label="迷你月历下个月" @click="month = shiftMonth(month, 1)"><ChevronRight class="h-4 w-4" /></button></div></div>
+    <div class="flex items-center justify-between"><h2 class="text-sm font-semibold text-t1" aria-live="polite">{{ title }}</h2><div class="flex"><button class="calendar-icon ui-icon-button" aria-label="迷你月历上个月" @click="month = shiftMonth(month, -1)"><ChevronLeft class="h-4 w-4" /></button><button class="calendar-icon ui-icon-button" aria-label="迷你月历下个月" @click="month = shiftMonth(month, 1)"><ChevronRight class="h-4 w-4" /></button></div></div>
     <div ref="grid" class="mini-month-grid">
       <span v-for="day in ['一', '二', '三', '四', '五', '六', '日']" :key="day" class="mini-weekday">{{ day }}</span>
       <button v-for="date in dates" :key="date" :data-date="date" class="mini-date" :class="{ 'is-outside': date.slice(0, 7) !== month.slice(0, 7), 'is-range': range.length === 7 && range.includes(date), 'is-selected': date === selected, 'is-today': date === today }" :tabindex="date === focusDate ? 0 : -1" :aria-label="`选择 ${date}${date === today ? '，今天' : ''}`" :aria-pressed="date === selected" :aria-current="date === today ? 'date' : undefined" @click="emit('select', date)" @keydown="moveFocus($event, date)">{{ Number(date.slice(8)) }}</button>

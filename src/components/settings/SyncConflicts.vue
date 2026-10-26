@@ -37,21 +37,21 @@ async function choose(conflict: OfflineJournal['conflicts'][number], choice: 'lo
 </script>
 
 <template>
-  <section v-if="offlineConflicts.length" class="mb-4 space-y-3 rounded-xl border border-warn/30 bg-surface p-4">
-    <p class="text-sm font-medium text-t1">需要处理的冲突（{{ offlineConflicts.length }}）</p>
+  <section v-if="offlineConflicts.length" class="settings-card space-y-3 border-warn/30" aria-label="同步冲突">
+    <h3 class="settings-section-title">需要确认的修改（{{ offlineConflicts.length }}）</h3>
     <p class="text-xs leading-relaxed text-t2">两边的修改都已保留。选择只影响这一条记录，其他记录可继续同步。</p>
     <p v-if="error" role="alert" class="text-xs text-danger">{{ error }}</p>
     <article v-for="conflict in offlineConflicts" :key="conflict.remote.entity" class="space-y-2 rounded-lg border border-line p-3">
       <p class="text-sm text-t1">{{ labels[conflict.operation.kind] ?? '记录' }} · {{ conflict.operation.id === 'singleton' ? '设置' : conflict.operation.id.slice(0, 8) }}</p>
       <p class="text-xs text-t3">本机：{{ conflict.operation.deleted ? '已删除' : '已修改' }} · 另一设备：{{ conflict.remote.deleted ? '已删除' : '已修改' }}（版本 {{ conflict.remote.revision }}）</p>
-      <button class="text-xs text-primary" @click="expanded = expanded === conflict.remote.entity ? '' : conflict.remote.entity">{{ expanded === conflict.remote.entity ? '隐藏内容' : '查看两边内容（可能包含密码）' }}</button>
+      <button class="ui-secondary-button text-xs" :aria-expanded="expanded === conflict.remote.entity" @click="expanded = expanded === conflict.remote.entity ? '' : conflict.remote.entity">{{ expanded === conflict.remote.entity ? '隐藏内容' : '比较两个版本（可能包含密码）' }}</button>
       <div v-if="expanded === conflict.remote.entity" class="max-h-72 space-y-2 overflow-auto text-xs text-t2">
         <div v-for="field in differences(conflict)" :key="field.key" class="rounded-lg border border-line bg-surface-2 p-2"><p class="font-medium">{{ field.label }}</p><p class="mt-1 whitespace-pre-wrap break-all">本机：{{ field.local }}</p><p class="mt-1 whitespace-pre-wrap break-all">另一设备：{{ field.remote }}</p></div>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button :disabled="busy" class="rounded-lg border border-line px-3 py-2 text-xs text-t1 disabled:opacity-50" @click="choose(conflict, 'local')">保留本机版本</button>
-        <button :disabled="busy" class="rounded-lg border border-line px-3 py-2 text-xs text-t1 disabled:opacity-50" @click="choose(conflict, 'remote')">使用另一设备版本</button>
-        <button v-if="['tasks', 'memos'].includes(conflict.operation.kind) && !conflict.operation.deleted && !conflict.remote.deleted" :disabled="busy" class="rounded-lg border border-line px-3 py-2 text-xs text-primary disabled:opacity-50" @click="choose(conflict, 'both')">保留两个副本</button>
+        <button :disabled="busy" class="ui-secondary-button disabled:opacity-50" @click="choose(conflict, 'local')">保留本机版本</button>
+        <button :disabled="busy" class="ui-secondary-button disabled:opacity-50" @click="choose(conflict, 'remote')">使用另一设备版本</button>
+        <button v-if="['tasks', 'memos'].includes(conflict.operation.kind) && !conflict.operation.deleted && !conflict.remote.deleted" :disabled="busy" class="ui-secondary-button disabled:opacity-50" @click="choose(conflict, 'both')">保留两个副本</button>
       </div>
     </article>
   </section>

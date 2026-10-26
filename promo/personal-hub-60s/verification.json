@@ -1,0 +1,25 @@
+{
+  "file": "Personal-Hub-60s-1080p.mp4",
+  "bytes": 5099652,
+  "sha256": "b2f093e33277c5b2fcbab3f22eb8bf4447e4e0f0743905cb7c8bedb6c6612b46",
+  "duration_seconds": 60.0,
+  "frames_decoded": 1800,
+  "checks": {
+    "duration_60s": true,
+    "resolution_1920x1080": true,
+    "fps_30": true,
+    "h264": true,
+    "yuv420p": true,
+    "aac_stereo_48k": true,
+    "decoded_1800_frames": true,
+    "full_decode_without_errors": true,
+    "audio_source_60s": true,
+    "synthetic_demo_only": true
+  },
+  "passed": true,
+  "metadata": "Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'E:\\炫酷主页\\promo\\personal-hub-60s\\Personal-Hub-60s-1080p.mp4':\n  Metadata:\n    major_brand     : isom\n    minor_version   : 512\n    compatible_brands: isomiso2avc1mp41\n    title           : Personal Hub - 让记录接上行动\n    encoder         : Lavf62.12.102\n    comment         : Actual app captures with synthetic demonstration data; original synthesized music; synthetic Mandarin narration.\n  Duration: 00:01:00.00, start: 0.000000, bitrate: 679 kb/s\n  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 1920x1080, 416 kb/s, 30 fps, 30 tbr, 15360 tbn (default)\n    Metadata:\n      handler_name    : VideoHandler\n      encoder         : Lavc62.28.102 libx264\n  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 254 kb/s (default)\n    Metadata:\n      handler_name    : SoundHandler\nAt least one output file must be specified\n",
+  "decode_errors": "",
+  "product_build": "npm run build passed on Node 24.19.0; product version 1.1.10",
+  "visual_review": "preview/contact-sheet.jpg and selected full-resolution frames inspected before final encode",
+  "audio_review": "Duration, loudness, peaks and actual TTS word timing checked; no subjective listening claim."
+}

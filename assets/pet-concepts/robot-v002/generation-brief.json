@@ -1,0 +1,22 @@
+{
+  "intake_sha256": "2704fc928f192216a6c8b478987c6698d99864d8a2013fa82ec929915fe6b590",
+  "animation_use": "animated",
+  "prompt": "Use case: identity-preserve. Asset type: single independent orthographic reference for a Tripo animated desktop robot. Input image is the approved concept identity reference, not a collage to reproduce. Preserve the exact ivory rounded rectangular head, black face screen with two warm arch-shaped happy eyes, circular muted teal ear discs, muted teal chest shell, ivory belly and limb shells, black flexible joints, teal ankle panels, chunky ivory boots, proportions and scale. Change only hands to simple rounded mitten hands with a separate thumb, no individually segmented fingers. Same neutral relaxed A pose, arms slightly out from body, feet planted apart, elbows and knees straight but unlocked. One robot only centered full body from head to soles, occupies 78 percent image height; square frame, plain light gray background, soft neutral even light, minimal contact shadow, no text, no border, no props, no perspective or 3/4 view. No new accessories. Intended native humanoid rig and preset walk/jump: show joint gaps, no fused hands/hips or floating parts.",
+  "views": {
+    "front": "Exact front orthographic view, face looks straight at camera.",
+    "left": "Exact character-left orthographic profile, nose/face points toward image left.",
+    "right": "Exact character-right orthographic profile, nose/face points toward image right.",
+    "back": "Exact back orthographic view, flush teal service panel on torso, no face screen on back."
+  },
+  "preserve": [
+    "approved identity",
+    "palette",
+    "proportions",
+    "joint positions"
+  ],
+  "pose_and_separation": "Same A-pose for all views; arms clear of torso; separated planted boots; mitten palms and thumbs.",
+  "view_consistency": "Generate front first; use it and concept board as identity input for other three independent views. No mirroring or duplicating side images.",
+  "inferred_details": "Back flush service cover and occluded surfaces are design inferences, not observed geometry. Simplified hand geometry must be checked in final views.",
+  "tool": "built-in image_gen",
+  "decision": "pending"
+}

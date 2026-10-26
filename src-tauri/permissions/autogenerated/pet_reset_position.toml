@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-pet-reset-position"
+description = "Enables the pet_reset_position command without any pre-configured scope."
+commands.allow = ["pet_reset_position"]
+
+[[permission]]
+identifier = "deny-pet-reset-position"
+description = "Denies the pet_reset_position command without any pre-configured scope."
+commands.deny = ["pet_reset_position"]

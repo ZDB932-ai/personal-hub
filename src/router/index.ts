@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { waitForRouteTransition } from '@/lib/routeScroll'
+import { navigationItemForPath } from '@/lib/navigation'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -65,6 +66,11 @@ const router = createRouter({
     if (to.path === from.path) return false
     return { left: 0, top: 0, behavior: 'instant' }
   },
+})
+
+router.afterEach(to => {
+  const page = navigationItemForPath(to.path)
+  document.title = `${page?.label ?? (to.path === '/focus' ? '专注' : '今天')} · Personal Hub`
 })
 
 export default router

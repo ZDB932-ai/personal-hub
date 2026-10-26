@@ -1,0 +1,12 @@
+{
+  "intent": "为 Personal Hub 制作圆角机器人桌宠，保持已确认造型，Tripo 原生绑定及预设动作，Blender 精修后接入 Three.js 桌宠。",
+  "animation": {
+    "status": "confirmed",
+    "use": "animated",
+    "evidence": "用户要求桌宠的动作使用 tripo 中预设的一些动作来完成，在 blender 中完成精修；对圆角机器人外观提案回复：合适。",
+    "design_implications": "保持头身比例、象牙白壳体、灰青胸甲和暗色关节；中性 A 姿，双腿分开，手臂与躯干留隙，手套式手掌加独立拇指，机械壳与柔性关节分别检查。",
+    "motion_intent": "预设待机和行走循环、单次跳跃及庆祝；不加入问候。实际名称、兼容性和节奏后续核验，不预先承诺通过。"
+  },
+  "concept_decision": {"status":"approved","evidence":"用户对已展示 robot-v001-qa.png 的造型方向回复：合适"},
+  "reference_decision": {"status":"pending","evidence":null}
+}

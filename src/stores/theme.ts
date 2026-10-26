@@ -1,16 +1,10 @@
 import { ref, watch } from 'vue'
+import { INTERFACE_STYLES, type InterfaceStyle } from '@/lib/interfaceStyles'
+
+export { INTERFACE_STYLES, type InterfaceStyle } from '@/lib/interfaceStyles'
 
 export type ThemeMode = 'dark' | 'light' | 'system'
 export type AccentKey = 'teal' | 'indigo' | 'blue' | 'violet' | 'rose' | 'amber' | 'coral' | 'cobalt' | 'orchid'
-export type InterfaceStyle = 'classic' | 'sunrise' | 'aurora' | 'precision'
-
-export const INTERFACE_STYLES: { key: InterfaceStyle; label: string; description: string; accent: AccentKey; detail: string }[] = [
-  { key: 'classic', label: '经典纸感', description: '暖白纸面 · 轻边框 · 从容留白', accent: 'teal', detail: '熟悉的原版界面，让内容成为焦点。' },
-  { key: 'sunrise', label: '晨光工作室', description: '奶油暖色 · 柔和层次 · 杂志标题', accent: 'amber', detail: '像翻开一本手帐，与日光折页图标相呼应。' },
-  { key: 'aurora', label: '极光浮岛', description: '柔光背景 · 悬浮卡片 · 圆润导航', accent: 'indigo', detail: '轻盈的蓝紫空间，适合沉浸整理与规划。' },
-  { key: 'precision', label: '精密面板', description: '清晰线框 · 紧凑排布 · 利落分区', accent: 'blue', detail: '减少装饰、提高信息密度，保持清晰的操作层级。' },
-]
-
 const KEY = 'xk.theme.v1'
 const LIGHT_BASELINE_KEY = 'xk.theme.light-baseline.v1'
 
@@ -62,6 +56,7 @@ const systemMedia = window.matchMedia('(prefers-color-scheme: light)')
 export const themeMode = ref<ThemeMode>(initial.mode)
 export const themeAccent = ref<AccentKey>(initial.accent)
 export const interfaceStyle = ref<InterfaceStyle>(initial.style)
+export const previousInterfaceAppearance = ref<{ style: InterfaceStyle; mode: ThemeMode; accent: AccentKey } | null>(null)
 
 export function selectInterfaceStyle(style: InterfaceStyle): void {
   const preset = INTERFACE_STYLES.find((item) => item.key === style)

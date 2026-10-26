@@ -1,0 +1,155 @@
+{
+  "source": "http://127.0.0.1:5199",
+  "build": "E:\\炫酷主页\\dist",
+  "buildIndexSha256": "0544e152a51d8a83a0e787f3d9a8ec675875ff4559d15a9beac02b0486b3e127",
+  "method": "isolated headless Edge; real production web UI; synthetic demo content created through UI",
+  "syntheticOnly": true,
+  "nativeAcceptance": false,
+  "syntheticContent": {
+    "todayTasks": 6,
+    "additionalCalendarTasks": 3,
+    "memos": 5,
+    "textDocuments": 5,
+    "accounts": [
+      "linjian@example.test",
+      "studio@example.test",
+      "design@example.test"
+    ],
+    "passwordsVisible": false,
+    "realUserCredentialsUsed": false,
+    "recoveryKeySavedToDisk": false
+  },
+  "capturedAt": "2026-10-22T16:18:59.632Z",
+  "navigationReloads": [],
+  "pageErrors": [],
+  "blockedExternalOrigins": [],
+  "screenshots": [
+    {
+      "name": "today",
+      "path": "E:\\炫酷主页\\promo\\personal-hub-60s\\assets\\today.png",
+      "route": "#/",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "appearance": {
+        "theme": "light",
+        "accent": "teal",
+        "interface": "classic"
+      }
+    },
+    {
+      "name": "mobile",
+      "path": "E:\\炫酷主页\\promo\\personal-hub-60s\\assets\\mobile.png",
+      "route": "#/",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "appearance": {
+        "theme": "light",
+        "accent": "teal",
+        "interface": "classic"
+      }
+    },
+    {
+      "name": "memos",
+      "path": "E:\\炫酷主页\\promo\\personal-hub-60s\\assets\\memos.png",
+      "route": "#/memos",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "appearance": {
+        "theme": "light",
+        "accent": "teal",
+        "interface": "classic"
+      }
+    },
+    {
+      "name": "vault",
+      "path": "E:\\炫酷主页\\promo\\personal-hub-60s\\assets\\vault.png",
+      "route": "#/vault",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "appearance": {
+        "theme": "light",
+        "accent": "teal",
+        "interface": "classic"
+      }
+    },
+    {
+      "name": "calendar",
+      "path": "E:\\炫酷主页\\promo\\personal-hub-60s\\assets\\calendar.png",
+      "route": "#/calendar",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "appearance": {
+        "theme": "light",
+        "accent": "teal",
+        "interface": "classic"
+      }
+    },
+    {
+      "name": "docs",
+      "path": "E:\\炫酷主页\\promo\\personal-hub-60s\\assets\\docs.png",
+      "route": "#/docs",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "appearance": {
+        "theme": "light",
+        "accent": "teal",
+        "interface": "classic"
+      }
+    },
+    {
+      "name": "docs-preview",
+      "path": "E:\\炫酷主页\\promo\\personal-hub-60s\\assets\\docs-preview.png",
+      "route": "#/docs",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "appearance": {
+        "theme": "light",
+        "accent": "teal",
+        "interface": "classic"
+      }
+    },
+    {
+      "name": "style-dark",
+      "path": "E:\\炫酷主页\\promo\\personal-hub-60s\\assets\\style-dark.png",
+      "route": "#/",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "appearance": {
+        "theme": "dark",
+        "accent": "orchid",
+        "interface": "orbital"
+      }
+    },
+    {
+      "name": "style-editorial",
+      "path": "E:\\炫酷主页\\promo\\personal-hub-60s\\assets\\style-editorial.png",
+      "route": "#/",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "appearance": {
+        "theme": "light",
+        "accent": "coral",
+        "interface": "swiss"
+      }
+    }
+  ],
+  "completed": true
+}

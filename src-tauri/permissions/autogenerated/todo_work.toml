@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-todo-work"
+description = "Enables the todo_work command without any pre-configured scope."
+commands.allow = ["todo_work"]
+
+[[permission]]
+identifier = "deny-todo-work"
+description = "Denies the todo_work command without any pre-configured scope."
+commands.deny = ["todo_work"]

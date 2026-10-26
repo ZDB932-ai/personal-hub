@@ -1,0 +1,35 @@
+[Unit]
+Description=Personal Hub encrypted sync
+After=network.target
+
+[Service]
+Type=simple
+User=personal-hub
+Group=personal-hub
+WorkingDirectory=/opt/personal-hub/current
+Environment=PHUB_SYNC_DIR=/opt/personal-hub/data
+Environment=PHUB_SYNC_HOST=127.0.0.1
+Environment=PHUB_SYNC_PORT=8787
+Environment=PHUB_SYNC_ORIGINS=https://111.91.19.235,http://localhost,https://localhost,http://tauri.localhost,https://tauri.localhost,tauri://localhost
+ExecStart=/opt/personal-hub/runtime/node/bin/node --max-old-space-size=256 server/start.ts
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0077
+MemoryHigh=384M
+MemoryMax=512M
+TasksMax=64
+LimitNOFILE=1024
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/personal-hub/data
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

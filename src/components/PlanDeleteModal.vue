@@ -35,7 +35,7 @@ const emit = defineEmits<{
     <div class="mt-5 rounded-lg border border-line bg-inset p-3.5">
       <p class="text-sm font-medium text-t1">{{ title }}</p>
       <p v-if="kind === '周计划'" class="mt-2 text-xs leading-relaxed text-t3">
-        关联的 {{ linkedTaskCount ?? 0 }} 项每日行动会一并删除<span v-if="linkedDoneCount">，其中 {{ linkedDoneCount }} 项已完成</span>。其他任务不受影响，删除后可立即撤回。
+        关联的 {{ linkedTaskCount ?? 0 }} 项任务会一并删除<span v-if="linkedDoneCount">，其中 {{ linkedDoneCount }} 项已完成</span>。其他任务不受影响，删除后可立即撤回。
       </p>
       <p v-else class="mt-2 text-xs leading-relaxed text-t3">已关联的周计划和每日任务会保留，只是不再关联这项{{ kind }}。这个操作不会删除任务。</p>
     </div>

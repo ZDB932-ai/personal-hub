@@ -256,10 +256,10 @@ const inputCls =
         <p>
           {{
             form.agentKind === 'codex'
-              ? 'Codex 走 exec 非交互模式（默认只读沙盒）；需要写文件请在 codex 配置中调整沙盒与审批设置。'
+              ? '通过 Codex CLI 执行请求。文件访问与审批权限取决于连接电脑上的 Codex 配置。'
               : form.agentKind === 'dsh'
-                ? 'DeepSeek Harness 走 headless profile（工作区内可写）。'
-                : 'zcode 走 -p 单发模式（bare 调用默认 yolo，注意安全）。'
+                ? '使用 DeepSeek Harness 的 headless 配置执行请求；工作目录与文件访问权限由连接电脑上的配置决定。'
+                : '通过 zcode 按次执行请求。运行权限取决于连接电脑上的 zcode 配置，请在连接前确认文件访问与审批设置。'
           }}
         </p>
         <p class="mt-1.5">

@@ -222,7 +222,7 @@ async function batchDelete(): Promise<void> {
 
 <template>
   <div class="docs-workspace">
-    <PageHeader title="资料库" eyebrow="内容">
+    <PageHeader title="资料库" eyebrow="知识与资料">
       <template #description>
         {{ docMetas.length }} 个文件 · 加密保存，随时查找
       </template>
@@ -236,8 +236,8 @@ async function batchDelete(): Promise<void> {
           :class="{ 'pointer-events-none opacity-60': uploading }"
         >
           <Upload class="h-4 w-4" />
-          {{ uploading ? '加密入库中…' : '上传文件' }}
-          <input type="file" multiple class="sr-only" aria-label="上传文件" :disabled="uploading" @change="handleFiles" />
+          {{ uploading ? '正在加密保存…' : '添加文件' }}
+          <input type="file" multiple class="sr-only" aria-label="添加文件" :disabled="uploading" @change="handleFiles" />
         </label>
       </template>
     </PageHeader>
@@ -278,7 +278,7 @@ async function batchDelete(): Promise<void> {
     <div v-if="docMetas.length === 0" class="empty-state mt-8">
       <FolderLock class="mx-auto h-10 w-10 text-t4" />
       <p class="mt-4 text-sm font-medium text-t2">资料库还是空的</p>
-      <p class="mt-1 text-xs text-t4">上传证件扫描件、合同、票据等，加密保存随取随用（单文件 ≤ 50MB）</p>
+      <p class="mt-1 text-xs text-t4">选择「添加文件」，保存证件、合同或学习资料。文件会在本机加密，单个文件最大 50MB。</p>
     </div>
 
     <div v-else-if="filtered.length === 0" class="empty-state mt-8">

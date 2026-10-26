@@ -39,13 +39,14 @@ const open = ref(false)
 const activeIndex = ref(-1)
 const trigger = ref<HTMLButtonElement | null>(null)
 const listStyle = ref<Record<string, string>>({})
+const settingsContext = ref(false)
 
 const POP_ID = `app-select-${Math.random().toString(36).slice(2, 8)}`
 
 function place(): void {
   const r = trigger.value?.getBoundingClientRect()
   if (!r) return
-  const itemH = props.size === 'sm' ? 30 : 36
+  const itemH = settingsContext.value ? 44 : props.size === 'sm' ? 30 : 36
   const h = Math.min(norm.value.length, 8) * itemH + 8
   const spaceBelow = window.innerHeight - r.bottom
   const above = spaceBelow < h + 12 && r.top > spaceBelow
@@ -56,6 +57,10 @@ function place(): void {
     top: `${Math.max(8, top)}px`,
     left: `${Math.max(8, left)}px`,
     minWidth: `${r.width}px`,
+    ...(settingsContext.value ? {
+      '--settings-control-radius': getComputedStyle(trigger.value!).getPropertyValue('--settings-control-radius'),
+      '--settings-border': getComputedStyle(trigger.value!).getPropertyValue('--settings-border'),
+    } : {}),
   }
 }
 
@@ -75,6 +80,7 @@ const onResize = (): void => close(false)
 
 function openList(): void {
   if (props.disabled || open.value) return
+  settingsContext.value = Boolean(trigger.value?.closest('.settings-panel'))
   open.value = true
   activeIndex.value = Math.max(
     0,
@@ -110,7 +116,9 @@ function onTriggerKey(e: KeyboardEvent): void {
 }
 
 function onListKey(e: KeyboardEvent): void {
-  if (e.key === 'Escape') {
+  if (e.key === 'Tab') {
+    close()
+  } else if (e.key === 'Escape') {
     e.preventDefault()
     close()
   } else if (e.key === 'ArrowDown') {
@@ -146,6 +154,7 @@ onBeforeUnmount(() => close(false))
     type="button"
     role="combobox"
     aria-haspopup="listbox"
+    :aria-controls="open ? POP_ID : undefined"
     :aria-expanded="open"
     :disabled="disabled"
     class="flex w-full items-center justify-between gap-2 rounded-lg border border-line bg-surface text-t2 outline-none transition-colors duration-150 hover:border-primary/40 focus-visible:border-primary/60 disabled:cursor-not-allowed disabled:opacity-40"
@@ -167,14 +176,17 @@ onBeforeUnmount(() => close(false))
       v-if="open"
       :id="POP_ID"
       role="listbox"
+      :aria-activedescendant="activeIndex >= 0 ? `${POP_ID}-${activeIndex}` : undefined"
       tabindex="-1"
       :style="listStyle"
       class="fixed z-[95] max-h-72 min-w-32 overflow-y-auto rounded-lg border border-line bg-elevated p-1 outline-none"
+      :class="{ 'settings-select-popup': settingsContext }"
       @keydown="onListKey"
     >
       <button
         v-for="(o, i) in norm"
         :key="o.value"
+        :id="`${POP_ID}-${i}`"
         type="button"
         role="option"
         :aria-selected="o.value === modelValue"

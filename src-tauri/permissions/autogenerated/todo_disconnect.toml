@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-todo-disconnect"
+description = "Enables the todo_disconnect command without any pre-configured scope."
+commands.allow = ["todo_disconnect"]
+
+[[permission]]
+identifier = "deny-todo-disconnect"
+description = "Denies the todo_disconnect command without any pre-configured scope."
+commands.deny = ["todo_disconnect"]

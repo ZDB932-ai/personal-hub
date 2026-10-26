@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 import { listen, type UnlistenFn } from '@tauri-apps/api/event'
 import { currentMonitor, getCurrentWindow } from '@tauri-apps/api/window'
 import { PhysicalPosition, LogicalSize } from '@tauri-apps/api/dpi'
 import DragonPet from './DragonPet.vue'
+import { selectedPet, supportsPetMood, roamingMotion } from '@/lib/pet/catalog'
+import { motionForMood } from '@/lib/pet/mood'
+const PresetPet = defineAsyncComponent(() => import('./PresetPet.vue'))
 import { configurePet, initializePet, petPreferences } from '@/lib/pet'
 import { isTauriDesktop } from '@/lib/desktop'
 import { moveToward } from '@/lib/pet/navigation'
@@ -12,8 +15,25 @@ import { approachSpeed } from '@/lib/pet/gait'
 import { nextCuriousAction } from '@/lib/pet/personality'
 import { afterInteraction, PetReactions } from '@/lib/pet/reactions'
 const desktop = isTauriDesktop()
+const motionPreference = matchMedia('(prefers-reduced-motion: reduce)')
 const mood = ref('idle')
 const actionId = ref(0)
+const character = computed(() => selectedPet(petPreferences.character))
+const locomotion = computed(() => roamingMotion(character.value))
+const assetReady = ref(false)
+const assetFailed = ref(false)
+const assetGeneration = ref(0)
+let clipDurations = new Map<string, number>()
+function supports(mood: string) { return supportsPetMood(character.value, mood) }
+function loaded(stats: { clips: { name: string; duration: number }[] }) {
+  clipDurations = new Map(stats.clips.map(clip => [clip.name, clip.duration]))
+  assetReady.value = true; assetFailed.value = false
+}
+function loadFailed() {
+  assetReady.value = false; assetFailed.value = true
+  roaming.value = false; destination = undefined; runActive.value = false
+  message.value = '角色加载失败，请在互动菜单中重新加载。'
+}
 const message = ref('你好呀！拖动我，陪你换个位置。')
 const menu = ref(false)
 const menuSide = ref<'left' | 'right'>('right')
@@ -55,14 +75,17 @@ let walkPosition: {x:number;y:number} | undefined
 let destination: {x:number;y:number} | undefined
 let walkSpeed = 0
 const choosingTarget = ref(false)
-const renderMood = computed(() => mood.value === 'idle' && runActive.value ? 'run' : mood.value)
+const renderMood = computed(() => mood.value === 'idle' && runActive.value ? locomotion.value ?? 'idle' : mood.value)
+const travelSpeed = computed(() => desktop && runActive.value ? runPace.value * 28 : undefined)
+const presetRotation = computed(() => runActive.value ? runDirection.value * 90 : rotation.value)
 const hover = ref(false)
 let ended = false
 let roamTimer: ReturnType<typeof setTimeout> | undefined
 let roamLast = 0
 let roamBounds: { min: number; max: number; top: number; bottom: number; speed: number; at: number } | undefined
-function canRoam() { return (roaming.value || !!destination) && !choosingTarget.value && !menu.value && !menuExpanded.value && !down && mood.value === 'idle' && !document.hidden && !ended }
+function canRoam() { return !!locomotion.value && !motionPreference.matches && !hover.value && (character.value.renderer === 'legacy' || assetReady.value) && (roaming.value || !!destination) && !choosingTarget.value && !menu.value && !menuExpanded.value && !down && !moving && mood.value === 'idle' && !document.hidden && !ended }
 function toggleRoaming() {
+  if (!locomotion.value) return
   destination = undefined; walkPosition = undefined; walkSpeed = 0
   clearTimeout(timer); mood.value = 'idle'
   roaming.value = !roaming.value
@@ -107,7 +130,7 @@ async function roamTick() {
     await window.setPosition(new PhysicalPosition(Math.round(walkPosition.x),Math.round(walkPosition.y)))
     runDistance.value+=travel
     runActive.value=!arrived && travel>0
-    runPace.value=walkSpeed/28
+    runPace.value=character.value.renderer === 'legacy' ? walkSpeed/28 : travel/Math.max(.001,Math.min(dt,.1))/28
     if(arrived) {
       walkSpeed=0; runPace.value=0
       if(destination) { destination=undefined; message.value='到啦！就在这里陪你。' }
@@ -123,21 +146,33 @@ async function roamTick() {
 let timer: ReturnType<typeof setTimeout> | undefined
 let idleTimer: ReturnType<typeof setTimeout> | undefined
 let lastCurious = ''
-const personalityActions = [
+const personalityActions = computed(() => character.value.renderer === 'preset'
+  ? character.value.actions.map(action => ({ ...action, text: '' }))
+  : [
   { mood:'peek',label:'偷看被发现',text:'偷偷看一眼……哎呀，被你发现了。' },
   { mood:'spin',label:'开心转圈',text:'快乐转一圈，送给你！' },
   { mood:'shy',label:'害羞一下',text:'被你发现啦……让我缓一缓。' },
-]
+].filter(action => supports(action.mood)))
 function scheduleCuriosity() {
   idleTimer = setTimeout(() => {
-    if (!ended && !document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches && mood.value==='idle' && !menu.value && !roaming.value && !destination && !choosingTarget.value && !down) {
+    if (character.value.renderer === 'legacy' && !ended && !document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches && mood.value==='idle' && !menu.value && !roaming.value && !destination && !choosingTarget.value && !down) {
       lastCurious = nextCuriousAction(lastCurious,Math.random())
       act(lastCurious,'',4000)
     }
     if(!ended) scheduleCuriosity()
   },18000+Math.random()*24000)
 }
-let unlisten: UnlistenFn | undefined
+const subscriptions: UnlistenFn[] = []
+async function subscribe(event: string, handler: () => void) {
+  const stop = await listen(event, handler)
+  if (ended) stop()
+  else subscriptions.push(stop)
+}
+function stopTravel() {
+  roaming.value = false; destination = undefined; runActive.value = false
+  runPace.value = 0; walkSpeed = 0; walkPosition = undefined; roamBounds = undefined
+  choosingTarget.value = false; pendingPosition = undefined
+}
 let down: { x: number; y: number; pointer: number; mode: 'drag' | 'rotate' | 'target'; angle: number } | undefined
 const rotating = ref(false)
 let dragged = false
@@ -148,6 +183,14 @@ const phrases = ['摸摸头，元气补充完毕！', '今天也陪你慢慢来�
 let touches = 0
 const reactions = new PetReactions()
 function act(next: string, text: string, duration = 3000, follow = true) {
+  if (character.value.renderer === 'preset') {
+    if (!assetReady.value || !supports(next)) { message.value = text; return }
+    const motion = motionForMood(next)
+    const binding = motion ? character.value.asset.bindings[motion] : undefined
+    const seconds = binding && clipDurations.get(binding.clip)
+    if (binding && seconds && !binding.loop) duration = seconds / (binding.speed ?? 1) * 1000 + 250
+    follow = false
+  }
   clearTimeout(timer)
   mood.value = next; message.value = text; actionId.value++
   timer = setTimeout(() => {
@@ -170,7 +213,7 @@ function touch(event: MouseEvent) {
 function pointerDown(event: PointerEvent) {
   if (down || ![0,1,2].includes(event.button)) return
   ;(event.currentTarget as HTMLElement).focus({ preventScroll:true })
-  const mode = event.button === 2 ? 'rotate' : event.button === 1 || event.shiftKey || choosingTarget.value ? 'target' : 'drag'
+  const mode = event.button === 2 ? 'rotate' : locomotion.value && (event.button === 1 || event.shiftKey || choosingTarget.value) ? 'target' : 'drag'
   down = { x: event.screenX, y: event.screenY, pointer:event.pointerId, mode, angle:rotation.value }; dragged = false
   if(mode==='target') { event.preventDefault(); menu.value=false; message.value='拖向目的地后松开，我会跑过去。' }
   destination=undefined; walkPosition=undefined; walkSpeed=0
@@ -186,6 +229,7 @@ function pointerDown(event: PointerEvent) {
 }
 async function pointerMove(event: PointerEvent) {
   if (!down || down.pointer !== event.pointerId) return
+  const gesture = down
   if (down.mode === 'target') { dragged=true; return }
   if (down.mode === 'rotate') {
     rotation.value = down.angle+(event.screenX-down.x)*.65
@@ -199,6 +243,7 @@ async function pointerMove(event: PointerEvent) {
   if (!desktop || !dragOrigin) return
   try {
     const origin = await dragOrigin
+    if (ended || down !== gesture) return
     pendingPosition = { x: Math.round(origin.x + dx * origin.scale), y: Math.round(origin.y + dy * origin.scale) }
     if (moving) return
     moving = true
@@ -215,9 +260,11 @@ async function pointerMove(event: PointerEvent) {
 async function pointerEnd(event: PointerEvent) {
   if (down?.pointer !== event.pointerId) return
   const target = event.currentTarget as HTMLElement
-  if (target.hasPointerCapture(event.pointerId)) target.releasePointerCapture(event.pointerId)
   const gesture=down
   down = undefined
+  pendingPosition = undefined
+  walkPosition = undefined
+  if (target.hasPointerCapture(event.pointerId)) target.releasePointerCapture(event.pointerId)
   rotating.value = false
   if(gesture.mode==='drag' && dragged) { clearTimeout(timer); mood.value='idle'; message.value='' }
   if(gesture.mode==='target') {
@@ -226,6 +273,7 @@ async function pointerEnd(event: PointerEvent) {
       const origin=await dragOrigin.catch(()=>undefined)
       if(origin) {
         await menuLayout
+        if (ended || down) return
         destination={x:origin.x+(event.screenX-gesture.x)*origin.scale,y:origin.y+(event.screenY-gesture.y)*origin.scale}
         roaming.value=false; clearTimeout(timer); mood.value='idle'; message.value='来啦！'; turnUntil=0
       }
@@ -254,56 +302,77 @@ async function toggleBackground() {
     menu.value = false
   } catch { message.value = '设置未保存，请再试一次。' }
 }
+watch(() => character.value.id, () => {
+  clearTimeout(timer)
+  mood.value = 'idle'; actionId.value++; rotation.value = 0
+  roaming.value = false; destination = undefined; runActive.value = false
+  choosingTarget.value = false; walkPosition = undefined; walkSpeed = 0
+  assetReady.value = false; assetFailed.value = false; clipDurations.clear()
+  message.value = `你好，我是${character.value.name}。`
+})
 onMounted(async () => {
   try {
     await initializePet()
-    if (isTauriDesktop()) unlisten = await listen('pet://reminder', () => {
-      if (petPreferences.enabled && petPreferences.reminders && mood.value !== 'sleep') act('happy', '有任务到时间啦，打开主页看看吧。', 12000)
-    })
+    if (ended) return
+    if (desktop) {
+      await subscribe('pet://reminder', () => {
+        if (petPreferences.enabled && petPreferences.reminders && mood.value !== 'sleep') act('happy', '有任务到时间啦，打开主页看看吧。', 12000)
+      })
+      if (ended) return
+      await subscribe('pet://position-reset', () => {
+        stopTravel()
+        message.value = '回来啦！我会停在这里陪你。'
+      })
+    }
   } catch { message.value = '连接失败，请重新打开应用。' }
+  if (ended) return
   timer = setTimeout(() => { message.value = '' }, 6000)
   void roamTick()
   scheduleCuriosity()
 })
-onUnmounted(() => { ended = true; clearTimeout(roamTimer); clearTimeout(timer); clearTimeout(idleTimer); unlisten?.() })
+onUnmounted(() => { ended = true; down = undefined; pendingPosition = undefined; clearTimeout(roamTimer); clearTimeout(timer); clearTimeout(idleTimer); subscriptions.forEach(stop => stop()) })
 </script>
 <template>
   <div :class="desktop ? 'native-pet-host' : 'pet-playground'">
     <header v-if="!desktop" class="pet-preview-heading">
       <p class="text-xs font-semibold tracking-widest text-primary">你的桌面小伙伴</p>
-      <h1 class="mt-3 text-3xl font-semibold text-t1">奶龙，今天也陪着你。</h1>
+      <h1 class="mt-3 text-3xl font-semibold text-t1">{{ character.name }}，今天也陪着你。</h1>
       <p class="mt-3 text-sm text-t3">移近鼠标和它对视，摸摸头，或者挠挠肚肚。</p>
     </header>
   <main class="pet-stage" :class="{ 'pet-menu-open':menu, 'pet-menu-left':desktop && menuExpanded && menuSide === 'left' }" @contextmenu.prevent @keydown.esc="menu = false">
     <div class="pet-message" :class="{ 'pet-message-hidden': !message }" role="status">{{ message }}</div>
     <div v-if="menu" class="pet-menu rounded-xl border border-line bg-surface p-2 text-t1">
+      <button v-if="assetFailed" @click="assetFailed = false; assetGeneration++">重新加载角色</button>
       <button v-for="action in personalityActions" :key="action.mood" @click="act(action.mood,action.text,4000); menu = false">{{ action.label }}</button>
-      <button @click="choosingTarget = true; menu = false; message = '在我身上按住左键，拖向目的地后松开。'">指定目的地</button>
-      <button :aria-pressed="roaming" @click="toggleRoaming">{{ roaming ? '停止自主走动' : '开始自主走动' }}</button>
-      <button @click="act('eat', '啊呜！一口小蛋糕，快乐加倍。', 5000); menu = false">喂一口</button>
-      <button @click="act('dance', '一起摇摆一下！', 6500); menu = false">跳个舞</button>
-      <button @click="act('wave', '嗨！我一直在呢。'); menu = false">打招呼</button>
-      <button @click="act('sleep', '眯一会儿，点击我就醒啦。', 300000); menu = false">小憩五分钟</button>
+      <button v-if="locomotion" @click="choosingTarget = true; menu = false; message = '在我身上按住左键，拖向目的地后松开。'">指定目的地</button>
+      <button v-if="locomotion" :aria-pressed="roaming" @click="toggleRoaming">{{ roaming ? '停止自主走动' : '开始自主走动' }}</button>
+      <button v-if="supports('eat')" @click="act('eat', '啊呜！一口小蛋糕，快乐加倍。', 5000); menu = false">喂一口</button>
+      <button v-if="supports('dance')" @click="act('dance', '一起摇摆一下！', 6500); menu = false">跳个舞</button>
+      <button v-if="supports('wave')" @click="act('wave', '嗨！我一直在呢。'); menu = false">打招呼</button>
+      <button v-if="character.renderer === 'preset' && supports('jump')" @click="act('jump', '跳一下！'); menu = false">跳一下</button>
+      <button v-if="supports('sleep')" @click="act('sleep', '眯一会儿，点击我就醒啦。', 300000); menu = false">小憩一下</button>
       <button @click="home">打开主页</button>
       <button v-if="desktop" @click="toggleBackground">后台陪伴：{{ petPreferences.background ? '开' : '关' }}</button>
       <button @click="hide">关闭玩偶</button>
     </div>
-    <button class="pet-character" :class="{ 'pet-rotating':rotating }" aria-label="摸摸奶龙；左键拖动位置，右键拖动旋转，方向键旋转，Home 恢复正面，双击打开主页" title="按住右键左右拖动旋转；Home 恢复正面" @pointerenter="hover = true; runActive = false" @pointerleave="hover = false" @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerEnd" @pointercancel="pointerEnd" @lostpointercapture="pointerEnd" @keydown="rotationKey" @click="touch" @dblclick="home">
-      <DragonPet :mood="renderMood" :action-id="actionId" :rotation="rotation" :direction="runDirection" :pace="runPace" :distance="runDistance" :preview-run="!desktop" />
+    <button class="pet-character" :class="{ 'pet-rotating':rotating }" :aria-label="`摸摸${character.name}；左键拖动位置，右键拖动旋转，方向键旋转，Home 恢复正面，双击打开主页`" title="按住右键左右拖动旋转；Home 恢复正面" @pointerenter="hover = true; runActive = false" @pointerleave="hover = false" @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerEnd" @pointercancel="pointerEnd" @lostpointercapture="pointerEnd" @keydown="rotationKey" @click="touch" @dblclick="home">
+      <PresetPet v-if="character.renderer === 'preset'" :key="`${character.id}-${assetGeneration}`" :asset="character.asset" :mood="renderMood" :action-id="actionId" :rotation="presetRotation" :travel-speed="travelSpeed" :inline-retry="false" @ready="loaded" @error="loadFailed" />
+      <DragonPet v-else :mood="renderMood" :action-id="actionId" :rotation="rotation" :direction="runDirection" :pace="runPace" :distance="runDistance" :preview-run="!desktop" />
     </button>
     <button class="pet-menu-toggle rounded-lg border border-line bg-surface text-t2" :aria-expanded="menu" aria-label="玩偶互动菜单" @click="menu = !menu">···</button>
   </main>
     <footer v-if="!desktop" class="pet-preview-actions">
       <div class="flex flex-wrap justify-center gap-2">
         <button v-for="action in personalityActions" :key="action.mood" @click="act(action.mood,action.text,4000)">{{ action.label }}</button>
-        <button @click="choosingTarget = true; menu = false; message = '在我身上按住左键，拖向目的地后松开。'">指定目的地</button>
-      <button :aria-pressed="roaming" @click="toggleRoaming">{{ roaming ? '停止自主走动' : '开始自主走动' }}</button>
-        <button @click="act('happy', '摸摸头，元气补充完毕！')">摸摸头</button>
-        <button @click="act('belly', '肚肚好痒！嘿嘿。')">挠挠肚肚</button>
-        <button @click="act('eat', '啊呜！这口蛋糕归我啦。', 5000)">喂蛋糕</button>
-        <button @click="act('dance', '跟着我，一起摇摆～', 6500)">跳个舞</button>
-        <button @click="act('wave', '嗨！我一直在呢。')">打招呼</button>
-        <button @click="act('sleep', '眯一会儿，摸摸我就醒啦。', 300000)">小憩一下</button>
+        <button v-if="locomotion" @click="choosingTarget = true; menu = false; message = '在我身上按住左键，拖向目的地后松开。'">指定目的地</button>
+      <button v-if="locomotion" :aria-pressed="roaming" @click="toggleRoaming">{{ roaming ? '停止自主走动' : '开始自主走动' }}</button>
+        <button v-if="supports('happy')" @click="act('happy', '摸摸头，元气补充完毕！')">摸摸头</button>
+        <button v-if="supports('belly')" @click="act('belly', '肚肚好痒！嘿嘿。')">挠挠肚肚</button>
+        <button v-if="supports('eat')" @click="act('eat', '啊呜！这口蛋糕归我啦。', 5000)">喂蛋糕</button>
+        <button v-if="supports('dance')" @click="act('dance', '跟着我，一起摇摆～', 6500)">跳个舞</button>
+        <button v-if="supports('wave')" @click="act('wave', '嗨！我一直在呢。')">打招呼</button>
+        <button v-if="character.renderer === 'preset' && supports('jump')" @click="act('jump', '跳一下！')">跳一下</button>
+        <button v-if="supports('sleep')" @click="act('sleep', '眯一会儿，摸摸我就醒啦。', 300000)">小憩一下</button>
       </div>
       <p class="mt-4 text-xs text-t3">右键拖动旋转 · Shift＋左键拖向目的地后松开 · Home 恢复正面</p>
     </footer>
@@ -316,13 +385,13 @@ html.pet-window,html.pet-window body,html.pet-window #app { background:transpare
 .pet-message-hidden { opacity:0; transform:translateY(6px); pointer-events:none; }
 .pet-character { position:absolute; left:20px; bottom:12px; width:240px; padding:0; background:none; border:0; cursor:grab; touch-action:none; }
 .pet-character:active { cursor:grabbing; }
-.pet-character:focus,.pet-character:focus-visible { outline:none; }
-.pet-menu-toggle { position:absolute; bottom:4px; right:12px; width:44px; height:36px; font-size:24px; line-height:1; }
+.pet-character:focus-visible { outline:2px solid var(--tk-primary); outline-offset:2px; border-radius:12px; }
+.pet-menu-toggle { position:absolute; bottom:4px; right:12px; width:44px; height:44px; font-size:24px; line-height:1; }
 .pet-menu { position:absolute; z-index:2; top:8px; left:calc(100% + 8px); width:184px; max-height:324px; overflow-y:auto; box-sizing:border-box; }
 .native-pet-host .pet-menu-left { margin-left:192px; }
 .pet-menu-left .pet-menu { left:auto; right:calc(100% + 8px); }
 .pet-character.pet-rotating { cursor:ew-resize; }
-.pet-menu button { display:block; width:100%; min-height:40px; text-align:left; padding:8px; font-size:13px; border-radius:8px; }
+.pet-menu button { display:block; width:100%; min-height:44px; text-align:left; padding:8px; font-size:13px; border-radius:8px; }
 .pet-menu button:hover { background:var(--tk-surface-2); }
 .pet-playground { height:100%; overflow:auto; display:flex; align-items:center; flex-direction:column; background:var(--tk-body); padding:40px 16px 24px; }
 .pet-preview-heading { text-align:center; flex-shrink:0; }

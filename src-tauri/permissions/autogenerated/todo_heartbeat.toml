@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-todo-heartbeat"
+description = "Enables the todo_heartbeat command without any pre-configured scope."
+commands.allow = ["todo_heartbeat"]
+
+[[permission]]
+identifier = "deny-todo-heartbeat"
+description = "Denies the todo_heartbeat command without any pre-configured scope."
+commands.deny = ["todo_heartbeat"]

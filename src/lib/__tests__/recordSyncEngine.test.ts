@@ -22,6 +22,25 @@ async function setup() {
 }
 
 describe('持久化逐条同步引擎', () => {
+  it('后台提前上传的密文被前台复用，丢失回执重试仍为同一请求', async () => {
+    const { a, key, space, server } = await setup()
+    await a.update(payload => { payload.profile.name = '后台队列验证' })
+    const operation = (await a.read()).offlineJournal!.pending[0]!
+    const { sealScopedOperation } = await import('../recordSyncWire')
+    const staged = await sealScopedOperation(key, space, operation)
+    await server.push(space, staged)
+    let sent: ScopedOperation | undefined
+    const transport: RecordSyncTransport = {
+      serverId: server.serverId,
+      pull: async () => ({ cursor: (await a.read()).offlineJournal!.sync!.cursor, hasMore: false, records: [] }),
+      prepare: async () => staged,
+      push: async (target, wire) => { sent = wire; return server.push(target, wire) },
+    }
+    expect((await new RecordSyncEngine(a, transport, space, key).run()).status).toBe('complete')
+    expect(sent).toEqual(staged)
+    expect((await a.read()).offlineJournal!.pending).toHaveLength(0)
+    expect((await a.read()).offlineJournal!.records[operation.entity]!.revision).toBe(staged.baseRevision + 1)
+  })
   it('完整三设备演练覆盖不同记录、冲突、回执丢失、重启与删除', async () => {
     expect(await runSyncRehearsal()).toHaveLength(6)
   })

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-todo-reset-position"
+description = "Enables the todo_reset_position command without any pre-configured scope."
+commands.allow = ["todo_reset_position"]
+
+[[permission]]
+identifier = "deny-todo-reset-position"
+description = "Denies the todo_reset_position command without any pre-configured scope."
+commands.deny = ["todo_reset_position"]

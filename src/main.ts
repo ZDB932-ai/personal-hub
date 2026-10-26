@@ -3,6 +3,15 @@ import { initializeVaultRepository } from './lib/vaultRepository'
 import './style.css'
 import './interface-styles.css'
 import './appearance-studio.css'
+import './hub-workspace.css'
+import './interface-gallery.css'
+import './interface-controls.css'
+import './interface-dashboard.css'
+import './interface-navigation.css'
+import './interface-forms.css'
+import './interface-calendar.css'
+import './interface-todo.css'
+import './interface-settings.css'
 
 function showError(title: string, detail: string): void {
   console.error(title, detail)
@@ -39,6 +48,12 @@ window.addEventListener('unhandledrejection', (e) => {
 })
 
 async function start(): Promise<void> {
+  if (new URLSearchParams(location.search).get('todo') === '1') {
+    document.documentElement.classList.add('todo-window')
+    const { default: DesktopTodo } = await import('./components/DesktopTodo.vue')
+    createApp(DesktopTodo).mount('#app')
+    return
+  }
   if (new URLSearchParams(location.search).get('pet') === '1') {
     document.documentElement.classList.add('pet-window')
     const { default: DesktopPet } = await import('./components/DesktopPet.vue')

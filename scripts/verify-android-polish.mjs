@@ -39,7 +39,7 @@ try {
   await bounds('今天')
   await shot('today-after')
   await b('打开更多导航').click()
-  await page.getByRole('heading', { name: '更多', exact: true }).waitFor()
+  await page.getByRole('heading', { name: '更多功能', exact: true }).waitFor()
   await shot('more-after')
   await back()
   await page.getByRole('dialog').waitFor({ state: 'hidden' })

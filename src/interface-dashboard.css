@@ -1,0 +1,451 @@
+html[data-interface] .hub-shell .style-dashboard-header { position: relative; min-width: 0; color: var(--tk-t1); }
+html[data-interface] .hub-shell .style-dashboard-header h1 { margin: 0; line-height: 1.12; letter-spacing: -.045em; font-weight: 750; }
+html[data-interface] .hub-shell .style-dashboard-header p { margin: 0; }
+html[data-interface] .hub-shell .dashboard-eyebrow { color: var(--tk-t3); font-size: 12px; letter-spacing: .1em; }
+html[data-interface] .hub-shell .dashboard-hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 20px; }
+html[data-interface] .hub-shell .dashboard-hero-actions :is(button, a) { min-height: 44px; gap: 8px; }
+html[data-interface] .hub-shell .dashboard-focus { display: inline-flex; align-items: center; color: var(--tk-primary); padding: 8px; font-size: 13px; }
+html[data-interface] .hub-shell .today-agenda-toggle { display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 44px; min-height: 44px; margin: -10px -8px -10px 0; color: var(--tk-t3); border-radius: var(--ui-control-radius); }
+html[data-interface] .hub-shell .today-agenda-toggle:hover { color: var(--tk-primary); background: var(--tk-surface-2); }
+html[data-interface] .hub-shell .today-agenda.is-collapsed .today-agenda-toggle svg:last-child { transform: rotate(-90deg); }
+html[data-interface] .hub-shell .today-agenda.is-collapsed .today-section-header { margin-bottom: 0; }
+html[data-interface] .hub-shell.transparent-panels .style-dashboard-header { --dashboard-paper: color-mix(in srgb, var(--tk-surface) var(--panel-fill), transparent); }
+html[data-interface] .hub-shell .style-dashboard-header { --dashboard-paper: var(--tk-surface); }
+
+html[data-interface="swiss"] .hub-shell .today-workspace { max-width: 1260px; }
+html[data-interface="swiss"] .hub-shell .swiss-masthead { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-block: 1px solid var(--tk-t1); padding: 12px 0; font-size: 11px; letter-spacing: .08em; }
+html[data-interface="swiss"] .hub-shell .swiss-headline { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 32px; padding: 24px 0 20px; border-bottom: 5px solid var(--tk-t1); }
+html[data-interface="swiss"] .hub-shell .swiss-headline h1 { font-family: 'Arial Black', 'Microsoft YaHei', sans-serif; font-size: clamp(52px, 6.8vw, 100px); line-height: 1.02; letter-spacing: -.08em; }
+html[data-interface="swiss"] .hub-shell .swiss-headline h1 span { display: block; }
+html[data-interface="swiss"] .hub-shell .swiss-date { display: flex; align-items: baseline; gap: 8px; color: var(--tk-primary); }
+html[data-interface="swiss"] .hub-shell .swiss-date strong { font-family: 'Arial Black', sans-serif; font-size: clamp(76px, 12vw, 172px); line-height: .95; letter-spacing: -.1em; }
+html[data-interface="swiss"] .hub-shell .swiss-date span { font-size: 12px; writing-mode: vertical-rl; }
+html[data-interface="swiss"] .hub-shell .swiss-caption { display: flex; gap: 24px; flex-wrap: wrap; padding: 14px 0; font-size: 12px; }
+html[data-interface="swiss"] .hub-shell .swiss-caption b { font-size: 20px; }
+html[data-interface="swiss"] .hub-shell .dashboard-hero-actions { position: absolute; right: 0; bottom: 0; padding-top: 0; }
+html[data-interface="swiss"] .hub-shell .dashboard-focus { display: none; }
+html[data-interface="swiss"] .hub-shell .today-columns { grid-template-columns: minmax(0, 1fr) 240px; gap: 40px; margin-top: 24px; }
+html[data-interface="swiss"] .hub-shell .today-columns > .today-task-panel { border: 0; border-radius: 0; padding: 0; box-shadow: none; background: transparent; }
+html[data-interface="swiss"] .hub-shell .today-columns > .today-agenda { border: 0; border-left: 1px solid var(--tk-t1); border-radius: 0; padding: 0 0 0 24px; box-shadow: none; background: transparent; }
+html[data-interface="swiss"] .hub-shell .today-task-panel > .today-section-header { border-top-width: 3px; }
+html[data-interface="swiss"] .hub-shell .today-task-row { padding-block: 18px; }
+html[data-interface="swiss"] .hub-shell .today-task-title { font-size: 17px; font-weight: 600; }
+html[data-interface="swiss"] .hub-shell .today-task-start { border-radius: 0; border: 1px solid var(--tk-t1); }
+
+html[data-interface="terminal"] .hub-shell .dashboard-terminal { border: 1px solid var(--tk-primary); padding: 0 24px 20px; font-family: Consolas, 'Microsoft YaHei', monospace; background: var(--dashboard-paper); }
+html[data-interface="terminal"] .hub-shell .terminal-caption { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin: 0 -24px; padding: 10px 16px; color: var(--tk-ink); background: var(--tk-primary); font-size: 11px; }
+html[data-interface="terminal"] .hub-shell .dashboard-terminal h1 { padding: 26px 0 20px; font-size: clamp(24px, 3vw, 38px); font-weight: 500; letter-spacing: -.03em; }
+html[data-interface="terminal"] .hub-shell .dashboard-terminal h1 > span { color: var(--tk-primary); }
+html[data-interface="terminal"] .hub-shell .terminal-cursor { margin-left: 8px; }
+html[data-interface="terminal"] .hub-shell .terminal-output { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; border-block: 1px dashed var(--tk-line); padding: 16px 0; }
+html[data-interface="terminal"] .hub-shell .terminal-output p { display: grid; gap: 8px; font-size: 11px; color: var(--tk-t3); }
+html[data-interface="terminal"] .hub-shell .terminal-output b { color: var(--tk-primary); font-size: 24px; font-weight: 500; }
+html[data-interface="terminal"] .hub-shell .dashboard-hero-actions .ui-primary-button { border-radius: 0; background: transparent; color: var(--tk-primary); border: 1px solid var(--tk-primary); }
+html[data-interface="terminal"] .hub-shell .dashboard-hero-actions .ui-primary-button::before { content: '[ '; }
+html[data-interface="terminal"] .hub-shell .dashboard-hero-actions .ui-primary-button::after { content: ' ]'; }
+html[data-interface="terminal"] .hub-shell .today-columns { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+html[data-interface="terminal"] .hub-shell .today-columns > .today-task-panel { border-width: 1px; border-left: 4px solid var(--tk-primary); padding: 20px; box-shadow: none; }
+html[data-interface="terminal"] .hub-shell .today-columns > .today-agenda { border-style: dashed; padding: 16px 20px; box-shadow: none; }
+html[data-interface="terminal"] .hub-shell .today-agenda-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+html[data-interface="terminal"] .hub-shell .today-agenda-list button { border-left: 1px solid var(--tk-primary); }
+html[data-interface="terminal"] .hub-shell .today-agenda-bottom { display: flex; gap: 24px; margin-top: 0; padding-top: 8px; }
+html[data-interface="terminal"] .hub-shell .today-task-check > span { border-radius: 0; }
+html[data-interface="terminal"] .hub-shell .today-task-start { font-family: Consolas, 'Microsoft YaHei', monospace; }
+
+html[data-interface="brutalist"] .hub-shell .dashboard-brutalist { border: 3px solid var(--tk-t1); box-shadow: 8px 8px 0 var(--tk-t1); background: var(--dashboard-paper); margin: 0 8px 28px 0; }
+html[data-interface="brutalist"] .hub-shell .brutalist-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 26px 32px; }
+html[data-interface="brutalist"] .hub-shell .brutalist-heading p { font-size: 12px; margin-bottom: 16px; }
+html[data-interface="brutalist"] .hub-shell .brutalist-heading h1 { font-size: clamp(48px, 6vw, 78px); font-weight: 950; letter-spacing: -.08em; }
+html[data-interface="brutalist"] .hub-shell .brutalist-stamp { width: 140px; height: 140px; border: 3px solid var(--tk-t1); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; background: var(--tk-primary); color: var(--tk-ink); transform: rotate(8deg); }
+html[data-interface="brutalist"] .hub-shell .brutalist-stamp strong { font-size: 64px; line-height: 1; font-weight: 900; }
+html[data-interface="brutalist"] .hub-shell .brutalist-stamp span { margin-top: 8px; font-weight: 700; }
+html[data-interface="brutalist"] .hub-shell .brutalist-strip { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 24px; border-block: 3px solid var(--tk-t1); font-size: 14px; font-weight: 800; background: var(--tk-surface-2); }
+html[data-interface="brutalist"] .hub-shell .brutalist-strip svg { width: 32px; height: 32px; }
+html[data-interface="brutalist"] .hub-shell .dashboard-hero-actions { padding: 18px 24px; }
+html[data-interface="brutalist"] .hub-shell .today-columns { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+html[data-interface="brutalist"] .hub-shell .today-columns > .today-task-panel { border: 0; box-shadow: none; padding: 0 8px 0 0; background: transparent; }
+html[data-interface="brutalist"] .hub-shell .today-task-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding-bottom: 8px; }
+html[data-interface="brutalist"] .hub-shell .today-task-row { display: grid; grid-template-columns: 36px minmax(0, 1fr); align-items: start; border: 2px solid var(--tk-t1); padding: 12px; box-shadow: 4px 4px 0 var(--tk-t1); background: var(--tk-surface); min-height: 124px; }
+html[data-interface="brutalist"] .hub-shell .today-task-start { grid-column: 2; justify-self: start; padding: 4px 12px; min-height: 44px; border: 2px solid var(--tk-t1); font-weight: 800; }
+html[data-interface="brutalist"] .hub-shell .today-task-title { font-size: 16px; font-weight: 700; }
+html[data-interface="brutalist"] .hub-shell .today-task-check > span { border-width: 2px; border-color: var(--tk-t1); border-radius: 0; }
+html[data-interface="brutalist"] .hub-shell .today-agenda-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+html[data-interface="retro"] .hub-shell .dashboard-retro { border: 3px solid var(--tk-line); border-top-color: var(--tk-surface); border-left-color: var(--tk-surface); box-shadow: 3px 3px 0 var(--tk-t3); background: var(--dashboard-paper); padding: 3px; }
+html[data-interface="retro"] .hub-shell .retro-window-bar { display: flex; justify-content: space-between; gap: 12px; padding: 8px 12px; background: var(--tk-primary); color: var(--tk-ink); font-size: 12px; font-weight: 700; }
+html[data-interface="retro"] .hub-shell .retro-window-bar > span:first-child { display: flex; align-items: center; gap: 8px; }
+html[data-interface="retro"] .hub-shell .retro-desktop-content { display: flex; align-items: center; gap: 24px; padding: 26px; }
+html[data-interface="retro"] .hub-shell .retro-calendar-icon { width: 88px; flex-shrink: 0; border: 2px solid var(--tk-t3); text-align: center; background: var(--tk-surface); box-shadow: 3px 3px 0 var(--tk-line); }
+html[data-interface="retro"] .hub-shell .retro-calendar-icon span { display: block; padding: 4px; background: var(--tk-primary); color: var(--tk-ink); font-size: 11px; }
+html[data-interface="retro"] .hub-shell .retro-calendar-icon strong { display: block; padding: 8px; font-size: 40px; line-height: 1.1; }
+html[data-interface="retro"] .hub-shell .retro-desktop-content h1 { font-size: clamp(24px, 3vw, 38px); margin: 8px 0 12px; }
+html[data-interface="retro"] .hub-shell .retro-desktop-content p { font-size: 12px; color: var(--tk-t3); }
+html[data-interface="retro"] .hub-shell .retro-statusbar { display: flex; gap: 2px; padding: 0 4px; }
+html[data-interface="retro"] .hub-shell .retro-statusbar span { flex: 1; padding: 6px 10px; border: 1px inset var(--tk-line); font-size: 11px; }
+html[data-interface="retro"] .hub-shell .dashboard-hero-actions { padding: 16px 24px; }
+html[data-interface="retro"] .hub-shell .dashboard-hero-actions :is(.ui-primary-button, .ui-secondary-button) { border: 2px outset var(--tk-line); border-radius: 0; background: var(--tk-surface-2); color: var(--tk-t1); box-shadow: 1px 1px 0 var(--tk-t3); }
+html[data-interface="retro"] .hub-shell .today-columns { grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; }
+html[data-interface="retro"] .hub-shell .today-columns > :is(.today-task-panel, .today-agenda) { border: 3px outset var(--tk-line); padding: 4px 16px 16px; box-shadow: 3px 3px 0 var(--tk-t3); }
+html[data-interface="retro"] .hub-shell .today-agenda { margin-top: 44px; }
+html[data-interface="retro"] .hub-shell .today-columns > :is(.today-task-panel, .today-agenda) > .today-section-header { margin: 0 -12px 16px; padding: 8px 12px; background: var(--tk-primary); color: var(--tk-ink); border: 0; }
+html[data-interface="retro"] .hub-shell .today-columns > :is(.today-task-panel, .today-agenda) > .today-section-header :is(h2, span, button) { color: inherit; }
+html[data-interface="retro"] .hub-shell .today-agenda-toggle { border: 2px outset var(--tk-line); margin: -4px; background: var(--tk-surface); color: var(--tk-t1) !important; min-height: 44px; }
+html[data-interface="retro"] .hub-shell .today-task-row { border-bottom-style: dotted; }
+
+html[data-interface="botanical"] .hub-shell .dashboard-botanical { display: grid; grid-template-columns: minmax(0, 1fr) 220px; column-gap: 20px; padding: 12px 32px 24px; border-bottom: 1px solid var(--tk-primary); }
+html[data-interface="botanical"] .hub-shell .botanical-copy h1 { font-family: Georgia, 'Songti SC', SimSun, serif; font-size: clamp(34px, 4vw, 52px); font-weight: 500; line-height: 1.3; margin: 20px 0 16px; letter-spacing: .03em; }
+html[data-interface="botanical"] .hub-shell .botanical-copy > p:last-child { font-size: 13px; color: var(--tk-t3); }
+html[data-interface="botanical"] .hub-shell .botanical-plant { width: 220px; height: 190px; align-self: end; stroke: var(--tk-primary); stroke-width: 1.5; }
+html[data-interface="botanical"] .hub-shell .botanical-plant path:nth-child(2) { fill: color-mix(in srgb, var(--tk-primary) 12%, transparent); }
+html[data-interface="botanical"] .hub-shell .botanical-bookmark { position: absolute; right: 36px; top: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 1px solid var(--tk-primary); border-top: 0; border-radius: 0 0 50% 50%; padding: 8px 14px 16px; color: var(--tk-primary); font-size: 10px; }
+html[data-interface="botanical"] .hub-shell .botanical-bookmark b { font-size: 28px; line-height: 1; }
+html[data-interface="botanical"] .hub-shell .dashboard-hero-actions { grid-column: 1 / -1; }
+html[data-interface="botanical"] .hub-shell .dashboard-hero-actions :is(button, .dashboard-calendar) { border-radius: 24px 8px 24px 8px; padding-inline: 20px; }
+html[data-interface="botanical"] .hub-shell .today-columns { grid-template-columns: 230px minmax(0, 1fr); gap: 32px; }
+html[data-interface="botanical"] .hub-shell .today-columns > .today-task-panel { grid-column: 2; grid-row: 1; padding: 24px; border: 1px solid var(--tk-line); border-radius: 4px 40px 4px 4px; box-shadow: none; }
+html[data-interface="botanical"] .hub-shell .today-columns > .today-agenda { grid-column: 1; grid-row: 1; border: 0; padding: 8px 0; border-radius: 0; background: transparent; box-shadow: none; }
+html[data-interface="botanical"] .hub-shell .today-agenda-list { border-left: 1px solid var(--tk-primary); padding-left: 12px; }
+html[data-interface="botanical"] .hub-shell .today-task-row { padding-block: 18px; border-bottom-style: dotted; }
+html[data-interface="botanical"] .hub-shell .today-task-start { border-radius: 50%; border: 1px solid var(--tk-line); width: 44px; height: 44px; padding: 0; justify-content: center; }
+html[data-interface="botanical"] .hub-shell .today-task-start span { display: none; }
+
+html[data-interface="orbital"] .hub-shell .today-workspace { max-width: 1180px; }
+html[data-interface="orbital"] .hub-shell .dashboard-orbital { display: grid; grid-template-columns: minmax(0, 1fr) 220px; align-items: center; gap: 0 32px; padding: 24px 40px; border: 1px solid var(--tk-line); border-radius: 48px; background: var(--dashboard-paper); }
+html[data-interface="orbital"] .hub-shell .orbital-copy h1 { font-size: clamp(38px, 5vw, 64px); font-weight: 400; letter-spacing: .12em; margin: 20px 0; }
+html[data-interface="orbital"] .hub-shell .orbital-copy > p:last-of-type { font-size: 13px; color: var(--tk-t3); }
+html[data-interface="orbital"] .hub-shell .orbital-coordinates { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; font: 11px Consolas, 'Microsoft YaHei', monospace; color: var(--tk-primary); }
+html[data-interface="orbital"] .hub-shell .orbital-coordinates span { padding: 6px 10px; border: 1px solid var(--tk-line); border-radius: 20px; }
+html[data-interface="orbital"] .hub-shell .orbital-instrument { position: relative; width: 220px; height: 220px; }
+html[data-interface="orbital"] .hub-shell .orbital-instrument svg { width: 100%; height: 100%; fill: none; }
+html[data-interface="orbital"] .hub-shell .orbit-guide { stroke: var(--tk-line); stroke-dasharray: 2 8; }
+html[data-interface="orbital"] .hub-shell .orbit-track { stroke: var(--tk-line); stroke-width: 5; }
+html[data-interface="orbital"] .hub-shell .orbit-progress { stroke: var(--tk-primary); stroke-width: 6; stroke-linecap: round; transform: rotate(-90deg); transform-origin: center; }
+html[data-interface="orbital"] .hub-shell .orbit-crosshair { stroke: var(--tk-primary); }
+html[data-interface="orbital"] .hub-shell .orbital-instrument > div { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+html[data-interface="orbital"] .hub-shell .orbital-instrument strong { font-size: 52px; font-weight: 300; line-height: 1.1; }
+html[data-interface="orbital"] .hub-shell .orbital-instrument small { font-size: 18px; }
+html[data-interface="orbital"] .hub-shell .orbital-instrument span { margin-top: 8px; color: var(--tk-t3); font-size: 11px; letter-spacing: .12em; }
+html[data-interface="orbital"] .hub-shell .dashboard-hero-actions { grid-column: 1 / -1; padding-top: 8px; }
+html[data-interface="orbital"] .hub-shell .dashboard-hero-actions :is(button, .dashboard-calendar) { border-radius: 30px; padding-inline: 22px; }
+html[data-interface="orbital"] .hub-shell .today-columns { grid-template-columns: minmax(0, 1fr) 290px; gap: 20px; }
+html[data-interface="orbital"] .hub-shell .today-columns > .today-task-panel { border: 0; box-shadow: none; padding: 0; background: transparent; }
+html[data-interface="orbital"] .hub-shell .today-task-list { display: grid; gap: 8px; }
+html[data-interface="orbital"] .hub-shell .today-task-row { padding: 14px 16px; border: 1px solid var(--tk-line); border-radius: 24px; background: var(--tk-surface); }
+html[data-interface="orbital"] .hub-shell .today-columns > .today-agenda { border: 1px solid var(--tk-line); border-radius: 32px; padding: 24px; box-shadow: none; }
+html[data-interface="orbital"] .hub-shell .today-agenda-list button { border-radius: 20px; border: 1px solid var(--tk-line); }
+
+html[data-interface="atelier"] .hub-shell .dashboard-atelier { display: grid; grid-template-columns: minmax(0, 1fr) 90px; padding: 28px 28px 24px 60px; gap: 20px; border: 1px solid var(--tk-line); background: var(--dashboard-paper); box-shadow: 4px 4px 0 var(--tk-surface-2), 5px 5px 0 var(--tk-line); }
+html[data-interface="atelier"] .hub-shell .atelier-binding { position: absolute; left: 14px; top: 24px; bottom: 24px; display: flex; flex-direction: column; justify-content: space-between; }
+html[data-interface="atelier"] .hub-shell .atelier-binding i { width: 20px; height: 9px; border: 2px solid var(--tk-t3); border-radius: 6px; transform: translateX(-24px); }
+html[data-interface="atelier"] .hub-shell .dashboard-atelier::before { position: absolute; content: ''; top: 0; bottom: 0; left: 40px; border-left: 1px solid color-mix(in srgb, var(--tk-primary) 45%, transparent); }
+html[data-interface="atelier"] .hub-shell .atelier-heading > p { font-size: 12px; color: var(--tk-t3); }
+html[data-interface="atelier"] .hub-shell .atelier-heading h1 { font: 500 clamp(38px, 4vw, 56px)/1.3 Georgia, 'Songti SC', SimSun, serif; margin: 12px 0; }
+html[data-interface="atelier"] .hub-shell .atelier-underlined { padding-bottom: 3px; border-bottom: 2px solid var(--tk-primary); font-size: 13px; color: var(--tk-t2); }
+html[data-interface="atelier"] .hub-shell .atelier-date-stamp { display: flex; flex-direction: column; justify-content: center; align-items: center; align-self: start; padding: 10px; border: 2px solid var(--tk-primary); color: var(--tk-primary); transform: rotate(6deg); }
+html[data-interface="atelier"] .hub-shell .atelier-date-stamp span { font-size: 12px; }
+html[data-interface="atelier"] .hub-shell .atelier-date-stamp strong { font-size: 42px; line-height: 1.2; }
+html[data-interface="atelier"] .hub-shell .atelier-note { display: flex; flex-wrap: wrap; gap: 18px; grid-column: 1 / -1; border-block: 1px solid var(--tk-line); padding-block: 12px; font-size: 12px; }
+html[data-interface="atelier"] .hub-shell .atelier-note b { font-size: 18px; font-weight: 500; }
+html[data-interface="atelier"] .hub-shell .dashboard-hero-actions { grid-column: 1 / -1; padding-top: 0; }
+html[data-interface="atelier"] .hub-shell .dashboard-hero-actions :is(button, .dashboard-calendar) { border-radius: 2px; box-shadow: 2px 2px 0 var(--tk-line); }
+html[data-interface="atelier"] .hub-shell .today-columns { grid-template-columns: minmax(0, 1fr) minmax(250px, .75fr); gap: 0; border: 1px solid var(--tk-line); background: color-mix(in srgb, var(--tk-surface) 70%, transparent); }
+html[data-interface="atelier"] .hub-shell .today-columns > .today-task-panel { border: 0; border-radius: 0; padding: 24px; box-shadow: none; background: transparent; }
+html[data-interface="atelier"] .hub-shell .today-columns > .today-agenda { border: 0; border-left: 3px double var(--tk-line); border-radius: 0; padding: 24px; box-shadow: none; background: transparent; }
+html[data-interface="atelier"] .hub-shell .today-task-row { padding-block: 16px; border-color: color-mix(in srgb, var(--tk-primary) 20%, var(--tk-line)); }
+html[data-interface="atelier"] .hub-shell .today-task-start { border: 1px dashed var(--tk-primary); border-radius: 0; }
+
+html[data-interface="blueprint"] .hub-shell .dashboard-blueprint { display: grid; grid-template-columns: minmax(0, 1fr) 240px; border: 1px solid var(--tk-primary); outline: 1px solid var(--tk-line); outline-offset: 5px; background: var(--dashboard-paper); margin: 6px; }
+html[data-interface="blueprint"] .hub-shell .blueprint-drawing { position: relative; padding: 36px; border-right: 1px solid var(--tk-primary); }
+html[data-interface="blueprint"] .hub-shell .blueprint-dimension { display: block; border-top: 1px solid var(--tk-line); padding-top: 8px; font: 11px Consolas, 'Microsoft YaHei', monospace; color: var(--tk-t3); }
+html[data-interface="blueprint"] .hub-shell .blueprint-drawing h1 { font-size: clamp(30px, 4vw, 52px); font-weight: 400; letter-spacing: .08em; margin: 24px 0 32px; }
+html[data-interface="blueprint"] .hub-shell .blueprint-cross { position: absolute; font-size: 24px; font-weight: 200; color: var(--tk-primary); line-height: 1; }
+html[data-interface="blueprint"] .hub-shell .blueprint-cross-one { left: 10px; top: 10px; }
+html[data-interface="blueprint"] .hub-shell .blueprint-cross-two { right: 10px; bottom: 10px; }
+html[data-interface="blueprint"] .hub-shell .blueprint-scale { display: flex; justify-content: space-between; border-bottom: 1px solid var(--tk-primary); }
+html[data-interface="blueprint"] .hub-shell .blueprint-scale i { height: 8px; border-left: 1px solid var(--tk-primary); }
+html[data-interface="blueprint"] .hub-shell .blueprint-scale i:nth-child(3n) { height: 14px; align-self: end; }
+html[data-interface="blueprint"] .hub-shell .blueprint-titleblock { display: grid; grid-template-columns: 1fr 1fr; margin: 0; font-family: Consolas, 'Microsoft YaHei', monospace; }
+html[data-interface="blueprint"] .hub-shell .blueprint-titleblock > div { padding: 14px; border-bottom: 1px solid var(--tk-line); }
+html[data-interface="blueprint"] .hub-shell .blueprint-titleblock > div:nth-child(odd) { border-right: 1px solid var(--tk-line); }
+html[data-interface="blueprint"] .hub-shell .blueprint-titleblock > div:first-child { grid-column: 1 / -1; border-right: 0; }
+html[data-interface="blueprint"] .hub-shell .blueprint-titleblock > div:last-child { grid-column: 1 / -1; border-bottom: 0; }
+html[data-interface="blueprint"] .hub-shell .blueprint-titleblock dt { font-size: 10px; color: var(--tk-t3); }
+html[data-interface="blueprint"] .hub-shell .blueprint-titleblock dd { font-size: 16px; margin: 8px 0 0; }
+html[data-interface="blueprint"] .hub-shell .dashboard-hero-actions { padding: 14px 24px; grid-column: 1 / -1; border-top: 1px solid var(--tk-primary); }
+html[data-interface="blueprint"] .hub-shell .dashboard-hero-actions :is(button, .dashboard-calendar) { border-radius: 0; }
+html[data-interface="blueprint"] .hub-shell .today-columns { grid-template-columns: 245px minmax(0, 1fr); gap: 20px; }
+html[data-interface="blueprint"] .hub-shell .today-columns > .today-task-panel { grid-column: 2; grid-row: 1; padding: 20px; border: 1px solid var(--tk-line); outline: none; }
+html[data-interface="blueprint"] .hub-shell .today-columns > .today-agenda { grid-column: 1; grid-row: 1; padding: 20px; border: 1px solid var(--tk-primary); outline: none; }
+html[data-interface="blueprint"] .hub-shell .today-task-row { border-bottom-style: solid; }
+html[data-interface="blueprint"] .hub-shell .today-task-check { border-right: 1px solid var(--tk-line); padding-right: 8px; }
+html[data-interface="blueprint"] .hub-shell .today-task-start { border: 1px solid var(--tk-primary); border-radius: 0; }
+
+html[data-interface="gallery"] .hub-shell .today-workspace { max-width: 1100px; }
+html[data-interface="gallery"] .hub-shell .dashboard-gallery { padding: 8px 0 24px; border-bottom: 1px solid var(--tk-t1); }
+html[data-interface="gallery"] .hub-shell .gallery-meta { display: flex; justify-content: space-between; gap: 20px; font-size: 11px; letter-spacing: .08em; color: var(--tk-t3); }
+html[data-interface="gallery"] .hub-shell .gallery-composition { display: grid; grid-template-columns: minmax(0, 1fr) 200px; align-items: center; gap: 24px; padding: 40px 0 24px; }
+html[data-interface="gallery"] .hub-shell .gallery-composition h1 { font: 400 clamp(90px, 12vw, 160px)/1.1 Georgia, 'Songti SC', SimSun, serif; letter-spacing: -.08em; }
+html[data-interface="gallery"] .hub-shell .gallery-composition h1 span { color: var(--tk-primary); }
+html[data-interface="gallery"] .hub-shell .gallery-exhibit { display: flex; flex-direction: column; align-items: start; border-left: 1px solid var(--tk-t1); padding-left: 24px; }
+html[data-interface="gallery"] .hub-shell .gallery-exhibit > span { font-size: 11px; color: var(--tk-t3); letter-spacing: .08em; }
+html[data-interface="gallery"] .hub-shell .gallery-exhibit strong { font: 400 54px/1.3 Georgia, serif; }
+html[data-interface="gallery"] .hub-shell .gallery-exhibit p { margin-top: 16px; font-size: 11px; line-height: 1.9; color: var(--tk-t3); }
+html[data-interface="gallery"] .hub-shell .dashboard-hero-actions { padding-top: 4px; }
+html[data-interface="gallery"] .hub-shell .dashboard-hero-actions :is(.ui-primary-button, .ui-secondary-button) { border: 0; border-bottom: 1px solid var(--tk-t1); border-radius: 0; color: var(--tk-t1); background: transparent; box-shadow: none; padding-inline: 4px; margin-right: 20px; }
+html[data-interface="gallery"] .hub-shell .today-columns { grid-template-columns: minmax(0, 1fr); gap: 44px; margin-top: 32px; }
+html[data-interface="gallery"] .hub-shell .today-columns > :is(.today-task-panel, .today-agenda) { border: 0; border-radius: 0; padding: 0; background: transparent; box-shadow: none; }
+html[data-interface="gallery"] .hub-shell .today-task-panel > .today-section-header { justify-content: start; gap: 24px; }
+html[data-interface="gallery"] .hub-shell .today-task-row { padding: 20px 0; gap: 20px; }
+html[data-interface="gallery"] .hub-shell .today-task-title { font-family: Georgia, 'Songti SC', SimSun, serif; font-size: 21px; font-weight: 400; }
+html[data-interface="gallery"] .hub-shell .today-task-start { color: var(--tk-t1); border-bottom: 1px solid var(--tk-line); border-radius: 0; }
+html[data-interface="gallery"] .hub-shell .today-agenda-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+html[data-interface="gallery"] .hub-shell .today-agenda-list button { border: 0; border-top: 1px solid var(--tk-t1); border-radius: 0; padding: 16px 0; background: transparent; }
+html[data-interface="gallery"] .hub-shell .today-agenda-bottom { display: flex; flex-wrap: wrap; gap: 32px; margin-top: 12px; }
+
+html[data-interface="arcade"] .hub-shell .dashboard-arcade { border: 3px solid var(--tk-primary); padding: 0 24px 20px; box-shadow: 6px 6px 0 var(--tk-line); background: var(--dashboard-paper); font-family: Consolas, 'Microsoft YaHei', monospace; }
+html[data-interface="arcade"] .hub-shell .arcade-scoreboard { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 2px dashed var(--tk-line); padding: 14px 0; font-size: 11px; }
+html[data-interface="arcade"] .hub-shell .arcade-scoreboard b { color: var(--tk-primary); font-size: 18px; margin-left: 8px; }
+html[data-interface="arcade"] .hub-shell .arcade-title { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 16px; padding: 26px 0 22px; }
+html[data-interface="arcade"] .hub-shell .arcade-title svg { width: 48px; height: 48px; fill: var(--tk-primary); }
+html[data-interface="arcade"] .hub-shell .arcade-pixel-cut { fill: var(--tk-surface); }
+html[data-interface="arcade"] .hub-shell .arcade-title h1 { font-size: clamp(32px, 4.5vw, 58px); letter-spacing: .05em; }
+html[data-interface="arcade"] .hub-shell .arcade-title > span { padding: 6px 10px; border: 2px solid var(--tk-primary); font-size: 12px; color: var(--tk-primary); }
+html[data-interface="arcade"] .hub-shell .arcade-progress { display: flex; align-items: center; gap: 16px; max-width: 600px; margin-inline: auto; font-size: 12px; }
+html[data-interface="arcade"] .hub-shell .arcade-progress > span { white-space: nowrap; }
+html[data-interface="arcade"] .hub-shell .arcade-segments { display: flex; gap: 3px; flex: 1; padding: 5px; border: 2px solid var(--tk-line); }
+html[data-interface="arcade"] .hub-shell .arcade-segments i { min-width: 0; flex: 1; height: 16px; background: var(--tk-surface-2); }
+html[data-interface="arcade"] .hub-shell .arcade-segments i.is-filled { background: var(--tk-primary); }
+html[data-interface="arcade"] .hub-shell .dashboard-hero-actions { justify-content: center; }
+html[data-interface="arcade"] .hub-shell .dashboard-hero-actions :is(button, .dashboard-calendar) { border-radius: 0; border: 2px solid var(--tk-primary); box-shadow: 3px 3px 0 var(--tk-line); }
+html[data-interface="arcade"] .hub-shell .today-columns { grid-template-columns: minmax(0, 1fr) 240px; gap: 24px; }
+html[data-interface="arcade"] .hub-shell .today-columns > .today-task-panel { border: 0; box-shadow: none; background: transparent; padding: 0 4px 0 0; }
+html[data-interface="arcade"] .hub-shell .today-task-list { display: grid; gap: 12px; }
+html[data-interface="arcade"] .hub-shell .today-task-row { border: 2px solid var(--tk-line); padding: 14px; box-shadow: 4px 4px 0 var(--tk-line); background: var(--tk-surface); }
+html[data-interface="arcade"] .hub-shell .today-task-start { border: 2px solid var(--tk-primary); border-radius: 0; color: var(--tk-ink); }
+html[data-interface="arcade"] .hub-shell .today-columns > .today-agenda { border: 2px solid var(--tk-primary); padding: 20px; box-shadow: 4px 4px 0 var(--tk-line); }
+html[data-interface="arcade"] .hub-shell .today-agenda-list button { border: 1px dashed var(--tk-line); }
+
+html[data-interface="sunrise"] .hub-shell .dashboard-sunrise { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 12px 24px; padding: 12px 0 28px; border-bottom: 2px solid var(--tk-line); }
+html[data-interface="sunrise"] .hub-shell .sunrise-date { grid-column: 2; grid-row: 1 / 3; display: flex; flex-direction: column; justify-content: center; gap: 20px; align-items: center; }
+html[data-interface="sunrise"] .hub-shell .sunrise-date time { font-size: 12px; color: var(--tk-t3); }
+html[data-interface="sunrise"] .hub-shell .sunrise-date svg { width: 160px; height: 90px; stroke: var(--tk-primary); stroke-width: 2; fill: none; }
+html[data-interface="sunrise"] .hub-shell .sunrise-date svg path:first-child { fill: color-mix(in srgb, var(--tk-primary) 20%, transparent); }
+html[data-interface="sunrise"] .hub-shell .dashboard-sunrise h1 { grid-column: 1; grid-row: 1; font: 500 clamp(32px, 4vw, 52px)/1.4 Georgia, 'Songti SC', SimSun, serif; letter-spacing: .02em; }
+html[data-interface="sunrise"] .hub-shell .dashboard-sunrise h1 span { font-size: .75em; }
+html[data-interface="sunrise"] .hub-shell .sunrise-note { display: flex; flex-wrap: wrap; align-items: baseline; gap: 16px; grid-column: 1; font-size: 12px; color: var(--tk-t3); }
+html[data-interface="sunrise"] .hub-shell .sunrise-note b { font-family: Georgia, serif; font-size: 24px; color: var(--tk-t1); font-weight: 400; }
+html[data-interface="sunrise"] .hub-shell .dashboard-hero-actions { grid-column: 1 / -1; padding-top: 4px; }
+html[data-interface="sunrise"] .hub-shell .dashboard-hero-actions :is(button, .dashboard-calendar) { border-radius: 24px; }
+html[data-interface="sunrise"] .hub-shell .today-columns { grid-template-columns: minmax(0, 1fr) 280px; gap: 36px; }
+html[data-interface="sunrise"] .hub-shell .today-task-panel { border-top: 3px double var(--tk-primary); padding-top: 20px; }
+html[data-interface="sunrise"] .hub-shell .today-agenda { border: 1px solid var(--tk-line); border-radius: 80px 80px 12px 12px; padding: 40px 24px 24px; background: var(--tk-surface); }
+html[data-interface="sunrise"] .hub-shell .today-agenda .today-section-header { display: flex; justify-content: center; gap: 8px; }
+html[data-interface="sunrise"] .hub-shell .today-task-row { padding-block: 17px; }
+
+html[data-interface="aurora"] .hub-shell .dashboard-aurora { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(150px, .8fr) minmax(150px, .8fr); gap: 14px; }
+html[data-interface="aurora"] .hub-shell .dashboard-aurora > :not(.dashboard-hero-actions) { border: 1px solid var(--tk-line); border-radius: 28px; padding: 24px; background: var(--dashboard-paper); }
+html[data-interface="aurora"] .hub-shell .aurora-title-island { grid-row: 1 / 3; }
+html[data-interface="aurora"] .hub-shell .aurora-title-island p { font-size: 11px; color: var(--tk-t3); margin-bottom: 28px; }
+html[data-interface="aurora"] .hub-shell .aurora-title-island h1 { font-size: clamp(30px, 3.4vw, 46px); line-height: 1.35; font-weight: 500; }
+html[data-interface="aurora"] .hub-shell .aurora-count-island { position: relative; display: flex; flex-direction: column; gap: 8px; grid-column: 2 / 4; color: var(--tk-primary); }
+html[data-interface="aurora"] .hub-shell .aurora-count-island strong { font-size: 48px; font-weight: 400; line-height: 1; }
+html[data-interface="aurora"] .hub-shell .aurora-count-island span { font-size: 12px; color: var(--tk-t3); }
+html[data-interface="aurora"] .hub-shell .aurora-count-island svg { position: absolute; right: 28px; top: 28px; width: 48px; height: 48px; stroke-width: 1; }
+html[data-interface="aurora"] .hub-shell :is(.aurora-progress-island, .aurora-time-island) { display: flex; flex-direction: column; gap: 10px; }
+html[data-interface="aurora"] .hub-shell :is(.aurora-progress-island, .aurora-time-island) > span { color: var(--tk-t3); font-size: 11px; }
+html[data-interface="aurora"] .hub-shell :is(.aurora-progress-island, .aurora-time-island) strong { font-size: 24px; font-weight: 500; }
+html[data-interface="aurora"] .hub-shell :is(.aurora-progress-island, .aurora-time-island) small { font-size: 12px; color: var(--tk-t3); }
+html[data-interface="aurora"] .hub-shell .aurora-progress-island progress { width: 100%; height: 5px; accent-color: var(--tk-primary); border: 0; border-radius: 4px; overflow: hidden; }
+html[data-interface="aurora"] .hub-shell .aurora-progress-island progress::-webkit-progress-bar { background: var(--tk-line); }
+html[data-interface="aurora"] .hub-shell .aurora-progress-island progress::-webkit-progress-value { background: var(--tk-primary); }
+html[data-interface="aurora"] .hub-shell .dashboard-hero-actions { grid-column: 1 / -1; padding-top: 4px; }
+html[data-interface="aurora"] .hub-shell .today-columns { grid-template-columns: minmax(0, 1fr) 270px; gap: 14px; }
+html[data-interface="aurora"] .hub-shell .today-task-panel { border: 1px solid var(--tk-line); border-radius: 28px; padding: 24px; background: var(--tk-surface); }
+html[data-interface="aurora"] .hub-shell .today-agenda { border: 1px solid var(--tk-line); border-radius: 28px; padding: 24px; background: var(--tk-surface); }
+html[data-interface="aurora"] .hub-shell .today-task-start { border-radius: 20px; background: var(--tk-primary); color: var(--tk-ink); }
+
+html[data-interface="precision"] .hub-shell .dashboard-precision { border: 1px solid var(--tk-line); background: var(--dashboard-paper); }
+html[data-interface="precision"] .hub-shell .precision-title { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 20px; border-bottom: 1px solid var(--tk-line); }
+html[data-interface="precision"] .hub-shell .precision-title p { font-size: 11px; color: var(--tk-t3); margin-bottom: 8px; }
+html[data-interface="precision"] .hub-shell .precision-title h1 { font-size: 24px; font-weight: 600; }
+html[data-interface="precision"] .hub-shell .precision-date { color: var(--tk-t3); font: 11px Consolas, monospace; }
+html[data-interface="precision"] .hub-shell .precision-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; }
+html[data-interface="precision"] .hub-shell .precision-stats > div { padding: 12px 20px; border-right: 1px solid var(--tk-line); }
+html[data-interface="precision"] .hub-shell .precision-stats > div:last-child { border-right: 0; }
+html[data-interface="precision"] .hub-shell .precision-stats dt { color: var(--tk-t3); font-size: 11px; }
+html[data-interface="precision"] .hub-shell .precision-stats dd { margin: 6px 0 0; font: 24px Consolas, 'Microsoft YaHei', monospace; }
+html[data-interface="precision"] .hub-shell .precision-stats small { font: 11px 'Microsoft YaHei', sans-serif; color: var(--tk-t3); }
+html[data-interface="precision"] .hub-shell .dashboard-hero-actions { border-top: 1px solid var(--tk-line); padding: 10px 20px; }
+html[data-interface="precision"] .hub-shell .dashboard-hero-actions :is(button, .dashboard-calendar) { border-radius: 2px; }
+html[data-interface="precision"] .hub-shell .today-columns { grid-template-columns: minmax(0, 1fr) 250px; gap: 16px; margin-top: 16px; }
+html[data-interface="precision"] .hub-shell .today-task-panel { padding: 16px; border: 1px solid var(--tk-line); }
+html[data-interface="precision"] .hub-shell .today-agenda { border: 1px solid var(--tk-line); padding: 16px; }
+html[data-interface="precision"] .hub-shell .today-task-row { padding: 6px 4px; border-inline: 1px solid var(--tk-line); gap: 12px; }
+html[data-interface="precision"] .hub-shell .today-task-row:nth-child(odd) { background: var(--tk-inset); }
+html[data-interface="precision"] .hub-shell .today-task-title { font-size: 13px; }
+html[data-interface="precision"] .hub-shell .today-task-meta { margin-top: 2px; font-size: 10px; }
+html[data-interface="precision"] .hub-shell .today-task-start { border: 1px solid var(--tk-line); border-radius: 2px; margin-right: 8px; }
+
+html:is([data-interface="swiss"], [data-interface="brutalist"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="gallery"]) .hub-shell:not(.transparent-panels) .today-columns > .today-task-panel { background: transparent; }
+html:is([data-interface="swiss"], [data-interface="botanical"], [data-interface="atelier"], [data-interface="gallery"]) .hub-shell:not(.transparent-panels) .today-columns > .today-agenda { background: transparent; }
+html[data-interface="brutalist"] .hub-shell .today-columns > .today-agenda { border: 3px solid var(--tk-t1); border-radius: 0; box-shadow: 5px 5px 0 var(--tk-t1); }
+html:is([data-interface="terminal"], [data-interface="retro"], [data-interface="blueprint"]) .hub-shell .today-columns > :is(.today-task-panel, .today-agenda) { background: var(--tk-surface); }
+html:is([data-interface="brutalist"], [data-interface="orbital"], [data-interface="arcade"]) .hub-shell .today-columns > .today-agenda,
+html[data-interface="botanical"] .hub-shell .today-columns > .today-task-panel { background: var(--tk-surface); }
+
+html[data-interface] .hub-shell.transparent-panels .today-columns > :is(.today-task-panel, .today-agenda),
+html[data-interface] .hub-shell.transparent-panels .today-task-row,
+html[data-interface] .hub-shell.transparent-panels .today-agenda-list button { background-color: color-mix(in srgb, var(--tk-surface) var(--panel-fill), transparent); }
+html[data-interface="atelier"] .hub-shell.transparent-panels .today-columns { background: transparent; }
+
+@media (max-width: 1199px) {
+  html[data-interface="swiss"] .hub-shell .dashboard-hero-actions { position: static; padding-top: 0; }
+  html[data-interface="retro"] .hub-shell .today-columns { grid-template-columns: minmax(0, 1fr) 250px; }
+  html:is([data-interface="botanical"], [data-interface="blueprint"]) .hub-shell .today-columns { grid-template-columns: 210px minmax(0, 1fr); gap: 20px; }
+  html[data-interface="aurora"] .hub-shell .dashboard-aurora { grid-template-columns: minmax(0, 1fr) 150px 150px; }
+  html[data-interface="aurora"] .hub-shell .dashboard-aurora > :not(.dashboard-hero-actions) { padding: 20px; }
+}
+@media (max-width: 999px) {
+  html:is([data-interface="swiss"], [data-interface="retro"], [data-interface="botanical"], [data-interface="orbital"], [data-interface="atelier"], [data-interface="blueprint"], [data-interface="arcade"], [data-interface="sunrise"], [data-interface="aurora"], [data-interface="precision"]) .hub-shell .today-columns { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  html:is([data-interface="botanical"], [data-interface="blueprint"]) .hub-shell .today-columns > :is(.today-task-panel, .today-agenda) { grid-column: auto; grid-row: auto; }
+  html[data-interface="swiss"] .hub-shell .today-columns > .today-agenda { border-left: 0; border-top: 1px solid var(--tk-t1); padding: 24px 0 0; }
+  html[data-interface="retro"] .hub-shell .today-agenda { margin-top: 0; }
+  html[data-interface="atelier"] .hub-shell .today-columns > .today-agenda { border-left: 0; border-top: 3px double var(--tk-line); }
+  html[data-interface="sunrise"] .hub-shell .today-agenda { border-radius: 20px; padding: 24px; }
+  html[data-interface="sunrise"] .hub-shell .today-agenda .today-section-header { justify-content: space-between; }
+  html[data-interface="aurora"] .hub-shell .dashboard-aurora { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  html[data-interface="aurora"] .hub-shell .aurora-title-island { grid-row: auto; }
+  html[data-interface="aurora"] .hub-shell .aurora-count-island { grid-column: auto; }
+  html[data-interface="aurora"] .hub-shell .aurora-title-island p { margin-bottom: 16px; }
+  html[data-interface="aurora"] .hub-shell .aurora-title-island h1 { font-size: 28px; }
+}
+@media (max-width: 639px) {
+  html[data-interface] .hub-shell .dashboard-hero-actions { gap: 8px; }
+  html[data-interface] .hub-shell .dashboard-hero-actions :is(button, a) { font-size: 12px; }
+  html[data-interface] .hub-shell .dashboard-focus { padding-inline: 2px; }
+  html[data-interface="swiss"] .hub-shell .swiss-masthead { font-size: 10px; }
+  html[data-interface="swiss"] .hub-shell .swiss-masthead > span:last-child { display: none; }
+  html[data-interface="swiss"] .hub-shell .swiss-headline { gap: 12px; padding-block: 24px; }
+  html[data-interface="swiss"] .hub-shell .swiss-headline h1 { font-size: 48px; }
+  html[data-interface="swiss"] .hub-shell .swiss-date strong { font-size: 76px; }
+  html[data-interface="swiss"] .hub-shell .swiss-date span:first-child { display: none; }
+  html[data-interface="swiss"] .hub-shell .swiss-caption { gap: 12px; font-size: 10px; }
+  html[data-interface="terminal"] .hub-shell .dashboard-terminal { padding: 0 16px 16px; }
+  html[data-interface="terminal"] .hub-shell .terminal-caption { margin-inline: -16px; font-size: 10px; }
+  html[data-interface="terminal"] .hub-shell .dashboard-terminal h1 { font-size: 23px; }
+  html[data-interface="terminal"] .hub-shell .terminal-output { gap: 8px; }
+  html[data-interface="terminal"] .hub-shell .terminal-output p { font-size: 10px; }
+  html[data-interface="terminal"] .hub-shell .terminal-output b { font-size: 18px; }
+  html[data-interface="terminal"] .hub-shell .today-columns > :is(.today-task-panel, .today-agenda) { padding: 16px; }
+  html[data-interface="terminal"] .hub-shell .today-agenda-list { grid-template-columns: minmax(0, 1fr); }
+  html[data-interface="brutalist"] .hub-shell .brutalist-heading { padding: 20px; gap: 12px; }
+  html[data-interface="brutalist"] .hub-shell .brutalist-heading h1 { font-size: 46px; }
+  html[data-interface="brutalist"] .hub-shell .brutalist-stamp { width: 100px; height: 100px; }
+  html[data-interface="brutalist"] .hub-shell .brutalist-stamp strong { font-size: 42px; }
+  html[data-interface="brutalist"] .hub-shell .brutalist-stamp span { font-size: 11px; }
+  html[data-interface="brutalist"] .hub-shell .brutalist-strip { padding: 10px 16px; gap: 8px; font-size: 11px; }
+  html[data-interface="brutalist"] .hub-shell .brutalist-strip svg { width: 24px; }
+  html[data-interface="brutalist"] .hub-shell .dashboard-hero-actions { padding: 16px; }
+  html[data-interface="brutalist"] .hub-shell .today-task-list { grid-template-columns: minmax(0, 1fr); }
+  html[data-interface="brutalist"] .hub-shell .today-task-row { min-height: 112px; }
+  html[data-interface="brutalist"] .hub-shell .today-task-start { width: auto; }
+  html[data-interface="brutalist"] .hub-shell .today-task-start span { display: inline; }
+  html[data-interface="brutalist"] .hub-shell .today-agenda-list { grid-template-columns: minmax(0, 1fr); }
+  html[data-interface="retro"] .hub-shell .retro-window-bar { font-size: 10px; }
+  html[data-interface="retro"] .hub-shell .retro-desktop-content { padding: 20px 12px; gap: 16px; }
+  html[data-interface="retro"] .hub-shell .retro-desktop-content h1 { font-size: 25px; }
+  html[data-interface="retro"] .hub-shell .retro-desktop-content p { font-size: 10px; }
+  html[data-interface="retro"] .hub-shell .retro-calendar-icon { width: 70px; }
+  html[data-interface="retro"] .hub-shell .retro-calendar-icon strong { font-size: 32px; }
+  html[data-interface="retro"] .hub-shell .retro-statusbar span { font-size: 10px; padding-inline: 5px; }
+  html[data-interface="retro"] .hub-shell .dashboard-hero-actions { padding: 12px; }
+  html[data-interface="botanical"] .hub-shell .dashboard-botanical { grid-template-columns: minmax(0, 1fr) 88px; padding: 4px 0 20px; gap: 10px; }
+  html[data-interface="botanical"] .hub-shell .botanical-copy h1 { font-size: 31px; }
+  html[data-interface="botanical"] .hub-shell .botanical-copy .dashboard-eyebrow { font-size: 10px; letter-spacing: 0; }
+  html[data-interface="botanical"] .hub-shell .botanical-copy > p:last-child { font-size: 11px; }
+  html[data-interface="botanical"] .hub-shell .botanical-plant { width: 105px; height: 150px; margin-left: -17px; }
+  html[data-interface="botanical"] .hub-shell .botanical-bookmark { right: 12px; padding: 5px 8px 12px; }
+  html[data-interface="botanical"] .hub-shell .botanical-bookmark b { font-size: 20px; }
+  html[data-interface="botanical"] .hub-shell .today-columns > .today-task-panel { padding: 20px 16px; }
+  html[data-interface="orbital"] .hub-shell .dashboard-orbital { grid-template-columns: minmax(0, 1fr) 110px; gap: 12px; padding: 24px 20px; border-radius: 30px; }
+  html[data-interface="orbital"] .hub-shell .orbital-copy h1 { font-size: 30px; letter-spacing: .03em; margin: 12px 0; }
+  html[data-interface="orbital"] .hub-shell .orbital-copy .dashboard-eyebrow { font-size: 10px; letter-spacing: 0; }
+  html[data-interface="orbital"] .hub-shell .orbital-copy > p:last-of-type { font-size: 11px; }
+  html[data-interface="orbital"] .hub-shell .orbital-coordinates { gap: 6px; font-size: 9px; margin-top: 12px; }
+  html[data-interface="orbital"] .hub-shell .orbital-instrument { width: 110px; height: 110px; }
+  html[data-interface="orbital"] .hub-shell .orbital-instrument strong { font-size: 30px; }
+  html[data-interface="orbital"] .hub-shell .orbital-instrument small { font-size: 12px; }
+  html[data-interface="orbital"] .hub-shell .orbital-instrument span { font-size: 9px; }
+  html[data-interface="orbital"] .hub-shell .dashboard-hero-actions { gap: 8px; }
+  html[data-interface="orbital"] .hub-shell .dashboard-hero-actions :is(button, .dashboard-calendar) { padding-inline: 14px; }
+  html[data-interface="orbital"] .hub-shell .today-task-row { padding: 12px 8px; }
+  html[data-interface="atelier"] .hub-shell .dashboard-atelier { padding: 20px 16px 20px 36px; grid-template-columns: minmax(0, 1fr) 60px; gap: 16px; }
+  html[data-interface="atelier"] .hub-shell .dashboard-atelier::before { left: 24px; }
+  html[data-interface="atelier"] .hub-shell .atelier-binding { left: 12px; }
+  html[data-interface="atelier"] .hub-shell .atelier-binding i { width: 16px; transform: translateX(-20px); }
+  html[data-interface="atelier"] .hub-shell .atelier-heading h1 { font-size: 36px; }
+  html[data-interface="atelier"] .hub-shell .atelier-heading > p { font-size: 10px; }
+  html[data-interface="atelier"] .hub-shell .atelier-underlined { font-size: 11px; }
+  html[data-interface="atelier"] .hub-shell .atelier-date-stamp { padding: 6px; }
+  html[data-interface="atelier"] .hub-shell .atelier-date-stamp strong { font-size: 30px; }
+  html[data-interface="atelier"] .hub-shell .atelier-note { gap: 12px; font-size: 10px; }
+  html[data-interface="atelier"] .hub-shell .dashboard-hero-actions { margin-left: -12px; }
+  html[data-interface="atelier"] .hub-shell .today-columns > :is(.today-task-panel, .today-agenda) { padding: 20px 16px; }
+  html[data-interface="blueprint"] .hub-shell .dashboard-blueprint { grid-template-columns: minmax(0, 1fr); margin: 6px; }
+  html[data-interface="blueprint"] .hub-shell .blueprint-drawing { border-right: 0; border-bottom: 1px solid var(--tk-primary); padding: 28px; }
+  html[data-interface="blueprint"] .hub-shell .blueprint-drawing h1 { margin: 16px 0 24px; font-size: 34px; }
+  html[data-interface="blueprint"] .hub-shell .blueprint-titleblock { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html[data-interface="blueprint"] .hub-shell .blueprint-titleblock > div { padding: 10px 14px; }
+  html[data-interface="blueprint"] .hub-shell .blueprint-titleblock > div:first-child,
+  html[data-interface="blueprint"] .hub-shell .blueprint-titleblock > div:last-child { grid-column: auto; }
+  html[data-interface="blueprint"] .hub-shell .blueprint-titleblock > div:first-child { border-right: 1px solid var(--tk-line); }
+  html[data-interface="blueprint"] .hub-shell .blueprint-titleblock > div:nth-child(n+3) { border-bottom: 0; }
+  html[data-interface="blueprint"] .hub-shell .blueprint-titleblock dd { font-size: 13px; }
+  html[data-interface="blueprint"] .hub-shell .dashboard-hero-actions { padding: 14px; }
+  html[data-interface="gallery"] .hub-shell .gallery-meta { font-size: 10px; gap: 12px; }
+  html[data-interface="gallery"] .hub-shell .gallery-composition { grid-template-columns: minmax(0, 1fr) 100px; gap: 16px; padding-block: 30px; }
+  html[data-interface="gallery"] .hub-shell .gallery-composition h1 { font-size: clamp(48px, 17vw, 70px); }
+  html[data-interface="gallery"] .hub-shell .gallery-exhibit { padding-left: 16px; }
+  html[data-interface="gallery"] .hub-shell .gallery-exhibit strong { font-size: 38px; }
+  html[data-interface="gallery"] .hub-shell .gallery-exhibit > span { font-size: 9px; }
+  html[data-interface="gallery"] .hub-shell .gallery-exhibit p { font-size: 10px; }
+  html[data-interface="gallery"] .hub-shell .dashboard-hero-actions :is(.ui-primary-button, .ui-secondary-button) { margin-right: 8px; }
+  html[data-interface="gallery"] .hub-shell .today-task-row { gap: 8px; }
+  html[data-interface="gallery"] .hub-shell .today-task-title { font-size: 18px; }
+  html[data-interface="gallery"] .hub-shell .today-agenda-list { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  html[data-interface="arcade"] .hub-shell .dashboard-arcade { padding: 0 16px 16px; margin-right: 6px; }
+  html[data-interface="arcade"] .hub-shell .arcade-scoreboard { font-size: 10px; gap: 6px; }
+  html[data-interface="arcade"] .hub-shell .arcade-scoreboard b { font-size: 14px; margin-left: 2px; }
+  html[data-interface="arcade"] .hub-shell .arcade-title { gap: 12px; padding-block: 20px; }
+  html[data-interface="arcade"] .hub-shell .arcade-title h1 { font-size: 34px; }
+  html[data-interface="arcade"] .hub-shell .arcade-title svg { width: 34px; height: 34px; }
+  html[data-interface="arcade"] .hub-shell .arcade-title > span { font-size: 10px; padding: 4px 8px; }
+  html[data-interface="arcade"] .hub-shell .arcade-progress { gap: 10px; font-size: 10px; }
+  html[data-interface="arcade"] .hub-shell .arcade-segments { gap: 2px; padding: 3px; }
+  html[data-interface="arcade"] .hub-shell .arcade-segments i { height: 12px; }
+  html[data-interface="arcade"] .hub-shell .today-task-row { padding: 12px 8px; }
+  html[data-interface="sunrise"] .hub-shell .dashboard-sunrise { grid-template-columns: minmax(0, 1fr) 95px; gap: 12px; }
+  html[data-interface="sunrise"] .hub-shell .sunrise-date { grid-row: 1; gap: 12px; }
+  html[data-interface="sunrise"] .hub-shell .sunrise-date time { font-size: 10px; text-align: center; }
+  html[data-interface="sunrise"] .hub-shell .sunrise-date svg { width: 95px; height: 60px; }
+  html[data-interface="sunrise"] .hub-shell .dashboard-sunrise h1 { font-size: 30px; }
+  html[data-interface="sunrise"] .hub-shell .sunrise-note { grid-column: 1 / -1; font-size: 10px; gap: 12px; }
+  html[data-interface="aurora"] .hub-shell .dashboard-aurora { gap: 10px; }
+  html[data-interface="aurora"] .hub-shell .dashboard-aurora > :not(.dashboard-hero-actions) { padding: 18px; border-radius: 22px; }
+  html[data-interface="aurora"] .hub-shell .aurora-title-island p { font-size: 10px; }
+  html[data-interface="aurora"] .hub-shell .aurora-title-island h1 { font-size: clamp(20px, 6.15vw, 24px); }
+  html[data-interface="aurora"] .hub-shell .aurora-count-island { justify-content: end; }
+  html[data-interface="aurora"] .hub-shell .aurora-count-island strong { font-size: 42px; }
+  html[data-interface="aurora"] .hub-shell .aurora-count-island svg { width: 28px; height: 28px; right: 18px; top: 18px; }
+  html[data-interface="aurora"] .hub-shell .today-task-panel,
+  html[data-interface="aurora"] .hub-shell .today-agenda { padding: 20px 16px; }
+  html[data-interface="precision"] .hub-shell .precision-title { padding: 16px; }
+  html[data-interface="precision"] .hub-shell .precision-title h1 { font-size: 22px; }
+  html[data-interface="precision"] .hub-shell .precision-date { display: none; }
+  html[data-interface="precision"] .hub-shell .precision-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html[data-interface="precision"] .hub-shell .precision-stats > div { padding: 12px 16px; border-bottom: 1px solid var(--tk-line); }
+  html[data-interface="precision"] .hub-shell .precision-stats > div:nth-child(even) { border-right: 0; }
+  html[data-interface="precision"] .hub-shell .precision-stats > div:nth-child(n+3) { border-bottom: 0; }
+  html[data-interface="precision"] .hub-shell .dashboard-hero-actions { padding: 12px 16px; }
+  html[data-interface="precision"] .hub-shell .today-task-row { gap: 6px; }
+}
